@@ -3,8 +3,10 @@ import Input from './input';
 import Boton from './boton.jsx';
 import '../../styles/formularioRegistro.css';
 import { X } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 const Formulario = ({ onClose }) => {
+  const { login } = useAuth(); // Usar el contexto de autenticación
   const [formMode, setFormMode] = useState('login'); // 'login', 'register', 'recovery', 'changePassword'
   const [formData, setFormData] = useState({
     email: '',
@@ -73,9 +75,8 @@ const Formulario = ({ onClose }) => {
           return;
         }
     
-        // Guardar los datos del cliente (podrías usar contexto o localStorage)
-        localStorage.setItem('clienteId', data.cliente.id);
-        localStorage.setItem('clienteNombre', data.cliente.nombre);
+        // Usar la función login del contexto
+        login(data.cliente);
         
         console.log('Cliente logueado:', data.cliente);
         alert(`¡Bienvenido, ${data.cliente.nombre}!`);

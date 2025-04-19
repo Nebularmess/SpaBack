@@ -32,7 +32,7 @@ exports.loginCliente = (req, res) => {
 
     if (!match) return res.status(401).json({ error: 'Credenciales inválidas' });
 
-    res.json({ message: 'Login exitoso', cliente: { id: cliente.id_cliente, nombre: cliente.nombre } });
+    res.json({ message: 'Login exitoso', cliente: { id_cliente: cliente.id_cliente, nombre: cliente.nombre } });    ;
   });
 };
 

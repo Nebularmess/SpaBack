@@ -5,6 +5,12 @@
     padding: 20px;
     box-sizing: border-box;
   }
+  .dia-con-turno {
+    background-color: #90caf9 !important;
+    color: green !important;
+    border-radius: 50%;
+    font-weight: bold;
+  }
   
   .custom-calendar {
     width: 100%;
