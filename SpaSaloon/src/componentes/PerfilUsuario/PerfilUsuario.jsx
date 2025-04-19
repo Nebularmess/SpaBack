@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const PerfilUsuario = () => {
   const { user, loading: loadingAuth } = useAuth();
+  const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
   const [datosUsuario, setDatosUsuario] = useState({
     nombre: '',
     email: '',
@@ -35,8 +36,7 @@ const PerfilUsuario = () => {
 
     axios.get(`http://localhost:3001/api/turnos/${user.id_cliente}`)
       .then(res => {
-        const fechas = res.data.map(t => t.fecha_hora.split('T')[0]);
-        setFechasConTurno(fechas);
+        setFechasConTurno(res.data);
       })
       .catch(err => {
         console.error('Error al cargar turnos:', err);
@@ -60,6 +60,12 @@ const PerfilUsuario = () => {
 
   // Handlers
   const handleDateChange = date => setFechaSeleccionada(date);
+  const handleTurnoClick = (fecha) => {
+    const turno = fechasConTurno.find(t => t.fecha_hora.startsWith(fecha));
+    if (turno) {
+      setTurnoSeleccionado(turno);
+    }
+  };
   const handleReprogramar = () => console.log('Reprogramando para:', fechaSeleccionada);
   const handleCancelar   = () => console.log('Cancelando turno');
   const handleEditar     = () => setEditando(v => !v);
@@ -84,9 +90,20 @@ const PerfilUsuario = () => {
   if (loadingTurnos) {
     return <div className="perfil-container">Cargando tus turnos…</div>;
   }
-
   return (
     <div className="perfil-container">
+      {turnoSeleccionado && (
+    <div className="modal-turno">
+      <div className="modal-contenido">
+        <h3>Detalle del Turno</h3>
+        <p><strong>Fecha:</strong> {turnoSeleccionado.fecha_hora.split('T')[0]}</p>
+        <p><strong>Hora:</strong> {turnoSeleccionado.fecha_hora.split('T')[1].substring(0,5)}</p>
+        <p><strong>Servicio:</strong> {turnoSeleccionado.nombre_servicio || 'N/A'}</p>
+        <p><strong>Profesional:</strong> {turnoSeleccionado.nombre_profesional || 'N/A'}</p>
+        <button onClick={() => setTurnoSeleccionado(null)}>Cerrar</button>
+      </div>
+    </div>
+  )}
       <div className="perfil-seccion turnos-seccion">
         <Etiqueta 
           text="Tus turnos" 
@@ -102,7 +119,8 @@ const PerfilUsuario = () => {
           <div className="turnos-calendario">
             <Calendario
               onDateChange={handleDateChange}
-              turnos={fechasConTurno}
+              onTurnoClick={handleTurnoClick}
+              turnos={fechasConTurno.map(t => t.fecha_hora.split('T')[0])}
               backgroundColor="#0c3c6e"
               borderColor="#2a5f8f"
               headerBackgroundColor="#0a325d"
