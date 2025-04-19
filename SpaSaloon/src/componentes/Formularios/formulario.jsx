@@ -11,11 +11,16 @@ const Formulario = ({ onClose }) => {
     password: '',
     confirmPassword: '',
     phone: '',
+    nombre: '',
+    apellido: '',
+    direccion: '',
     currentPassword: '',
     newPassword: '',
     confirmNewPassword: ''
   });
   const [passwordError, setPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,52 +30,196 @@ const Formulario = ({ onClose }) => {
     }));
     
     // Limpiar mensajes de error cuando el usuario comienza a escribir
-    if (passwordError && (name === 'newPassword' || name === 'confirmNewPassword')) {
+    if (passwordError && (name === 'newPassword' || name === 'confirmNewPassword' || name === 'password' || name === 'confirmPassword')) {
       setPasswordError('');
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
     
-    if (formMode === 'login') {
-      console.log('Iniciando sesión con:', formData.email, formData.password);
-      // aca la logica de inicio
-    } else if (formMode === 'register') {
-      console.log('Registrando usuario:', formData);
-      // aca la de registro
-    } else if (formMode === 'recovery') {
-      // Mostrar alerta de correo enviado
-      alert(`Se ha enviado un correo para la recuperación de clave a: ${formData.email}`);
-      // Regresar a la pantalla de inicio de sesión
-      setFormMode('login');
-    } else if (formMode === 'changePassword') {
-      // Verificar que las nuevas contraseñas coincidan
-      if (formData.newPassword !== formData.confirmNewPassword) {
-        setPasswordError('Las nuevas contraseñas no coinciden');
-        return;
-      }
-      
-      // Procesar el cambio de contraseña
-      console.log('Cambiando contraseña para:', formData.email);
-      alert('¡Cambio de contraseña exitoso!');
-      // Regresar a la pantalla de inicio de sesión
-      setFormMode('login');
-      resetForm();
+    // Limpiar error general
+    if (error) {
+      setError('');
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+  
+    try {
+      if (formMode === 'login') {
+        // Validación básica
+        if (!formData.email || !formData.password) {
+          setError('Por favor complete todos los campos');
+          setLoading(false);
+          return;
+        }
+        
+        const response = await fetch('http://localhost:3001/api/clientes/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          })
+        });
+    
+        const data = await response.json();
+    
+        if (!response.ok) {
+          setError(data.error || 'Error al iniciar sesión');
+          setLoading(false);
+          return;
+        }
+    
+        // Guardar los datos del cliente (podrías usar contexto o localStorage)
+        localStorage.setItem('clienteId', data.cliente.id);
+        localStorage.setItem('clienteNombre', data.cliente.nombre);
+        
+        console.log('Cliente logueado:', data.cliente);
+        alert(`¡Bienvenido, ${data.cliente.nombre}!`);
+    
+        // Cerrar el modal o redirigir a otra vista
+        onClose();
+      } 
+      else if (formMode === 'register') {
+        // Validaciones
+        if (!formData.nombre || !formData.apellido || !formData.email || !formData.phone || !formData.direccion || !formData.password) {
+          setError('Por favor complete todos los campos');
+          setLoading(false);
+          return;
+        }
+        
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+          setError('Por favor ingrese un email válido');
+          setLoading(false);
+          return;
+        }
+        
+        // Validar que las contraseñas coincidan
+        if (formData.password !== formData.confirmPassword) {
+          setPasswordError('Las contraseñas no coinciden');
+          setLoading(false);
+          return;
+        }
+        
+        // Validar longitud de contraseña
+        if (formData.password.length < 6) {
+          setPasswordError('La contraseña debe tener al menos 6 caracteres');
+          setLoading(false);
+          return;
+        }
+        
+        const response = await fetch('http://localhost:3001/api/clientes/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            nombre: formData.nombre,
+            apellido: formData.apellido,
+            email: formData.email,
+            telefono: formData.phone,
+            direccion: formData.direccion,
+            password: formData.password
+          })
+        });
+    
+        const data = await response.json();
+    
+        if (!response.ok) {
+          setError(data.error || 'Error al registrar usuario');
+          setLoading(false);
+          return;
+        }
+    
+        alert('¡Registro exitoso! Ahora puede iniciar sesión.');
+        // Redirigir al login después de un registro exitoso
+        setFormMode('login');
+        resetForm();
+      } 
+      else if (formMode === 'recovery') {
+        // Validación básica para email
+        if (!formData.email) {
+          setError('Por favor ingrese su correo electrónico');
+          setLoading(false);
+          return;
+        }
+        
+        // Aquí implementarías la lógica para recuperar contraseña
+        alert(`Se ha enviado un correo para la recuperación de clave a: ${formData.email}`);
+        setFormMode('login');
+        resetForm();
+      } 
+      else if (formMode === 'changePassword') {
+        if (!formData.email || !formData.currentPassword || !formData.newPassword || !formData.confirmNewPassword) {
+          setError('Por favor complete todos los campos');
+          setLoading(false);
+          return;
+        }
+        
+        if (formData.newPassword !== formData.confirmNewPassword) {
+          setPasswordError('Las nuevas contraseñas no coinciden');
+          setLoading(false);
+          return;
+        }
+        
+        try {
+          // Corregido para coincidir con la ruta del backend y los nombres de parámetros esperados
+          const response = await fetch('http://localhost:3001/api/clientes/cambiar-password', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              passwordActual: formData.currentPassword,
+              passwordNueva: formData.newPassword,
+              confirmacionPasswordNueva: formData.confirmNewPassword
+            })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            setError(data.error || 'Error al cambiar la contraseña');
+            return;
+          }
+
+          alert('¡Cambio de contraseña exitoso!');
+          setFormMode('login');
+          resetForm();
+        } catch (err) {
+          console.error('Error al cambiar la contraseña:', err);
+          setError('Error de conexión con el servidor');
+        }
+      }
+    } catch (err) {
+      console.error('Error en la operación:', err);
+      setError('Error de conexión con el servidor');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const resetForm = () => {
     setFormData({
       email: '',
       password: '',
       confirmPassword: '',
       phone: '',
+      nombre: '',
+      apellido: '',
+      direccion: '',
       currentPassword: '',
       newPassword: '',
       confirmNewPassword: ''
     });
     setPasswordError('');
+    setError('');
   };
 
   const toggleForm = () => {
@@ -86,10 +235,14 @@ const Formulario = ({ onClose }) => {
       password: '',
       confirmPassword: '',
       phone: '',
+      nombre: '',
+      apellido: '',
+      direccion: '',
       currentPassword: '',
       newPassword: '',
       confirmNewPassword: ''
     }));
+    setError('');
   };
 
   const goToChangePassword = () => {
@@ -100,10 +253,14 @@ const Formulario = ({ onClose }) => {
       password: '',
       confirmPassword: '',
       phone: '',
+      nombre: '',
+      apellido: '',
+      direccion: '',
       currentPassword: '',
       newPassword: '',
       confirmNewPassword: ''
     }));
+    setError('');
   };
 
   const goBackToLogin = () => {
@@ -131,6 +288,12 @@ const Formulario = ({ onClose }) => {
       </div>
 
       <form onSubmit={handleSubmit}>
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+        
         <div className="form-group">
           <label htmlFor="email">Correo electrónico</label>
           <Input
@@ -178,6 +341,55 @@ const Formulario = ({ onClose }) => {
 
         {formMode === 'register' && (
           <>
+            {/* Nuevos campos para registro */}
+            <div className="form-group">
+              <label htmlFor="nombre">Nombre</label>
+              <Input
+                type="text"
+                id="nombre"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                placeholder="Ingrese su nombre"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="apellido">Apellido</label>
+              <Input
+                type="text"
+                id="apellido"
+                name="apellido"
+                value={formData.apellido}
+                onChange={handleChange}
+                placeholder="Ingrese su apellido"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="direccion">Dirección</label>
+              <Input
+                type="text"
+                id="direccion"
+                name="direccion"
+                value={formData.direccion}
+                onChange={handleChange}
+                placeholder="Ingrese su dirección"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="phone">Teléfono</label>
+              <Input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Ingrese su número de teléfono"
+                required
+              />
+            </div>
             <div className="form-group">
               <label htmlFor="password">Contraseña</label>
               <Input
@@ -202,22 +414,14 @@ const Formulario = ({ onClose }) => {
                 required
               />
             </div>
-
-            <div className="form-group">
-              <label htmlFor="phone">Teléfono</label>
-              <Input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Ingrese su número de teléfono"
-                required
-              />
-            </div>
+            {passwordError && (
+              <div className="error-message">
+                {passwordError}
+              </div>
+            )}
           </>
         )}
-
+        
         {formMode === 'changePassword' && (
           <>
             <div className="form-group">
@@ -277,6 +481,7 @@ const Formulario = ({ onClose }) => {
                 type="submit"
                 text="Enviar correo de recuperación"
                 fullWidth
+                disabled={loading}
               />
               <Boton
                 type="button"
@@ -285,6 +490,7 @@ const Formulario = ({ onClose }) => {
                 hoverBackgroundColor="#154B73"
                 onClick={goBackToLogin}
                 fullWidth
+                disabled={loading}
               />
             </>
           ) : formMode === 'changePassword' ? (
@@ -293,6 +499,7 @@ const Formulario = ({ onClose }) => {
                 type="submit"
                 text="Cambiar contraseña"
                 fullWidth
+                disabled={loading}
               />
               <Boton
                 type="button"
@@ -301,6 +508,7 @@ const Formulario = ({ onClose }) => {
                 hoverBackgroundColor="#154B73"
                 onClick={goBackToLogin}
                 fullWidth
+                disabled={loading}
               />
             </>
           ) : (
@@ -309,6 +517,8 @@ const Formulario = ({ onClose }) => {
                 type="submit"
                 text={formMode === 'login' ? "Iniciar sesión" : "Confirmar registro"}
                 fullWidth
+                style={{marginBottom: '10px'}}
+                disabled={loading}
               />
               <Boton
                 type="button"
@@ -317,6 +527,8 @@ const Formulario = ({ onClose }) => {
                 hoverBackgroundColor="#154B73"
                 onClick={toggleForm}
                 fullWidth
+                style={{marginBottom: '10px'}}
+                disabled={loading}
               />
             </>
           )}
