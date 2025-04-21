@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Calendario from './Calendario.jsx';
 import Boton from '../Formularios/boton.jsx';
 import Etiqueta from '../Formularios/etiquetas.jsx';
+import PopupConfirmacion from './popUp.jsx'; // Importamos el componente de popup
 import '../../styles/PerfilUsuario.css';
 import 'react-calendar/dist/Calendar.css';
 import axios from 'axios';
@@ -10,6 +11,7 @@ import { useAuth } from '../../context/AuthContext';
 const PerfilUsuario = () => {
   const { user, loading: loadingAuth } = useAuth();
   const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
   const [datosUsuario, setDatosUsuario] = useState({
     nombre: '',
     email: '',
@@ -67,9 +69,32 @@ const PerfilUsuario = () => {
     }
   };
   const handleReprogramar = () => console.log('Reprogramando para:', fechaSeleccionada);
-  const handleCancelar   = () => console.log('Cancelando turno');
-  const handleEditar     = () => setEditando(v => !v);
-  const handleGuardar    = () => {
+  
+  // Manejadores para la cancelación de turno
+  const handleCancelar = () => {
+    setMostrarConfirmacion(true);
+  };
+  
+  const confirmarCancelacion = () => {
+    console.log('Cancelando turno:', turnoSeleccionado.id);
+    // Aquí iría la lógica para cancelar el turno en la API
+    // axios.delete(`http://localhost:3001/api/turnos/${turnoSeleccionado.id}`)
+    //   .then(() => {
+    //     // Actualizar la lista de turnos
+    //     setFechasConTurno(fechasConTurno.filter(t => t.id !== turnoSeleccionado.id));
+    //   })
+    //   .catch(err => console.error('Error al cancelar turno:', err));
+    
+    setMostrarConfirmacion(false);
+    setTurnoSeleccionado(null); // Cierra la ventana de detalles
+  };
+  
+  const cancelarConfirmacion = () => {
+    setMostrarConfirmacion(false);
+  };
+  
+  const handleEditar = () => setEditando(v => !v);
+  const handleGuardar = () => {
     setEditando(false);
     console.log('Guardando datos:', datosUsuario);
   };
@@ -90,20 +115,49 @@ const PerfilUsuario = () => {
   if (loadingTurnos) {
     return <div className="perfil-container">Cargando tus turnos…</div>;
   }
+  
   return (
     <div className="perfil-container">
       {turnoSeleccionado && (
-    <div className="modal-turno">
-      <div className="modal-contenido">
-        <h3>Detalle del Turno</h3>
-        <p><strong>Fecha:</strong> {turnoSeleccionado.fecha_hora.split('T')[0]}</p>
-        <p><strong>Hora:</strong> {turnoSeleccionado.fecha_hora.split('T')[1].substring(0,5)}</p>
-        <p><strong>Servicio:</strong> {turnoSeleccionado.nombre_servicio || 'N/A'}</p>
-        <p><strong>Profesional:</strong> {turnoSeleccionado.nombre_profesional || 'N/A'}</p>
-        <button onClick={() => setTurnoSeleccionado(null)}>Cerrar</button>
-      </div>
-    </div>
-  )}
+        <div className="modal-turno">
+          <div className="modal-contenido">
+            <h3>Detalle del Turno</h3>
+            <p><strong>Fecha:</strong> {turnoSeleccionado.fecha_hora.split('T')[0]}</p>
+            <p><strong>Hora:</strong> {turnoSeleccionado.fecha_hora.split('T')[1].substring(0,5)}</p>
+            <p><strong>Servicio:</strong> {turnoSeleccionado.nombre_servicio || 'N/A'}</p>
+            <p><strong>Profesional:</strong> {turnoSeleccionado.nombre_profesional || 'N/A'}</p>
+            <div className="modal-botones">
+              <Boton 
+                text="Reprogramar" 
+                onClick={handleReprogramar}
+                backgroundColor="#1565c0"
+                hoverBackgroundColor="#0d47a1"
+              />
+              <Boton 
+                text="Cancelar" 
+                onClick={handleCancelar}
+                backgroundColor="#c62828"
+                hoverBackgroundColor="#b71c1c"
+              />
+              <button className="boton-cerrar" onClick={() => setTurnoSeleccionado(null)}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Usamos el componente PopupConfirmacion importado */}
+      {mostrarConfirmacion && turnoSeleccionado && (
+        <PopupConfirmacion
+          titulo="Confirmar Cancelación"
+          mensaje={`¿Estás seguro que deseas cancelar el turno del ${turnoSeleccionado.fecha_hora.split('T')[0]} a las ${turnoSeleccionado.fecha_hora.split('T')[1].substring(0,5)}?`}
+          submensaje="Esta acción no se puede deshacer."
+          textoConfirmar="Sí, cancelar turno"
+          textoCancelar="No, mantener turno"
+          onConfirmar={confirmarCancelacion}
+          onCancelar={cancelarConfirmacion}
+        />
+      )}
+      
       <div className="perfil-seccion turnos-seccion">
         <Etiqueta 
           text="Tus turnos" 
@@ -134,20 +188,6 @@ const PerfilUsuario = () => {
               disabledDayColor="#546e7a"
               fontSize="14px"
               borderRadius="8px"
-            />
-          </div>
-          <div className="turnos-acciones">
-            <Boton 
-              text="Reprogramar" 
-              onClick={handleReprogramar}
-              backgroundColor="#1565c0"
-              hoverBackgroundColor="#0d47a1"
-            />
-            <Boton 
-              text="Cancelar" 
-              onClick={handleCancelar}
-              backgroundColor="#c62828"
-              hoverBackgroundColor="#b71c1c"
             />
           </div>
         </div>
@@ -212,4 +252,3 @@ const PerfilUsuario = () => {
 };
 
 export default PerfilUsuario;
-

@@ -263,6 +263,27 @@
     border-radius: 10px;
     width: 300px;
   }
+  /* Añadir a tu archivo CSS */
+.modal-botones {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.boton-cerrar {
+  background-color: #757575;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.boton-cerrar:hover {
+  background-color: #616161;
+}
   /* Responsive */
   @media (max-width: 900px) {
     .perfil-container {
