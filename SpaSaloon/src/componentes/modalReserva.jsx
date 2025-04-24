@@ -1,43 +1,130 @@
 import React, { useState, useEffect } from "react";
 import "../styles/modal.css";
 import "../styles/modalReserva.css";
-import CalendarioCustom from "./calendar.jsx";
+import axios from "axios";
 
 const ModalReserva = ({
   servicio,
   opcionSeleccionada,
   onClose,
   onReservaConfirmada,
+  clienteId,
 }) => {
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
   const [profesional, setProfesional] = useState("");
-  const [paso, setPaso] = useState(1); 
+  const [profesionalId, setProfesionalId] = useState(null);
+  const [paso, setPaso] = useState(1);
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
+  const [profesionales, setProfesionales] = useState([]);
+  const [servicioId, setServicioId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [horariosCargados, setHorariosCargados] = useState([]);
+  const [turnosOcupados, setTurnosOcupados] = useState([]);
 
-  const profesionales = [
-    { id: 1, nombre: "Ana García", especialidad: "Masajista" },
-    { id: 2, nombre: "Carlos Rodríguez", especialidad: "Terapeuta facial" },
-    { id: 3, nombre: "Lucía Fernández", especialidad: "Esteticista" },
-    { id: 4, nombre: "Miguel López", especialidad: "Instructor de yoga" },
-  ];
+  // Cargar servicios para obtener el ID del servicio
+  useEffect(() => {
+    const fetchServicios = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get("http://localhost:3001/api/servicios");
+        const serviciosData = response.data;
+        
+        // Encontrar el ID del servicio basado en su nombre
+        const servicioEncontrado = serviciosData.find(
+          s => s.nombre.toLowerCase() === servicio.title.toLowerCase()
+        );
+        
+        if (servicioEncontrado) {
+          setServicioId(servicioEncontrado.id_servicio);
+        } else {
+          setError("No se encontró el servicio seleccionado");
+        }
+      } catch (err) {
+        console.error("Error al cargar servicios:", err);
+        setError("No se pudieron cargar los servicios. Por favor, intenta de nuevo más tarde.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const profesionalesFiltrados = profesionales.filter((prof) => {
-    if (servicio.title === "Masajes") return prof.especialidad === "Masajista";
-    if (servicio.title === "Tratamientos faciales")
-      return prof.especialidad === "Terapeuta facial";
-    if (servicio.title === "Belleza")
-      return prof.especialidad === "Esteticista";
-    if (servicio.title === "Yoga")
-      return prof.especialidad === "Instructor de yoga";
-    return true;
-  });
+    if (servicio && servicio.title) {
+      fetchServicios();
+    }
+  }, [servicio]);
+
+  useEffect(() => {
+    const fetchProfesionales = async () => {
+      if (!servicioId) {
+        console.log("No se proporcionó un servicioId");
+        return;
+      }
+  
+      setLoading(true);
+      try {
+        console.log(`Llamando a la API con servicioId: ${servicioId}`);
+        const response = await axios.get(`http://localhost:3001/api/profesionales/servicio/${servicioId}`);
+        
+        console.log("Respuesta de la API:", response.data);
+        
+        if (response.data && response.data.length > 0) {
+          setProfesionales(response.data);
+          setError(null); // limpiamos errores anteriores
+        } else {
+          setError("No hay profesionales disponibles para este servicio");
+          setProfesionales([]); // limpiamos la lista en caso de respuesta vacía
+        }
+      } catch (err) {
+        console.error("Error al cargar profesionales:", err);
+        setError("No se pudieron cargar los profesionales. Por favor, intenta de nuevo más tarde.");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    if (servicioId) {
+      fetchProfesionales();
+    }
+  }, [servicioId]);
+  
+
+  // Función para verificar disponibilidad de horarios
+  const verificarDisponibilidad = async (fecha) => {
+    if (!servicioId) return;
+    
+    try {
+      // Ejemplo de endpoint para verificar turnos ocupados para la fecha seleccionada
+      // Esta función debería implementarse en tu backend
+      const fechaStr = fecha.toISOString().split("T")[0];
+      const response = await axios.get(`http://localhost:3001/api/turnos/disponibilidad`, {
+        params: {
+          fecha: fechaStr,
+          id_servicio: servicioId
+        }
+      });
+      
+      // Actualizar el estado con los turnos ya ocupados
+      // Esto es solo un ejemplo, adapta a tu estructura de datos
+      if (response.data && response.data.turnosOcupados) {
+        setTurnosOcupados(response.data.turnosOcupados);
+      }
+      
+      // Ejemplo: horarios base para este servicio
+      setHorariosCargados(true);
+    } catch (err) {
+      console.error("Error al verificar disponibilidad:", err);
+      // Si falla, permitir todos los horarios por defecto
+      setHorariosCargados(true);
+    }
+  };
 
   const handleFechaHoraSeleccionada = (nuevaFecha, nuevaHora) => {
     if (nuevaFecha) {
       const fechaStr = nuevaFecha.toISOString().split("T")[0];
       setFecha(fechaStr);
       setDiaSeleccionado(nuevaFecha);
+      verificarDisponibilidad(nuevaFecha);
     }
 
     if (nuevaHora) {
@@ -45,8 +132,9 @@ const ModalReserva = ({
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (paso === 1) {
       if (!fecha || !hora) {
         alert("Por favor selecciona fecha y hora para continuar.");
@@ -54,30 +142,65 @@ const ModalReserva = ({
       }
       setPaso(2);
     } else {
-      if (!profesional) {
+      if (!profesionalId) {
         alert("Por favor selecciona un profesional.");
         return;
       }
 
-      const detallesReserva = {
-        servicio: servicio.title,
-        opcion: opcionSeleccionada ? opcionSeleccionada.nombre : null,
-        fecha,
-        hora,
-        profesional,
-      };
-
-      if (onReservaConfirmada) {
-        onReservaConfirmada(detallesReserva);
+      if (!clienteId) {
+        alert("Debes iniciar sesión para reservar un turno.");
+        return;
       }
 
-      alert(
-        `Tu reserva para ${servicio.title} ${opcionSeleccionada ? `- ${opcionSeleccionada.nombre}` : ""
-        } ha sido confirmada para el ${formatearFecha(
-          fecha
-        )} a las ${hora} con ${profesional}.`
-      );
-      setTimeout(onClose, 1000);
+      // Crear objeto con datos para la API
+      const fechaHoraCompleta = `${fecha}T${hora}:00`;
+      const duracionPredeterminada = opcionSeleccionada?.duracion || 60; // Duración en minutos
+
+      const datosTurno = {
+        id_cliente: clienteId,
+        id_servicio: servicioId,
+        id_profesional: profesionalId,
+        fecha_hora: fechaHoraCompleta,
+        duracion_minutos: duracionPredeterminada,
+        comentarios: `Reserva para ${servicio.title} ${opcionSeleccionada ? `- ${opcionSeleccionada.nombre}` : ""}`
+      };
+
+      try {
+        setLoading(true);
+        // Llamada a la API para crear el turno
+        const response = await axios.post("http://localhost:3001/api/turnos", datosTurno);
+        
+        // Si llegamos aquí, la reserva fue exitosa
+        const detallesReserva = {
+          id_turno: response.data.id_turno,
+          servicio: servicio.title,
+          opcion: opcionSeleccionada ? opcionSeleccionada.nombre : null,
+          fecha,
+          hora,
+          profesional: profesional,
+        };
+
+        if (onReservaConfirmada) {
+          onReservaConfirmada(detallesReserva);
+        }
+
+        alert(
+          `Tu reserva para ${servicio.title} ${opcionSeleccionada ? `- ${opcionSeleccionada.nombre}` : ""
+          } ha sido confirmada para el ${formatearFecha(
+            fecha
+          )} a las ${hora} con ${profesional}.`
+        );
+        setTimeout(onClose, 1000);
+      } catch (err) {
+        console.error("Error al crear el turno:", err);
+        if (err.response && err.response.data && err.response.data.error) {
+          setError(`Error: ${err.response.data.error}`);
+        } else {
+          setError("Hubo un problema al realizar la reserva. Por favor, intenta de nuevo.");
+        }
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -96,6 +219,11 @@ const ModalReserva = ({
     setPaso(1);
   };
 
+  const seleccionarProfesional = (prof) => {
+    setProfesional(`${prof.nombre} ${prof.apellido}`);
+    setProfesionalId(prof.id_profesional);
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
@@ -105,6 +233,13 @@ const ModalReserva = ({
         <button className="modal-close-btn" onClick={onClose}>
           ✕
         </button>
+
+        {error && (
+          <div className="error-mensaje">
+            {error}
+            <button onClick={() => setError(null)}>Cerrar</button>
+          </div>
+        )}
 
         <div className="modal-body">
           <div className="modal-image-container">
@@ -151,6 +286,7 @@ const ModalReserva = ({
                       onSeleccionarFechaHora={handleFechaHoraSeleccionada}
                       fechaSeleccionada={diaSeleccionado}
                       horaSeleccionada={hora}
+                      turnosOcupados={turnosOcupados}
                     />
                   </div>
                 </div>
@@ -158,24 +294,32 @@ const ModalReserva = ({
                 <div className="modal-paso modal-paso-2">
                   <div className="form-group">
                     <label>Selecciona un profesional:</label>
-                    <div className="profesionales-grid">
-                      {profesionalesFiltrados.map((prof) => (
-                        <div
-                          key={prof.id}
-                          className={`profesional-card ${profesional === prof.nombre ? "seleccionado" : ""
-                            }`}
-                          onClick={() => setProfesional(prof.nombre)}
-                        >
-                          <div className="profesional-avatar">
-                            {prof.nombre.charAt(0)}
-                          </div>
-                          <div className="profesional-info">
-                            <h4>{prof.nombre}</h4>
-                            <p>{prof.especialidad}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    
+                    {loading ? (
+                      <p>Cargando profesionales...</p>
+                    ) : (
+                      <div className="profesionales-grid">
+                        {profesionales.length > 0 ? (
+                          profesionales.map((prof) => (
+                            <div
+                              key={prof.id_profesional}
+                              className={`profesional-card ${profesionalId === prof.id_profesional ? "seleccionado" : ""}`}
+                              onClick={() => seleccionarProfesional(prof)}
+                            >
+                              <div className="profesional-avatar">
+                                {prof.nombre.charAt(0)}
+                              </div>
+                              <div className="profesional-info">
+                                <h4>{`${prof.nombre} ${prof.apellido}`}</h4>
+                                <p>{servicio.title}</p>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <p>No hay profesionales disponibles para este servicio.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="resumen-reserva">
@@ -208,8 +352,14 @@ const ModalReserva = ({
                     Volver
                   </button>
                 )}
-                <button type="submit" className="modal-reservar-btn">
-                  {paso === 1 ? (
+                <button 
+                  type="submit" 
+                  className="modal-reservar-btn"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    "Procesando..."
+                  ) : paso === 1 ? (
                     <>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -261,6 +411,7 @@ const CalendarioPersonalizado = ({
   onSeleccionarFechaHora,
   fechaSeleccionada,
   horaSeleccionada,
+  turnosOcupados = []
 }) => {
   const today = new Date();
   const [fechaActual, setFechaActual] = useState(
@@ -276,9 +427,27 @@ const CalendarioPersonalizado = ({
     const año = fecha.getFullYear();
     const mes = fecha.getMonth();
     const totalDias = new Date(año, mes + 1, 0).getDate();
+    
+    // Obtenemos el día de inicio del mes (0-6, siendo 0 domingo)
+    const primerDia = new Date(año, mes, 1).getDay();
+    
+    // Para completar la primera semana con días del mes anterior
+    const diasAnteriorMes = new Date(año, mes, 0).getDate();
+    for (let i = primerDia - 1; i >= 0; i--) {
+      dias.push({
+        fecha: new Date(año, mes - 1, diasAnteriorMes - i),
+        esDelMesActual: false
+      });
+    }
 
+    // Días del mes actual
     for (let i = 1; i <= totalDias; i++) {
-      dias.push(new Date(año, mes, i));
+      const fechaDia = new Date(año, mes, i);
+      dias.push({
+        fecha: fechaDia,
+        esDelMesActual: true,
+        esPasado: fechaDia < today
+      });
     }
 
     return dias;
@@ -291,6 +460,11 @@ const CalendarioPersonalizado = ({
   };
 
   const seleccionarDia = (dia) => {
+    // No permitir seleccionar días en el pasado
+    if (dia.getTime() < new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) {
+      return;
+    }
+    
     setDiaSeleccionado(dia);
     onSeleccionarFechaHora(dia, horaElegida);
   };
@@ -298,6 +472,20 @@ const CalendarioPersonalizado = ({
   const seleccionarHora = (hora) => {
     setHoraElegida(hora);
     onSeleccionarFechaHora(diaSeleccionado, hora);
+  };
+
+  const estaHoraOcupada = (hora) => {
+    // Verificar si la hora está en la lista de turnos ocupados
+    if (!diaSeleccionado) return false;
+    
+    const fechaStr = diaSeleccionado.toISOString().split('T')[0];
+    const horaStr = hora;
+    
+    return turnosOcupados.some(turno => {
+      const turnoFecha = new Date(turno.fecha_hora).toISOString().split('T')[0];
+      const turnoHora = new Date(turno.fecha_hora).toTimeString().substring(0, 5);
+      return turnoFecha === fechaStr && turnoHora === horaStr;
+    });
   };
 
   const dias = obtenerDiasDelMes(fechaActual);
@@ -331,14 +519,15 @@ const CalendarioPersonalizado = ({
       <div className="dias-scroll">
         {dias.map((dia, i) => (
           <div
-            className={`dia ${diaSeleccionado?.toDateString() === dia.toDateString()
-                ? "seleccionado"
-                : ""
-              }`}
+            className={`dia 
+              ${!dia.esDelMesActual ? "otro-mes" : ""} 
+              ${dia.esPasado ? "pasado" : ""} 
+              ${diaSeleccionado?.toDateString() === dia.fecha.toDateString() ? "seleccionado" : ""}
+            `}
             key={i}
-            onClick={() => seleccionarDia(dia)}
+            onClick={() => dia.esDelMesActual && !dia.esPasado && seleccionarDia(dia.fecha)}
           >
-            {dia.getDate()}
+            {dia.fecha.getDate()}
           </div>
         ))}
       </div>
@@ -354,17 +543,23 @@ const CalendarioPersonalizado = ({
             <div className="bloque-horario" key={turno}>
               <h6>{turno.charAt(0).toUpperCase() + turno.slice(1)}</h6>
               <div className="horarios-lista">
-                {horas.map((hora, i) => (
-                  <button
-                    type="button"
-                    key={i}
-                    className={`horario-btn ${horaElegida === hora ? "seleccionado" : ""
-                      }`}
-                    onClick={() => seleccionarHora(hora)}
-                  >
-                    {hora}
-                  </button>
-                ))}
+                {horas.map((hora, i) => {
+                  const ocupado = estaHoraOcupada(hora);
+                  return (
+                    <button
+                      type="button"
+                      key={i}
+                      className={`horario-btn 
+                        ${horaElegida === hora ? "seleccionado" : ""}
+                        ${ocupado ? "ocupado" : ""}
+                      `}
+                      onClick={() => !ocupado && seleccionarHora(hora)}
+                      disabled={ocupado}
+                    >
+                      {hora}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           ))}
