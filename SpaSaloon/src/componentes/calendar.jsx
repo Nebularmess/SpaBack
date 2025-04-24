@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./styles/calendar.css";
+import "../styles/calendar.css";
 
 export default function CalendarioCustom() {
   const today = new Date();
@@ -56,8 +56,8 @@ export default function CalendarioCustom() {
         {dias.map((dia, i) => (
           <div
             className={`dia ${diaSeleccionado?.toDateString() === dia.toDateString()
-                ? "seleccionado"
-                : ""
+              ? "seleccionado"
+              : ""
               }`}
             key={i}
             onClick={() => setDiaSeleccionado(dia)}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Componentes UI - Spa</title>
+  <style>
+    :root {
+      --mint: #A8E6CF;
+      --aqua: #56C8D8;
+      --teal: #008080;
+      --white-smoke: #F5F5F5;
+      --dark-slate: #2E4A50;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: var(--mint);
+      color: var(--dark-slate);
+    }
+
+    header {
+      background-color: var(--teal);
+      padding: 1rem;
+      text-align: center;
+      color: white;
+    }
+
+    nav a {
+      margin: 0 1rem;
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 2rem;
+    }
+
+    .card {
+      background-color: var(--white-smoke);
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .button {
+      background-color: var(--aqua);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: var(--dark-slate);
+    }
+
+    footer {
+      background-color: var(--dark-slate);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bienvenido a Nuestro Spa</h1>
+    <nav>
+      <a href="#">Inicio</a>
+      <a href="#">Servicios</a>
+      <a href="#">Contacto</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <section class="card">
+      <h2>Masajes Relajantes</h2>
+      <p>Ofrecemos masajes que ayudan a liberar tensiones y mejorar tu bienestar.</p>
+      <button class="button">Reservar</button>
+    </section>
+
+    <section class="card">
+      <h2>Tratamientos Faciales</h2>
+      <p>Cuidá tu piel con nuestras terapias naturales y revitalizantes.</p>
+      <button class="button">Ver Más</button>
+    </section>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Spa Bienestar. Todos los derechos reservados.</p>
+  </footer>
+</body>
+</html>
