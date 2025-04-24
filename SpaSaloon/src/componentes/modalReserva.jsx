@@ -114,16 +114,25 @@ const ModalReserva = ({
     fetchProfesionales();
   }, [servicioId]);
 
-  const verificarDisponibilidad = async fecha => {
+  const verificarDisponibilidad = async (fecha, idProfesional = null) => {
     if (!servicioId) return;
     try {
       const fechaStr = fecha.toISOString().split("T")[0];
+      const params = { 
+        fecha: fechaStr, 
+        id_servicio: servicioId 
+      };
+      
+      // If a professional is selected, include their ID in the query
+      if (idProfesional) {
+        params.id_profesional = idProfesional;
+      }
+      
       const response = await axios.get(
         "http://localhost:3001/api/turnos/disponibilidad",
-        {
-          params: { fecha: fechaStr, id_servicio: servicioId }
-        }
+        { params }
       );
+      
       if (response.data && response.data.turnosOcupados) {
         setTurnosOcupados(response.data.turnosOcupados);
       }
@@ -139,7 +148,8 @@ const ModalReserva = ({
       const fechaStr = nuevaFecha.toISOString().split("T")[0];
       setFecha(fechaStr);
       setDiaSeleccionado(nuevaFecha);
-      verificarDisponibilidad(nuevaFecha);
+      // Pass profesional ID if it's already selected
+      verificarDisponibilidad(nuevaFecha, profesionalId);
     }
     if (nuevaHora) setHora(nuevaHora);
   };
@@ -219,6 +229,11 @@ const ModalReserva = ({
   const seleccionarProfesional = prof => {
     setProfesional(`${prof.nombre} ${prof.apellido}`);
     setProfesionalId(prof.id_profesional);
+    
+    // Re-check availability with the selected professional
+    if (diaSeleccionado) {
+      verificarDisponibilidad(diaSeleccionado, prof.id_profesional);
+    }
   };
 
   return (
@@ -268,6 +283,8 @@ const ModalReserva = ({
                       fechaSeleccionada={diaSeleccionado}
                       horaSeleccionada={hora}
                       turnosOcupados={turnosOcupados}
+                      profesionalId={profesionalId}
+                      profesionales={profesionales}
                     />
                   </div>
                 </div>
@@ -334,7 +351,9 @@ const CalendarioPersonalizado = ({
   onSeleccionarFechaHora,
   fechaSeleccionada,
   horaSeleccionada,
-  turnosOcupados = []
+  turnosOcupados = [],
+  profesionalId,
+  profesionales = []
 }) => {
   const today = new Date();
   const [fechaActual, setFechaActual] = useState(
@@ -390,18 +409,42 @@ const CalendarioPersonalizado = ({
     onSeleccionarFechaHora(diaSeleccionado, hora);
   };
 
-  const estaHoraOcupada = hora => {
+  const estaHoraOcupada = (hora) => {
     if (!diaSeleccionado) return false;
+    
     const fechaStr = diaSeleccionado.toISOString().split("T")[0];
-    return turnosOcupados.some(turno => {
-      const turnoFecha = new Date(turno.fecha_hora)
-        .toISOString()
-        .split("T")[0];
-      const turnoHora = new Date(turno.fecha_hora)
-        .toTimeString()
-        .substring(0, 5);
-      return turnoFecha === fechaStr && turnoHora === hora;
+    
+    // If a professional is selected, check if they have appointments at this time
+    if (profesionalId) {
+      return turnosOcupados.some(turno => {
+        const turnoFecha = new Date(turno.fecha_hora).toISOString().split("T")[0];
+        const turnoHora = new Date(turno.fecha_hora).toTimeString().substring(0, 5);
+        
+        return turnoFecha === fechaStr && 
+               turnoHora === hora && 
+               turno.id_profesional === profesionalId;
+      });
+    } 
+    
+    // If no professional is selected, check if ALL professionals are booked at this time
+    // First, get all unique professional IDs from the turnos data
+    const allProfesionales = profesionales.map(prof => prof.id_profesional);
+    
+    // Now check if there's a booking for each professional at this time slot
+    const profesionalesOcupados = new Set();
+    
+    turnosOcupados.forEach(turno => {
+      const turnoFecha = new Date(turno.fecha_hora).toISOString().split("T")[0];
+      const turnoHora = new Date(turno.fecha_hora).toTimeString().substring(0, 5);
+      
+      if (turnoFecha === fechaStr && turnoHora === hora) {
+        profesionalesOcupados.add(turno.id_profesional);
+      }
     });
+    
+    // If the number of occupied professionals equals the total number of professionals
+    // for this service, then the time slot should be disabled
+    return profesionalesOcupados.size === allProfesionales.length && allProfesionales.length > 0;
   };
 
   const dias = obtenerDiasDelMes(fechaActual);
