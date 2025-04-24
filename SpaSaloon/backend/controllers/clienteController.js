@@ -32,7 +32,7 @@ exports.loginCliente = (req, res) => {
 
     if (!match) return res.status(401).json({ error: 'Credenciales inválidas' });
 
-    res.json({ message: 'Login exitoso', cliente: { id_cliente: cliente.id_cliente, nombre: cliente.nombre } });    ;
+    res.json({ message: 'Login exitoso', cliente: { id_cliente: cliente.id_cliente, nombre: cliente.nombre } });
   });
 };
 
@@ -62,3 +62,32 @@ exports.cambiarPasswordCliente = (req, res) => {
   });
 };
 
+// New function - separate export
+exports.getClienteById = (req, res) => {
+  const id_cliente = req.params.id;
+  
+  db.query('SELECT id_cliente, nombre, apellido, email, telefono, direccion FROM CLIENTE WHERE id_cliente = ?', 
+    [id_cliente], 
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err });
+      if (results.length === 0) return res.status(404).json({ error: 'Cliente no encontrado' });
+      
+      res.json(results[0]);
+    }
+  );
+};
+
+// Another new function - separate export
+exports.actualizarCliente = (req, res) => {
+  const id_cliente = req.params.id;
+  const { nombre, email, telefono, direccion } = req.body;
+
+  db.query(
+    'UPDATE CLIENTE SET nombre = ?, email = ?, telefono = ?, direccion = ? WHERE id_cliente = ?',
+    [nombre, email, telefono, direccion, id_cliente],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: 'Error al actualizar datos' });
+      res.json({ message: 'Datos actualizados correctamente' });
+    }
+  );
+};

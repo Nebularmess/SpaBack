@@ -24,7 +24,9 @@ const PerfilUsuario = () => {
   const [editando, setEditando] = useState(false);
   const [fechasConTurno, setFechasConTurno] = useState([]);
   const [loadingTurnos, setLoadingTurnos] = useState(false);
+  const [loadingUserData, setLoadingUserData] = useState(false);
   const [errorTurnos, setErrorTurnos] = useState(null);
+  const [errorUserData, setErrorUserData] = useState(null);
   const [cancelando, setCancelando] = useState(false);
   const [reprogramando, setReprogramando] = useState(false);
 
@@ -38,6 +40,8 @@ const PerfilUsuario = () => {
 
     // Hay usuario: traemos sus turnos
     cargarTurnos();
+    // Y cargamos sus datos completos
+    cargarDatosUsuario();
   }, [loadingAuth, user]);
 
   // Función para cargar los turnos del usuario
@@ -62,16 +66,38 @@ const PerfilUsuario = () => {
       });
   };
 
-  // Carga de datos estáticos del usuario (si vienen de otra parte)
-  useEffect(() => {
-    if (user && user.nombre) {
-      setDatosUsuario(prev => ({
-        ...prev,
-        nombre: user.nombre,
-        // email, teléfono, dirección podrías traerlos de una API similar
-      }));
-    }
-  }, [user]);
+  // Nueva función para cargar los datos completos del usuario
+  const cargarDatosUsuario = () => {
+    if (!user || !user.id_cliente) return;
+    
+    setLoadingUserData(true);
+    setErrorUserData(null);
+
+    axios.get(`http://localhost:3001/api/clientes/${user.id_cliente}`)
+      .then(res => {
+        setDatosUsuario({
+          nombre: res.data.nombre,
+          email: res.data.email,
+          telefono: res.data.telefono || '',
+          direccion: res.data.direccion || ''
+        });
+      })
+      .catch(err => {
+        console.error('Error al cargar datos del usuario:', err);
+        setErrorUserData('No se pudieron cargar los datos del usuario');
+        
+        // Si fallamos, al menos intentamos usar lo que teníamos del contexto auth
+        if (user && user.nombre) {
+          setDatosUsuario(prev => ({
+            ...prev,
+            nombre: user.nombre
+          }));
+        }
+      })
+      .finally(() => {
+        setLoadingUserData(false);
+      });
+  };
 
   // Handlers
   const handleDateChange = date => setFechaSeleccionada(date);
@@ -83,52 +109,45 @@ const PerfilUsuario = () => {
   };
     
   // Manejadores para la reprogramación de turno
-const handleReprogramar = () => {
-  setMostrarReprogramacion(true);
-};
+  const handleReprogramar = () => {
+    setMostrarReprogramacion(true);
+  };
 
-const confirmarReprogramacion = (nuevosDatos) => {
-  if (!turnoSeleccionado || !turnoSeleccionado.id_turno) {
-    console.error('No hay turno seleccionado para reprogramar');
-    setMostrarReprogramacion(false);
-    return;
-  }
-  
-  setReprogramando(true);
-  
-  console.log("Reprogramando turno con ID:", turnoSeleccionado.id_turno);
-  console.log("Nuevos datos:", nuevosDatos);
-  
-  // La URL ahora está bien, usamos la ruta que añadimos al router
-  axios.put(`http://localhost:3001/api/turnos/reprogramar/${turnoSeleccionado.id_turno}`, {
-    fecha_hora: nuevosDatos.fechaCompleta
-  })
-    .then(response => {
-      console.log('Reprogramación exitosa:', response.data);
-      
-      // Actualizamos el estado local de manera más segura
-      // En lugar de intentar modificar el objeto directamente, mejor
-      // recargamos todos los turnos para asegurar sincronización
-      cargarTurnos();
-      
-      // Mostrar mensaje de éxito
-      alert('El turno ha sido reprogramado exitosamente');
-      
-      // Cerrar el popup y la ventana de detalles
+  const confirmarReprogramacion = (nuevosDatos) => {
+    if (!turnoSeleccionado || !turnoSeleccionado.id_turno) {
+      console.error('No hay turno seleccionado para reprogramar');
       setMostrarReprogramacion(false);
-      setTurnoSeleccionado(null);
+      return;
+    }
+    
+    setReprogramando(true);
+    
+    axios.put(`http://localhost:3001/api/turnos/reprogramar/${turnoSeleccionado.id_turno}`, {
+      fecha_hora: nuevosDatos.fechaCompleta
     })
-    .catch(error => {
-      console.error('Error al reprogramar el turno:', error.response?.data || error.message || error);
-      
-      // Mensaje de error más informativo si tenemos detalles específicos
-      const errorMsg = error.response?.data?.error || 'No se pudo reprogramar el turno. Intente nuevamente más tarde.';
-      alert(errorMsg);
-    })
-    .finally(() => {
-      setReprogramando(false);
-    });
-};
+      .then(response => {
+        console.log('Reprogramación exitosa:', response.data);
+        
+        // Actualizamos el estado local de manera más segura
+        cargarTurnos();
+        
+        // Mostrar mensaje de éxito
+        alert('El turno ha sido reprogramado exitosamente');
+        
+        // Cerrar el popup y la ventana de detalles
+        setMostrarReprogramacion(false);
+        setTurnoSeleccionado(null);
+      })
+      .catch(error => {
+        console.error('Error al reprogramar el turno:', error.response?.data || error.message || error);
+        
+        const errorMsg = error.response?.data?.error || 'No se pudo reprogramar el turno. Intente nuevamente más tarde.';
+        alert(errorMsg);
+      })
+      .finally(() => {
+        setReprogramando(false);
+      });
+  };
   
   const cancelarReprogramacion = () => {
     setMostrarReprogramacion(false);
@@ -148,11 +167,6 @@ const confirmarReprogramacion = (nuevosDatos) => {
     
     setCancelando(true);
     
-    // Imprimimos información para depurar
-    console.log("Cancelando turno con ID:", turnoSeleccionado.id_turno);
-    
-    // CORRECCIÓN: Ajustamos la URL para que coincida con la definición en el router
-    // De '/id_turno/cancelar' a '/cancelar/id_turno'
     axios.put(`http://localhost:3001/api/turnos/cancelar/${turnoSeleccionado.id_turno}`)
       .then(response => {
         console.log('Respuesta exitosa:', response.data);
@@ -162,7 +176,7 @@ const confirmarReprogramacion = (nuevosDatos) => {
           prevTurnos.filter(turno => turno.id_turno !== turnoSeleccionado.id_turno)
         );
         
-        // Mostrar mensaje de éxito (opcional)
+        // Mostrar mensaje de éxito
         alert('El turno ha sido cancelado exitosamente');
         
         // Cerrar el popup y la ventana de detalles
@@ -184,10 +198,25 @@ const confirmarReprogramacion = (nuevosDatos) => {
   };
   
   const handleEditar = () => setEditando(v => !v);
+  
+  // Actualizar el manejador para guardar los datos del usuario
   const handleGuardar = () => {
+    if (!user || !user.id_cliente) return;
+    
+    // Deshabilitar la edición mientras guardamos
     setEditando(false);
-    console.log('Guardando datos:', datosUsuario);
+    
+    axios.put(`http://localhost:3001/api/clientes/actualizar/${user.id_cliente}`, datosUsuario)
+      .then(response => {
+        console.log('Datos actualizados:', response.data);
+        alert('Datos actualizados correctamente');
+      })
+      .catch(error => {
+        console.error('Error al actualizar datos:', error);
+        alert('No se pudieron actualizar los datos. Intente nuevamente.');
+      });
   };
+  
   const handleInputChange = e => {
     const { name, value } = e.target;
     setDatosUsuario(prev => ({ ...prev, [name]: value }));
@@ -202,10 +231,6 @@ const confirmarReprogramacion = (nuevosDatos) => {
     return <div className="perfil-container">{errorTurnos}</div>;
   }
 
-  if (loadingTurnos) {
-    return <div className="perfil-container">Cargando tus turnos…</div>;
-  }
-  
   return (
     <div className="perfil-container">
       {turnoSeleccionado && (
@@ -284,24 +309,28 @@ const confirmarReprogramacion = (nuevosDatos) => {
 
         <div className="turnos-contenido">
           <div className="turnos-calendario">
-            <Calendario
-              onDateChange={handleDateChange}
-              onTurnoClick={handleTurnoClick}
-              turnos={fechasConTurno.map(t => t.fecha_hora.split('T')[0])}
-              backgroundColor="#0c3c6e"
-              borderColor="#2a5f8f"
-              headerBackgroundColor="#0a325d"
-              headerTextColor="#ffffff"
-              dayColor="#e0e0e0"
-              selectedDayBackground="#1976d2"
-              selectedDayColor="#ffffff"
-              todayBackground="#2c5282"
-              todayColor="#ffffff"
-              weekendColor="#90caf9"
-              disabledDayColor="#546e7a"
-              fontSize="14px"
-              borderRadius="8px"
-            />
+            {loadingTurnos ? (
+              <div className="cargando-turnos">Cargando tus turnos...</div>
+            ) : (
+              <Calendario
+                onDateChange={handleDateChange}
+                onTurnoClick={handleTurnoClick}
+                turnos={fechasConTurno.map(t => t.fecha_hora.split('T')[0])}
+                backgroundColor="#0c3c6e"
+                borderColor="#2a5f8f"
+                headerBackgroundColor="#0a325d"
+                headerTextColor="#ffffff"
+                dayColor="#e0e0e0"
+                selectedDayBackground="#1976d2"
+                selectedDayColor="#ffffff"
+                todayBackground="#2c5282"
+                todayColor="#ffffff"
+                weekendColor="#90caf9"
+                disabledDayColor="#546e7a"
+                fontSize="14px"
+                borderRadius="8px"
+              />
+            )}
           </div>
         </div>
       </div>
@@ -315,7 +344,11 @@ const confirmarReprogramacion = (nuevosDatos) => {
           className="seccion-titulo"
         />
         <div className="datos-contenido">
-          {editando ? (
+          {loadingUserData ? (
+            <div className="cargando-datos">Cargando datos personales...</div>
+          ) : errorUserData ? (
+            <div className="error-datos">{errorUserData}</div>
+          ) : editando ? (
             <div className="datos-formulario">
               {['nombre','email','telefono','direccion'].map(field => (
                 <div key={field} className="dato-grupo">
@@ -343,12 +376,12 @@ const confirmarReprogramacion = (nuevosDatos) => {
                            textColor="#90caf9" 
                            padding="4px 8px" 
                   />
-                  <span>{val}</span>
+                  <span>{val || 'No especificado'}</span>
                 </div>
               ))}
             </div>
           )}
-          {!editando && (
+          {!editando && !loadingUserData && (
             <div className="datos-acciones">
               <Boton 
                 text="Editar" 

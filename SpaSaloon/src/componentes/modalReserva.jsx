@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 const ModalReserva = ({
   servicio,
   opcionSeleccionada,
+  servicioId, // ID directo del servicio seleccionado
   onClose,
   onReservaConfirmada,
 }) => {
@@ -21,22 +22,31 @@ const ModalReserva = ({
   const [paso, setPaso] = useState(1);
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
   const [profesionales, setProfesionales] = useState([]);
-  const [servicioId, setServicioId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [horariosCargados, setHorariosCargados] = useState(false);
   const [turnosOcupados, setTurnosOcupados] = useState([]);
+  const [servicioIdState, setServicioIdState] = useState(servicioId); // Add state for service ID
 
   // Usar el ID del servicio directamente si está disponible
   useEffect(() => {
     console.log("Servicio recibido:", servicio);
-    if (servicio && servicio.id) {
-      console.log("Usando ID de servicio directamente:", servicio.id);
-      setServicioId(servicio.id);
-    } else if (servicio && servicio.title) {
+    // Si recibimos un ID específico del servicio seleccionado, usamos ese
+    if (servicioId) {
+      console.log("Usando ID de servicio específico:", servicioId);
+      setServicioIdState(servicioId);
+    }
+    // Si el servicio tiene un ID directo (caso de servicios grupales)
+    else if (servicio && servicio.id) {
+      console.log("Usando ID de servicio directo:", servicio.id);
+      setServicioIdState(servicio.id);
+    }
+    // Si solo tenemos el título del servicio
+    else if (servicio && servicio.title) {
+      console.log("Buscando servicio por nombre:", servicio.title);
       fetchServicios();
     }
-  }, [servicio]);
+  }, [servicio, servicioId]);
 
   const fetchServicios = async () => {
     if (!servicio || !servicio.title) return;
@@ -72,21 +82,19 @@ const ModalReserva = ({
 
   useEffect(() => {
     const fetchProfesionales = async () => {
-      if (!servicioId) return;
+      if (!servicioId) {
+        console.error("No se recibió ID de servicio");
+        setError("No se pudo identificar el servicio seleccionado");
+        return;
+      }
+      
       setLoading(true);
       try {
         console.log(`Llamando a la API con servicioId: ${servicioId}`);
-        let response;
-        try {
-          response = await axios.get(
-            `http://localhost:3001/api/profesionales/servicio/${servicioId}`
-          );
-        } catch {
-          response = await axios.get(
-            `http://localhost:3001/api/profesionales`,
-            { params: { id_servicio: servicioId } }
-          );
-        }
+        const response = await axios.get(
+          `http://localhost:3001/api/profesionales/servicio/${servicioId}`
+        );
+        
         console.log("Datos de profesionales:", JSON.stringify(response.data));
         if (response.data && response.data.length > 0) {
           setProfesionales(response.data);
@@ -102,7 +110,8 @@ const ModalReserva = ({
         setLoading(false);
       }
     };
-    if (servicioId) fetchProfesionales();
+    
+    fetchProfesionales();
   }, [servicioId]);
 
   const verificarDisponibilidad = async fecha => {
@@ -150,7 +159,7 @@ const ModalReserva = ({
       const fechaHoraCompleta = `${fecha}T${hora}:00`;
       const datosTurno = {
         id_cliente: clienteId,
-        id_servicio: servicioId,
+        id_servicio: servicioId, // Usar directamente el servicioId recibido como prop
         id_profesional: profesionalId,
         fecha_hora: fechaHoraCompleta,
         duracion_minutos: opcionSeleccionada?.duracion || 60,

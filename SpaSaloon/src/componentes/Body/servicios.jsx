@@ -64,7 +64,16 @@ const Servicios = () => {
   }, []);
 
   const handleCardClick = (servicio) => {
-    setServicioSeleccionado(servicio);
+    // Si es un servicio individual (categoría), mantenemos la estructura pero identificamos que es una categoría
+    if (servicio.options) {
+      setServicioSeleccionado({
+        ...servicio,
+        esCategoria: true // Añadimos esta bandera para identificar que es una categoría
+      });
+    } else {
+      // Si es un servicio grupal, lo pasamos directamente
+      setServicioSeleccionado(servicio);
+    }
   };
 
   const cerrarModal = () => {
@@ -88,6 +97,7 @@ const Servicios = () => {
     // Procesar servicios individuales
     if (tieneServiciosIndividuales) {
       const serviciosIndividualesData = servicios.filter(s => s.tipo === 'Individual').map(s => ({
+        id_servicio: s.id_servicio, // Agregar ID del servicio explícitamente
         nombre: s.nombre,
         descripcion: s.descripcion,
         precio: s.precio
@@ -95,6 +105,7 @@ const Servicios = () => {
       
       serviciosIndividuales.push({
         id: categoria.id_categoria,
+        id_categoria: categoria.id_categoria, // Explícitamente indicar que es una categoría
         title: categoria.nombre,
         imageSrc: getDefaultImage(categoria.nombre),
         options: serviciosIndividualesData
@@ -106,6 +117,7 @@ const Servicios = () => {
       servicios.filter(s => s.tipo === 'Grupal').forEach(s => {
         serviciosGrupales.push({
           id: s.id_servicio,
+          id_servicio: s.id_servicio, // Explícitamente indicar ID del servicio
           title: s.nombre,
           imageSrc: getDefaultImage(categoria.nombre),
           descripcion: s.descripcion,

@@ -5,6 +5,10 @@ const clienteController = require('../controllers/clienteController');
 router.get('/', clienteController.getAllClientes);
 router.post('/register', clienteController.registerCliente);
 router.post('/login', clienteController.loginCliente);
-router.put('/cambiar-password', clienteController.cambiarPasswordCliente); // Nueva ruta
+router.put('/cambiar-password', clienteController.cambiarPasswordCliente);
+
+// Add these new routes
+router.get('/:id', clienteController.getClienteById);
+router.put('/actualizar/:id', clienteController.actualizarCliente);
 
 module.exports = router;

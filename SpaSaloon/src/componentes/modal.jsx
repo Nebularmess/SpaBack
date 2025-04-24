@@ -14,10 +14,13 @@ const Modal = ({ servicio, onClose }) => {
   if (!servicio) return null;
 
   const handleSeleccion = (opcion) => {
+    // Guardar explícitamente el id_servicio en la opción seleccionada para usarlo después
     setOpcionSeleccionada(opcion);
   };
 
+  // Aquí está el error: tienes una función dentro de otra función
   const handleReservar = () => {
+    // Quitamos la función anidada y dejamos solo el contenido
     if (servicio.options && !opcionSeleccionada) {
       alert("Por favor seleccioná una opción primero.");
       return;
@@ -35,6 +38,12 @@ const Modal = ({ servicio, onClose }) => {
       <ModalReserva
         servicio={servicio}
         opcionSeleccionada={opcionSeleccionada}
+        // Este es el key: pasar el ID del servicio correcto
+        servicioId={
+          opcionSeleccionada ? 
+          opcionSeleccionada.id_servicio : // Si hay una opción seleccionada, usa su id_servicio
+          servicio.id_servicio // Si no, usa el id_servicio del servicio (para servicios grupales)
+        }
         onClose={() => {
           setMostrarModalReserva(false);
           onClose();
