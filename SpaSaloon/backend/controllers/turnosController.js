@@ -59,34 +59,34 @@ const crearTurno = (req, res) => {
 
 // Consultar disponibilidad de horarios para una fecha específica
 const verificarDisponibilidad = (req, res) => {
-  const { fecha, id_servicio } = req.query;
+  const { fecha, id_servicio, id_profesional } = req.query;
   
   if (!fecha) {
     return res.status(400).json({ error: 'Se requiere una fecha para verificar disponibilidad' });
   }
-
-  // Obtener todos los turnos para la fecha especificada
-  const query = `
-    SELECT t.fecha_hora, p.id_profesional
-    FROM TURNO t
-    JOIN PROFESIONAL p ON t.id_profesional = p.id_profesional
-    WHERE DATE(t.fecha_hora) = ? 
-    AND t.estado != 'Cancelado'
-    ${id_servicio ? 'AND p.id_servicio = ?' : ''}
-  `;
-
-  const params = id_servicio ? [fecha, id_servicio] : [fecha];
   
-  db.query(query, params, (err, results) => {
+  let query = `
+    SELECT t.id_turno, t.fecha_hora, t.id_profesional 
+    FROM TURNO t
+    WHERE DATE(t.fecha_hora) = ? 
+    AND t.id_servicio = ?
+    AND t.estado != 'Cancelado'
+  `;
+  
+  const params = [fecha, id_servicio];
+  
+  // Si se proporciona un profesional específico, filtramos por él
+  if (id_profesional) {
+    query += ` AND t.id_profesional = ?`;
+    params.push(id_profesional);
+  }
+  
+  db.query(query, params, (err, result) => {
     if (err) return res.status(500).json({ error: 'Error al verificar disponibilidad', detalles: err });
     
-    res.json({ 
-      fecha,
-      turnosOcupados: results
-    });
+    res.json({ turnosOcupados: result });
   });
 };
-
 // Cancelar un turno
 const cancelarTurno = (req, res) => {
   const { id_turno } = req.params;

@@ -24,9 +24,13 @@ const PerfilUsuario = () => {
   const [editando, setEditando] = useState(false);
   const [fechasConTurno, setFechasConTurno] = useState([]);
   const [loadingTurnos, setLoadingTurnos] = useState(false);
+  const [loadingUserData, setLoadingUserData] = useState(false);
   const [errorTurnos, setErrorTurnos] = useState(null);
+  const [errorUserData, setErrorUserData] = useState(null);
   const [cancelando, setCancelando] = useState(false);
   const [reprogramando, setReprogramando] = useState(false);
+  const [multiplesTurnos, setMultiplesTurnos] = useState([]);
+  const [mostrarSeleccionTurnos, setMostrarSeleccionTurnos] = useState(false);
 
   // 🔄 Una vez que el contexto auth termine de cargar:
   useEffect(() => {
@@ -38,6 +42,8 @@ const PerfilUsuario = () => {
 
     // Hay usuario: traemos sus turnos
     cargarTurnos();
+    // Y cargamos sus datos completos
+    cargarDatosUsuario();
   }, [loadingAuth, user]);
 
   // Función para cargar los turnos del usuario
@@ -46,12 +52,25 @@ const PerfilUsuario = () => {
     
     setLoadingTurnos(true);
     setErrorTurnos(null);
-
+  
     axios.get(`http://localhost:3001/api/turnos/${user.id_cliente}`)
       .then(res => {
         // Filtrar para mostrar solo los turnos no cancelados
         const turnosActivos = res.data.filter(turno => turno.estado !== 'Cancelado');
-        setFechasConTurno(turnosActivos);
+        
+        // Aquí procesamos las fechas para el calendario
+        const turnosProcesados = turnosActivos.map(turno => {
+          // Creamos una copia para no mutar el objeto original
+          const turnoProcesado = {...turno};
+          
+          // Guardamos también la fecha/hora ajustada como propiedad adicional para el calendario
+          const { fecha } = ajustarZonaHoraria(turno.fecha_hora);
+          turnoProcesado.fechaAjustada = fecha;
+          
+          return turnoProcesado;
+        });
+        
+        setFechasConTurno(turnosProcesados);
       })
       .catch(err => {
         console.error('Error al cargar turnos:', err);
@@ -61,74 +80,159 @@ const PerfilUsuario = () => {
         setLoadingTurnos(false);
       });
   };
+  
+  //funcion para corregir zona horaria en el read
+  const ajustarZonaHoraria = (fechaHoraString) => {
+    if (!fechaHoraString) return { fecha: '', hora: '' };
+    
+    // Crear un objeto Date a partir del string de fecha y hora
+    const fecha = new Date(fechaHoraString);
+    
+    
+    // Formatear localmente -- Esto me dejo ciego -- firma el principe mestizo
+    const fechaAjustada = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
+    const horaAjustada = `${String(fecha.getHours()).padStart(2, '0')}:${String(fecha.getMinutes()).padStart(2, '0')}`;
+    
+    return { fecha: fechaAjustada, hora: horaAjustada };
+  };
 
-  // Carga de datos estáticos del usuario (si vienen de otra parte)
-  useEffect(() => {
-    if (user && user.nombre) {
-      setDatosUsuario(prev => ({
-        ...prev,
-        nombre: user.nombre,
-        // email, teléfono, dirección podrías traerlos de una API similar
-      }));
-    }
-  }, [user]);
+  // Nueva función para cargar los datos completos del usuario
+  const cargarDatosUsuario = () => {
+    if (!user || !user.id_cliente) return;
+    
+    setLoadingUserData(true);
+    setErrorUserData(null);
+
+    axios.get(`http://localhost:3001/api/clientes/${user.id_cliente}`)
+      .then(res => {
+        setDatosUsuario({
+          nombre: res.data.nombre,
+          email: res.data.email,
+          telefono: res.data.telefono || '',
+          direccion: res.data.direccion || ''
+        });
+      })
+      .catch(err => {
+        console.error('Error al cargar datos del usuario:', err);
+        setErrorUserData('No se pudieron cargar los datos del usuario');
+        
+        // Si fallamos, al menos intentamos usar lo que teníamos del contexto auth
+        if (user && user.nombre) {
+          setDatosUsuario(prev => ({
+            ...prev,
+            nombre: user.nombre
+          }));
+        }
+      })
+      .finally(() => {
+        setLoadingUserData(false);
+      });
+  };
 
   // Handlers
   const handleDateChange = date => setFechaSeleccionada(date);
   const handleTurnoClick = (fecha) => {
-    const turno = fechasConTurno.find(t => t.fecha_hora.startsWith(fecha));
-    if (turno) {
-      setTurnoSeleccionado(turno);
+    // Encontrar todos los turnos para la fecha seleccionada
+    // Necesitamos comparar con las fechas ajustadas
+    const turnosDelDia = fechasConTurno.filter(t => {
+      const { fecha: fechaAjustada } = ajustarZonaHoraria(t.fecha_hora);
+      return fechaAjustada === fecha;
+    });
+    
+    if (turnosDelDia.length > 0) {
+      if (turnosDelDia.length === 1) {
+        // Si hay un solo turno, mostrarlo directamente
+        setTurnoSeleccionado(turnosDelDia[0]);
+      } else {
+        // Si hay múltiples turnos, mostrar popup de selección
+        setMultiplesTurnos(turnosDelDia);
+        setMostrarSeleccionTurnos(true);
+      }
     }
+  };
+  const SeleccionTurnosPopup = ({ turnos, onSeleccionar, onCancelar }) => {
+    return (
+      <div className="modal-turno">
+        <div className="modal-contenido">
+          <h3>Múltiples Turnos en esta Fecha</h3>
+          <p>Selecciona el turno que deseas ver:</p>
+          
+          <div className="lista-turnos">
+            {turnos.map((turno) => {
+              const { hora } = ajustarZonaHoraria(turno.fecha_hora);
+              
+              return (
+                <div 
+                  key={turno.id_turno} 
+                  className="item-turno"
+                  onClick={() => onSeleccionar(turno)}
+                >
+                  <p><strong>Hora:</strong> {hora}</p>
+                  <p><strong>Servicio:</strong> {turno.nombre_servicio || 'N/A'}</p>
+                  <p><strong>Profesional:</strong> {turno.nombre_profesional || 'N/A'}</p>
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="modal-botones">
+            <button className="boton-cerrar" onClick={onCancelar}>Cerrar</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  // Add these new handler functions
+  const handleSeleccionarTurno = (turno) => {
+    setTurnoSeleccionado(turno);
+    setMostrarSeleccionTurnos(false);
+  };
+  
+  const cerrarSeleccionTurnos = () => {
+    setMostrarSeleccionTurnos(false);
   };
     
   // Manejadores para la reprogramación de turno
-const handleReprogramar = () => {
-  setMostrarReprogramacion(true);
-};
+  const handleReprogramar = () => {
+    setMostrarReprogramacion(true);
+  };
 
-const confirmarReprogramacion = (nuevosDatos) => {
-  if (!turnoSeleccionado || !turnoSeleccionado.id_turno) {
-    console.error('No hay turno seleccionado para reprogramar');
-    setMostrarReprogramacion(false);
-    return;
-  }
-  
-  setReprogramando(true);
-  
-  console.log("Reprogramando turno con ID:", turnoSeleccionado.id_turno);
-  console.log("Nuevos datos:", nuevosDatos);
-  
-  // La URL ahora está bien, usamos la ruta que añadimos al router
-  axios.put(`http://localhost:3001/api/turnos/reprogramar/${turnoSeleccionado.id_turno}`, {
-    fecha_hora: nuevosDatos.fechaCompleta
-  })
-    .then(response => {
-      console.log('Reprogramación exitosa:', response.data);
-      
-      // Actualizamos el estado local de manera más segura
-      // En lugar de intentar modificar el objeto directamente, mejor
-      // recargamos todos los turnos para asegurar sincronización
-      cargarTurnos();
-      
-      // Mostrar mensaje de éxito
-      alert('El turno ha sido reprogramado exitosamente');
-      
-      // Cerrar el popup y la ventana de detalles
+  const confirmarReprogramacion = (nuevosDatos) => {
+    if (!turnoSeleccionado || !turnoSeleccionado.id_turno) {
+      console.error('No hay turno seleccionado para reprogramar');
       setMostrarReprogramacion(false);
-      setTurnoSeleccionado(null);
+      return;
+    }
+    
+    setReprogramando(true);
+    
+    axios.put(`http://localhost:3001/api/turnos/reprogramar/${turnoSeleccionado.id_turno}`, {
+      fecha_hora: nuevosDatos.fechaCompleta
     })
-    .catch(error => {
-      console.error('Error al reprogramar el turno:', error.response?.data || error.message || error);
-      
-      // Mensaje de error más informativo si tenemos detalles específicos
-      const errorMsg = error.response?.data?.error || 'No se pudo reprogramar el turno. Intente nuevamente más tarde.';
-      alert(errorMsg);
-    })
-    .finally(() => {
-      setReprogramando(false);
-    });
-};
+      .then(response => {
+        console.log('Reprogramación exitosa:', response.data);
+        
+        // Actualizamos el estado local de manera más segura
+        cargarTurnos();
+        
+        // Mostrar mensaje de éxito
+        alert('El turno ha sido reprogramado exitosamente');
+        
+        // Cerrar el popup y la ventana de detalles
+        setMostrarReprogramacion(false);
+        setTurnoSeleccionado(null);
+      })
+      .catch(error => {
+        console.error('Error al reprogramar el turno:', error.response?.data || error.message || error);
+        
+        const errorMsg = error.response?.data?.error || 'No se pudo reprogramar el turno. Intente nuevamente más tarde.';
+        alert(errorMsg);
+      })
+      .finally(() => {
+        setReprogramando(false);
+      });
+  };
   
   const cancelarReprogramacion = () => {
     setMostrarReprogramacion(false);
@@ -148,11 +252,6 @@ const confirmarReprogramacion = (nuevosDatos) => {
     
     setCancelando(true);
     
-    // Imprimimos información para depurar
-    console.log("Cancelando turno con ID:", turnoSeleccionado.id_turno);
-    
-    // CORRECCIÓN: Ajustamos la URL para que coincida con la definición en el router
-    // De '/id_turno/cancelar' a '/cancelar/id_turno'
     axios.put(`http://localhost:3001/api/turnos/cancelar/${turnoSeleccionado.id_turno}`)
       .then(response => {
         console.log('Respuesta exitosa:', response.data);
@@ -162,7 +261,7 @@ const confirmarReprogramacion = (nuevosDatos) => {
           prevTurnos.filter(turno => turno.id_turno !== turnoSeleccionado.id_turno)
         );
         
-        // Mostrar mensaje de éxito (opcional)
+        // Mostrar mensaje de éxito
         alert('El turno ha sido cancelado exitosamente');
         
         // Cerrar el popup y la ventana de detalles
@@ -184,10 +283,25 @@ const confirmarReprogramacion = (nuevosDatos) => {
   };
   
   const handleEditar = () => setEditando(v => !v);
+  
+  // Actualizar el manejador para guardar los datos del usuario
   const handleGuardar = () => {
+    if (!user || !user.id_cliente) return;
+    
+    // Deshabilitar la edición mientras guardamos
     setEditando(false);
-    console.log('Guardando datos:', datosUsuario);
+    
+    axios.put(`http://localhost:3001/api/clientes/actualizar/${user.id_cliente}`, datosUsuario)
+      .then(response => {
+        console.log('Datos actualizados:', response.data);
+        alert('Datos actualizados correctamente');
+      })
+      .catch(error => {
+        console.error('Error al actualizar datos:', error);
+        alert('No se pudieron actualizar los datos. Intente nuevamente.');
+      });
   };
+  
   const handleInputChange = e => {
     const { name, value } = e.target;
     setDatosUsuario(prev => ({ ...prev, [name]: value }));
@@ -202,20 +316,23 @@ const confirmarReprogramacion = (nuevosDatos) => {
     return <div className="perfil-container">{errorTurnos}</div>;
   }
 
-  if (loadingTurnos) {
-    return <div className="perfil-container">Cargando tus turnos…</div>;
-  }
-  
   return (
     <div className="perfil-container">
       {turnoSeleccionado && (
         <div className="modal-turno">
           <div className="modal-contenido">
             <h3>Detalle del Turno</h3>
-            <p><strong>Fecha:</strong> {turnoSeleccionado.fecha_hora.split('T')[0]}</p>
-            <p><strong>Hora:</strong> {turnoSeleccionado.fecha_hora.split('T')[1].substring(0,5)}</p>
-            <p><strong>Servicio:</strong> {turnoSeleccionado.nombre_servicio || 'N/A'}</p>
-            <p><strong>Profesional:</strong> {turnoSeleccionado.nombre_profesional || 'N/A'}</p>
+            {(() => {
+              const { fecha, hora } = ajustarZonaHoraria(turnoSeleccionado.fecha_hora);
+              return (
+                <>
+                  <p><strong>Fecha:</strong> {fecha}</p>
+                  <p><strong>Hora:</strong> {hora}</p>
+                  <p><strong>Servicio:</strong> {turnoSeleccionado.nombre_servicio || 'N/A'}</p>
+                  <p><strong>Profesional:</strong> {turnoSeleccionado.nombre_profesional || 'N/A'}</p>
+                </>
+              );
+            })()}
             <div className="modal-botones">
               <Boton 
                 text={reprogramando ? "Reprogramando..." : "Reprogramar"} 
@@ -238,21 +355,24 @@ const confirmarReprogramacion = (nuevosDatos) => {
       )}
       
       {/* Popup de confirmación para la cancelación */}
-      {mostrarConfirmacion && turnoSeleccionado && (
-        <PopupConfirmacion
-          titulo="Confirmar Cancelación"
-          mensaje={`¿Estás seguro que deseas cancelar el turno del ${turnoSeleccionado.fecha_hora.split('T')[0]} a las ${turnoSeleccionado.fecha_hora.split('T')[1].substring(0,5)}?`}
-          submensaje="Esta acción no se puede deshacer."
-          textoConfirmar="Sí, cancelar turno"
-          textoCancelar="No, mantener turno"
-          onConfirmar={confirmarCancelacion}
-          onCancelar={cancelarConfirmacion}
-          colorConfirmar="#c62828"
-          hoverColorConfirmar="#b71c1c"
-          colorCancelar="#757575"
-          hoverColorCancelar="#616161"
-        />
-      )}
+      {mostrarConfirmacion && turnoSeleccionado && (() => {
+  const { fecha, hora } = ajustarZonaHoraria(turnoSeleccionado.fecha_hora);
+  return (
+    <PopupConfirmacion
+      titulo="Confirmar Cancelación"
+      mensaje={`¿Estás seguro que deseas cancelar el turno del ${fecha} a las ${hora}?`}
+      submensaje="Esta acción no se puede deshacer."
+      textoConfirmar="Sí, cancelar turno"
+      textoCancelar="No, mantener turno"
+      onConfirmar={confirmarCancelacion}
+      onCancelar={cancelarConfirmacion}
+      colorConfirmar="#c62828"
+      hoverColorConfirmar="#b71c1c"
+      colorCancelar="#757575"
+      hoverColorCancelar="#616161"
+    />
+  );
+})()}
       
       {/* Popup de reprogramación */}
       {mostrarReprogramacion && turnoSeleccionado && (
@@ -270,6 +390,13 @@ const confirmarReprogramacion = (nuevosDatos) => {
           hoverColorCancelar="#616161"
         />
       )}
+      {mostrarSeleccionTurnos && (
+        <SeleccionTurnosPopup
+          turnos={multiplesTurnos}
+          onSeleccionar={handleSeleccionarTurno}
+          onCancelar={cerrarSeleccionTurnos}
+        />
+      )}
       
       <div className="perfil-seccion turnos-seccion">
         <Etiqueta 
@@ -284,24 +411,28 @@ const confirmarReprogramacion = (nuevosDatos) => {
 
         <div className="turnos-contenido">
           <div className="turnos-calendario">
-            <Calendario
-              onDateChange={handleDateChange}
-              onTurnoClick={handleTurnoClick}
-              turnos={fechasConTurno.map(t => t.fecha_hora.split('T')[0])}
-              backgroundColor="#0c3c6e"
-              borderColor="#2a5f8f"
-              headerBackgroundColor="#0a325d"
-              headerTextColor="#ffffff"
-              dayColor="#e0e0e0"
-              selectedDayBackground="#1976d2"
-              selectedDayColor="#ffffff"
-              todayBackground="#2c5282"
-              todayColor="#ffffff"
-              weekendColor="#90caf9"
-              disabledDayColor="#546e7a"
-              fontSize="14px"
-              borderRadius="8px"
-            />
+            {loadingTurnos ? (
+              <div className="cargando-turnos">Cargando tus turnos...</div>
+            ) : (
+              <Calendario
+                onDateChange={handleDateChange}
+                onTurnoClick={handleTurnoClick}
+                turnos={fechasConTurno.map(t => t.fechaAjustada || ajustarZonaHoraria(t.fecha_hora).fecha)}
+                backgroundColor="#0c3c6e"
+                borderColor="#2a5f8f"
+                headerBackgroundColor="#0a325d"
+                headerTextColor="#ffffff"
+                dayColor="#e0e0e0"
+                selectedDayBackground="#1976d2"
+                selectedDayColor="#ffffff"
+                todayBackground="#2c5282"
+                todayColor="#ffffff"
+                weekendColor="#90caf9"
+                disabledDayColor="#546e7a"
+                fontSize="14px"
+                borderRadius="8px"
+              />
+            )}
           </div>
         </div>
       </div>
@@ -315,7 +446,11 @@ const confirmarReprogramacion = (nuevosDatos) => {
           className="seccion-titulo"
         />
         <div className="datos-contenido">
-          {editando ? (
+          {loadingUserData ? (
+            <div className="cargando-datos">Cargando datos personales...</div>
+          ) : errorUserData ? (
+            <div className="error-datos">{errorUserData}</div>
+          ) : editando ? (
             <div className="datos-formulario">
               {['nombre','email','telefono','direccion'].map(field => (
                 <div key={field} className="dato-grupo">
@@ -343,12 +478,12 @@ const confirmarReprogramacion = (nuevosDatos) => {
                            textColor="#90caf9" 
                            padding="4px 8px" 
                   />
-                  <span>{val}</span>
+                  <span>{val || 'No especificado'}</span>
                 </div>
               ))}
             </div>
           )}
-          {!editando && (
+          {!editando && !loadingUserData && (
             <div className="datos-acciones">
               <Boton 
                 text="Editar" 

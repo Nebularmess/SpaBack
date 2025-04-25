@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 const ModalReserva = ({
   servicio,
   opcionSeleccionada,
+  servicioId, // ID directo del servicio seleccionado
   onClose,
   onReservaConfirmada,
 }) => {
@@ -21,22 +22,31 @@ const ModalReserva = ({
   const [paso, setPaso] = useState(1);
   const [diaSeleccionado, setDiaSeleccionado] = useState(null);
   const [profesionales, setProfesionales] = useState([]);
-  const [servicioId, setServicioId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [horariosCargados, setHorariosCargados] = useState(false);
   const [turnosOcupados, setTurnosOcupados] = useState([]);
+  const [servicioIdState, setServicioIdState] = useState(servicioId); // Add state for service ID
 
   // Usar el ID del servicio directamente si está disponible
   useEffect(() => {
     console.log("Servicio recibido:", servicio);
-    if (servicio && servicio.id) {
-      console.log("Usando ID de servicio directamente:", servicio.id);
-      setServicioId(servicio.id);
-    } else if (servicio && servicio.title) {
+    // Si recibimos un ID específico del servicio seleccionado, usamos ese
+    if (servicioId) {
+      console.log("Usando ID de servicio específico:", servicioId);
+      setServicioIdState(servicioId);
+    }
+    // Si el servicio tiene un ID directo (caso de servicios grupales)
+    else if (servicio && servicio.id) {
+      console.log("Usando ID de servicio directo:", servicio.id);
+      setServicioIdState(servicio.id);
+    }
+    // Si solo tenemos el título del servicio
+    else if (servicio && servicio.title) {
+      console.log("Buscando servicio por nombre:", servicio.title);
       fetchServicios();
     }
-  }, [servicio]);
+  }, [servicio, servicioId]);
 
   const fetchServicios = async () => {
     if (!servicio || !servicio.title) return;
@@ -72,21 +82,19 @@ const ModalReserva = ({
 
   useEffect(() => {
     const fetchProfesionales = async () => {
-      if (!servicioId) return;
+      if (!servicioId) {
+        console.error("No se recibió ID de servicio");
+        setError("No se pudo identificar el servicio seleccionado");
+        return;
+      }
+      
       setLoading(true);
       try {
         console.log(`Llamando a la API con servicioId: ${servicioId}`);
-        let response;
-        try {
-          response = await axios.get(
-            `http://localhost:3001/api/profesionales/servicio/${servicioId}`
-          );
-        } catch {
-          response = await axios.get(
-            `http://localhost:3001/api/profesionales`,
-            { params: { id_servicio: servicioId } }
-          );
-        }
+        const response = await axios.get(
+          `http://localhost:3001/api/profesionales/servicio/${servicioId}`
+        );
+        
         console.log("Datos de profesionales:", JSON.stringify(response.data));
         if (response.data && response.data.length > 0) {
           setProfesionales(response.data);
@@ -102,19 +110,29 @@ const ModalReserva = ({
         setLoading(false);
       }
     };
-    if (servicioId) fetchProfesionales();
+    
+    fetchProfesionales();
   }, [servicioId]);
 
-  const verificarDisponibilidad = async fecha => {
+  const verificarDisponibilidad = async (fecha, idProfesional = null) => {
     if (!servicioId) return;
     try {
       const fechaStr = fecha.toISOString().split("T")[0];
+      const params = { 
+        fecha: fechaStr, 
+        id_servicio: servicioId 
+      };
+      
+      // If a professional is selected, include their ID in the query
+      if (idProfesional) {
+        params.id_profesional = idProfesional;
+      }
+      
       const response = await axios.get(
         "http://localhost:3001/api/turnos/disponibilidad",
-        {
-          params: { fecha: fechaStr, id_servicio: servicioId }
-        }
+        { params }
       );
+      
       if (response.data && response.data.turnosOcupados) {
         setTurnosOcupados(response.data.turnosOcupados);
       }
@@ -130,7 +148,8 @@ const ModalReserva = ({
       const fechaStr = nuevaFecha.toISOString().split("T")[0];
       setFecha(fechaStr);
       setDiaSeleccionado(nuevaFecha);
-      verificarDisponibilidad(nuevaFecha);
+      // Pass profesional ID if it's already selected
+      verificarDisponibilidad(nuevaFecha, profesionalId);
     }
     if (nuevaHora) setHora(nuevaHora);
   };
@@ -150,7 +169,7 @@ const ModalReserva = ({
       const fechaHoraCompleta = `${fecha}T${hora}:00`;
       const datosTurno = {
         id_cliente: clienteId,
-        id_servicio: servicioId,
+        id_servicio: servicioId, // Usar directamente el servicioId recibido como prop
         id_profesional: profesionalId,
         fecha_hora: fechaHoraCompleta,
         duracion_minutos: opcionSeleccionada?.duracion || 60,
@@ -210,6 +229,11 @@ const ModalReserva = ({
   const seleccionarProfesional = prof => {
     setProfesional(`${prof.nombre} ${prof.apellido}`);
     setProfesionalId(prof.id_profesional);
+    
+    // Re-check availability with the selected professional
+    if (diaSeleccionado) {
+      verificarDisponibilidad(diaSeleccionado, prof.id_profesional);
+    }
   };
 
   return (
@@ -259,6 +283,8 @@ const ModalReserva = ({
                       fechaSeleccionada={diaSeleccionado}
                       horaSeleccionada={hora}
                       turnosOcupados={turnosOcupados}
+                      profesionalId={profesionalId}
+                      profesionales={profesionales}
                     />
                   </div>
                 </div>
@@ -325,16 +351,27 @@ const CalendarioPersonalizado = ({
   onSeleccionarFechaHora,
   fechaSeleccionada,
   horaSeleccionada,
-  turnosOcupados = []
+  turnosOcupados = [],
+  profesionalId,
+  profesionales = []
 }) => {
   const today = new Date();
+  // Iniciar con el mes actual
   const [fechaActual, setFechaActual] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1)
   );
+  // Autoseleccionar el día actual
   const [diaSeleccionado, setDiaSeleccionado] = useState(
-    fechaSeleccionada || null
+    fechaSeleccionada || today
   );
   const [horaElegida, setHoraElegida] = useState(horaSeleccionada || null);
+
+  // Inicialización con día actual seleccionado
+  useEffect(() => {
+    if (!fechaSeleccionada) {
+      onSeleccionarFechaHora(today, horaElegida);
+    }
+  }, []);
 
   const obtenerDiasDelMes = fecha => {
     const dias = [];
@@ -342,21 +379,43 @@ const CalendarioPersonalizado = ({
     const mes = fecha.getMonth();
     const totalDias = new Date(año, mes + 1, 0).getDate();
     const primerDia = new Date(año, mes, 1).getDay();
+    
+    // Ajustar para que la semana empiece en domingo (0) o lunes (1)
+    const primerDiaAjustado = primerDia === 0 ? 7 : primerDia;
+    
+    // Días del mes anterior para completar la primera semana
+    const diasAnteriores = primerDiaAjustado - 1;
     const diasAnteriorMes = new Date(año, mes, 0).getDate();
-    for (let i = primerDia - 1; i >= 0; i--) {
+    
+    for (let i = diasAnteriores; i > 0; i--) {
       dias.push({
-        fecha: new Date(año, mes - 1, diasAnteriorMes - i),
+        fecha: new Date(año, mes, 1 - i),
         esDelMesActual: false
       });
     }
+    
+    // Días del mes actual
     for (let i = 1; i <= totalDias; i++) {
       const fechaDia = new Date(año, mes, i);
       dias.push({
         fecha: fechaDia,
         esDelMesActual: true,
-        esPasado: fechaDia < today
+        esPasado: fechaDia < new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+        esHoy: fechaDia.getDate() === today.getDate() && 
+               fechaDia.getMonth() === today.getMonth() && 
+               fechaDia.getFullYear() === today.getFullYear()
       });
     }
+    
+    // Días del mes siguiente para completar la última semana
+    const diasSiguientes = 42 - dias.length; // 6 filas * 7 días = 42
+    for (let i = 1; i <= diasSiguientes; i++) {
+      dias.push({
+        fecha: new Date(año, mes + 1, i),
+        esDelMesActual: false
+      });
+    }
+    
     return dias;
   };
 
@@ -381,18 +440,39 @@ const CalendarioPersonalizado = ({
     onSeleccionarFechaHora(diaSeleccionado, hora);
   };
 
-  const estaHoraOcupada = hora => {
+  const estaHoraOcupada = (hora) => {
     if (!diaSeleccionado) return false;
+    
     const fechaStr = diaSeleccionado.toISOString().split("T")[0];
-    return turnosOcupados.some(turno => {
-      const turnoFecha = new Date(turno.fecha_hora)
-        .toISOString()
-        .split("T")[0];
-      const turnoHora = new Date(turno.fecha_hora)
-        .toTimeString()
-        .substring(0, 5);
-      return turnoFecha === fechaStr && turnoHora === hora;
+    
+    // If a professional is selected, check if they have appointments at this time
+    if (profesionalId) {
+      return turnosOcupados.some(turno => {
+        const turnoFecha = new Date(turno.fecha_hora).toISOString().split("T")[0];
+        const turnoHora = new Date(turno.fecha_hora).toTimeString().substring(0, 5);
+        
+        return turnoFecha === fechaStr && 
+               turnoHora === hora && 
+               turno.id_profesional === profesionalId;
+      });
+    } 
+    
+    // If no professional is selected, check if ALL professionals are booked at this time
+    const allProfesionales = profesionales.map(prof => prof.id_profesional);
+    
+    // Now check if there's a booking for each professional at this time slot
+    const profesionalesOcupados = new Set();
+    
+    turnosOcupados.forEach(turno => {
+      const turnoFecha = new Date(turno.fecha_hora).toISOString().split("T")[0];
+      const turnoHora = new Date(turno.fecha_hora).toTimeString().substring(0, 5);
+      
+      if (turnoFecha === fechaStr && turnoHora === hora) {
+        profesionalesOcupados.add(turno.id_profesional);
+      }
     });
+    
+    return profesionalesOcupados.size === allProfesionales.length && allProfesionales.length > 0;
   };
 
   const dias = obtenerDiasDelMes(fechaActual);
@@ -400,6 +480,9 @@ const CalendarioPersonalizado = ({
     month: "long",
     year: "numeric"
   });
+  
+  const diasSemana = ["L", "M", "X", "J", "V", "S", "D"];
+
   const horarios = {
     mañana: ["08:00", "09:00", "10:00", "11:00", "12:00"],
     tarde: ["13:00", "14:00", "15:00", "16:00", "17:00", "18:00"],
@@ -422,17 +505,26 @@ const CalendarioPersonalizado = ({
           →
         </button>
       </div>
-      <div className="dias-scroll">
+      
+      {/* Cuadrícula de días de la semana */}
+      <div className="dias-semana">
+        {diasSemana.map(dia => (
+          <div key={dia} className="dia-semana">{dia}</div>
+        ))}
+      </div>
+      
+      {/* Cuadrícula de días del mes */}
+      <div className="dias-grid">
         {dias.map((dia, index) => (
           <div
             key={index}
-            className={`dia ${!dia.esDelMesActual ? "otro-mes" : ""} ${
+            className={`dia-grid ${!dia.esDelMesActual ? "otro-mes" : ""} ${
               dia.esPasado ? "pasado" : ""
             } ${
-              diaSeleccionado?.toDateString() ===
-              dia.fecha.toDateString()
-                ? "seleccionado"
-                : ""
+              diaSeleccionado?.toDateString() === dia.fecha.toDateString()
+                ? "seleccionado" : ""
+            } ${
+              dia.esHoy ? "hoy" : ""
             }`}
             onClick={() =>
               dia.esDelMesActual && !dia.esPasado && seleccionarDia(dia.fecha)
@@ -442,12 +534,13 @@ const CalendarioPersonalizado = ({
           </div>
         ))}
       </div>
+      
       {diaSeleccionado && (
         <div className="horarios">
           <h5>
             Horarios disponibles para el{" "}
             {diaSeleccionado.toLocaleDateString("es-ES")}
-          :</h5>
+          </h5>
           {Object.entries(horarios).map(([turno, horas]) => (
             <div className="bloque-horario" key={turno}>
               <h6>{turno.charAt(0).toUpperCase() + turno.slice(1)}</h6>
