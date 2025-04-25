@@ -282,10 +282,10 @@ const Formulario = ({ onClose }) => {
   return (
     <div className="auth-sidebar">
       <div className="auth-sidebar-header">
-        <h1>{getFormTitle()}</h1>
         <button className="close-button" onClick={onClose}>
           <X size={24} />
         </button>
+        <h1>{getFormTitle()}</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
