@@ -102,10 +102,74 @@ const actualizarTurno = async (idTurno, datosTurno) => {
         throw error;
     }
 };
-
-// Exportar la nueva función
+const crearTurno = async (datosTurno) => {
+    try {
+        console.log(`Creando turno en la BD con datos:`, datosTurno);
+        
+        // Obtener los IDs necesarios basados en los nombres
+        const [profesionalResult] = await db.execute(
+            'SELECT id_profesional FROM profesional WHERE nombre = ?',
+            [datosTurno.profesional]
+        );
+        
+        const [clienteResult] = await db.execute(
+            'SELECT id_cliente FROM cliente WHERE nombre = ?',
+            [datosTurno.cliente]
+        );
+        
+        const [servicioResult] = await db.execute(
+            'SELECT id_servicio FROM servicio WHERE nombre = ?',
+            [datosTurno.servicio]
+        );
+        
+        if (profesionalResult.length === 0) {
+            throw new Error(`No se encontró el profesional: ${datosTurno.profesional}`);
+        }
+        
+        if (clienteResult.length === 0) {
+            throw new Error(`No se encontró el cliente: ${datosTurno.cliente}`);
+        }
+        
+        if (servicioResult.length === 0) {
+            throw new Error(`No se encontró el servicio: ${datosTurno.servicio}`);
+        }
+        
+        const idProfesional = profesionalResult[0].id_profesional;
+        const idCliente = clienteResult[0].id_cliente;
+        const idServicio = servicioResult[0].id_servicio;
+        
+        // Crear la fecha-hora combinada
+        const fechaHora = `${datosTurno.fecha} ${datosTurno.hora}:00`;
+        
+        // Verificar disponibilidad del profesional
+        const [turnosExistentes] = await db.execute(
+            `SELECT id_turno FROM turno 
+             WHERE id_profesional = ? 
+             AND fecha_hora = ? 
+             AND estado != 'Cancelado'`,
+            [idProfesional, fechaHora]
+        );
+        
+        if (turnosExistentes.length > 0) {
+            throw new Error(`El profesional ya tiene un turno asignado en esa fecha y hora`);
+        }
+        
+        // Insertar el nuevo turno
+        const [resultado] = await db.execute(
+            `INSERT INTO turno (id_profesional, id_cliente, id_servicio, fecha_hora, estado) 
+             VALUES (?, ?, ?, ?, 'Solicitado')`,
+            [idProfesional, idCliente, idServicio, fechaHora]
+        );
+        
+        return resultado;
+    } catch (error) {
+        console.error('Error al crear el turno en la BD:', error);
+        throw error;
+    }
+};
 module.exports = {
     getTurnos,
     actualizarEstadoTurno,
-    actualizarTurno
+    actualizarTurno,
+    crearTurno
 };

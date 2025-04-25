@@ -6,12 +6,14 @@ const turnosAdmController = require('../../controllers/adm_controllers/turnosAdm
 // Rutas existentes
 router.get('/', turnosAdmController.getAdmTurnos);
 router.put('/estado/:id', turnosAdmController.actualizarEstadoTurno);
-
-// Nueva ruta para actualizar un turno
 router.put('/:id', turnosAdmController.actualizarTurno);
+
+// Nueva ruta para crear un turno
+router.post('/', turnosAdmController.crearTurno);
+
 router.use((req, res, next) => {
     console.log(`Ruta turnosAdmin: ${req.method} ${req.originalUrl}`);
     next();
-  });
+});
 
 module.exports = router;
