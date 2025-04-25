@@ -43,10 +43,9 @@
   max-width: 550px;
   animation: fadeInUp 0.8s ease-out forwards;
   text-align: right;
-  box-sizing: border-box; /* Asegura que padding no afecte el ancho */
+  box-sizing: border-box; 
 }
 
-/* Definimos una clase común para alinear el título y el texto */
 .sobre-nosotros-text > * {
   display: block;
   text-align: right;
@@ -59,22 +58,13 @@
 .section-title {
   font-family: var(--font-heading);
   font-size: 3rem;
-  color: white;
+  color: #F4EBD0;
   margin-bottom: 1.5rem;
   position: relative;
-  font-weight: 500;
+  font-weight: 750;
 }
 
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -12px;
-  right: 0;
-  left: auto;
-  width: 80px;
-  height: 3px;
-  background-color: #D4A574;
-}
+
 
 .section-description {
   font-family: var(--font-body);
@@ -119,8 +109,9 @@
 .feature-text h3 {
   font-family: var(--font-heading);
   font-size: 1.2rem;
-  color: white;
+  color: #F4EBD0;
   margin-bottom: 0.5rem;
+  font-weight: 700;
 }
 
 .feature-text p {
