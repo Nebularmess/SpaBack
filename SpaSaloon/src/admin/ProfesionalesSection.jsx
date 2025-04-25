@@ -12,7 +12,7 @@ const ProfesionalesSection = () => {
         servicios: "",
         activo: "",
         email: "",
-        telefono: "",
+        telefono: "" ,
     });
 
     useEffect(() => {
