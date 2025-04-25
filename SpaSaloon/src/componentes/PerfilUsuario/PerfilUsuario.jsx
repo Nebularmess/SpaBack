@@ -29,6 +29,8 @@ const PerfilUsuario = () => {
   const [errorUserData, setErrorUserData] = useState(null);
   const [cancelando, setCancelando] = useState(false);
   const [reprogramando, setReprogramando] = useState(false);
+  const [multiplesTurnos, setMultiplesTurnos] = useState([]);
+  const [mostrarSeleccionTurnos, setMostrarSeleccionTurnos] = useState(false);
 
   // 🔄 Una vez que el contexto auth termine de cargar:
   useEffect(() => {
@@ -102,10 +104,57 @@ const PerfilUsuario = () => {
   // Handlers
   const handleDateChange = date => setFechaSeleccionada(date);
   const handleTurnoClick = (fecha) => {
-    const turno = fechasConTurno.find(t => t.fecha_hora.startsWith(fecha));
-    if (turno) {
-      setTurnoSeleccionado(turno);
+    // Find all turnos for the selected date
+    const turnosDelDia = fechasConTurno.filter(t => t.fecha_hora.startsWith(fecha));
+    
+    if (turnosDelDia.length > 0) {
+      if (turnosDelDia.length === 1) {
+        // If there's only one appointment, show it directly
+        setTurnoSeleccionado(turnosDelDia[0]);
+      } else {
+        // If there are multiple appointments, show a selection popup
+        setMultiplesTurnos(turnosDelDia);
+        setMostrarSeleccionTurnos(true);
+      }
     }
+  };
+  const SeleccionTurnosPopup = ({ turnos, onSeleccionar, onCancelar }) => {
+    return (
+      <div className="modal-turno">
+        <div className="modal-contenido">
+          <h3>Múltiples Turnos en esta Fecha</h3>
+          <p>Selecciona el turno que deseas ver:</p>
+          
+          <div className="lista-turnos">
+            {turnos.map((turno) => (
+              <div 
+                key={turno.id_turno} 
+                className="item-turno"
+                onClick={() => onSeleccionar(turno)}
+              >
+                <p><strong>Hora:</strong> {turno.fecha_hora.split('T')[1].substring(0,5)}</p>
+                <p><strong>Servicio:</strong> {turno.nombre_servicio || 'N/A'}</p>
+                <p><strong>Profesional:</strong> {turno.nombre_profesional || 'N/A'}</p>
+              </div>
+            ))}
+          </div>
+          
+          <div className="modal-botones">
+            <button className="boton-cerrar" onClick={onCancelar}>Cerrar</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  // Add these new handler functions
+  const handleSeleccionarTurno = (turno) => {
+    setTurnoSeleccionado(turno);
+    setMostrarSeleccionTurnos(false);
+  };
+  
+  const cerrarSeleccionTurnos = () => {
+    setMostrarSeleccionTurnos(false);
   };
     
   // Manejadores para la reprogramación de turno
@@ -293,6 +342,13 @@ const PerfilUsuario = () => {
           hoverColorConfirmar="#0d47a1"
           colorCancelar="#757575"
           hoverColorCancelar="#616161"
+        />
+      )}
+      {mostrarSeleccionTurnos && (
+        <SeleccionTurnosPopup
+          turnos={multiplesTurnos}
+          onSeleccionar={handleSeleccionarTurno}
+          onCancelar={cerrarSeleccionTurnos}
         />
       )}
       
