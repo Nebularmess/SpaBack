@@ -1,34 +1,60 @@
+:root {
+  --font-body: 'Montserrat', sans-serif;
+}
+
 .popup-confirmacion {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Asegura que esté por encima de otros elementos */
-  }
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Asegura que esté por encima de otros elementos */
+  padding-top: 60px; /* Margen para la barra de navegación */
+  box-sizing: border-box;
+}
+
+.popup-contenido {
+  background-color: rgba(75, 44, 32, 0.95); /* Fondo marrón oscuro casi opaco */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  width: 90%;
+  max-width: 400px;
+  max-height: calc(100vh - 100px); /* Altura máxima para evitar scroll */
+  overflow-y: auto; /* Scroll interno si es necesario */
+  border: 1px solid rgba(212, 165, 116, 0.3);
+  color: #F4EBD0; /* Texto en color crema */
+}
+
+.popup-contenido h3 {
+  margin-top: 0;
+  color: #D4A574; /* Título en color café claro */
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.3);
+}
+
+.popup-contenido p {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.popup-botones {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+/* Responsive */
+@media screen and (max-height: 700px) {
   .popup-contenido {
-    color: black;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    width: 90%;
-    max-width: 400px;
+    padding: 15px;
+    max-height: calc(100vh - 80px);
   }
-  
-  .popup-contenido h3 {
-    margin-top: 0;
-    color: #0c3c6e;
-  }
-  
-  .popup-botones {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-    gap: 10px;
-  }
+}
