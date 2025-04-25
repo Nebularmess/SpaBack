@@ -70,18 +70,7 @@ const ProfesionalesSection = () => {
         };
 
 
-    const handleAgregar = () => {
-        setModo("crear");
-        setFormulario({
-            nombre: "",
-            apellido: "",
-            servicio: "",
-            activo: "",
-            email: "",
-            telefono: "",
-        });
-        setMostrarModal(true);
-    };
+   
 
     const handleEditar = () => {
         if (profesionalSeleccionado) {
@@ -132,9 +121,6 @@ const ProfesionalesSection = () => {
     return (
         <div id="profesionales">
             <h2>Profesionales</h2>
-            <button className="btn-agregar" onClick={handleAgregar}>
-                Agregar Profesional
-            </button>
 
             <table className="tabla">
                 <thead>

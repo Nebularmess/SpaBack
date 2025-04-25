@@ -38,23 +38,13 @@ const ServiciosSection = () => {
         fetchServicios();
     }, []);
 
-    const handleAgregar = () => {
-        setModo("crear");
-        setFormulario({
-            nombre: "",
-            categoria: "",
-            tipo: "Individual",
-            precio: "",
-            descripcion: "",
-        });
-        setMostrarModal(true);
-    };
+
 
     const handleEditar = () => {
         if (servicioSeleccionado) {
             setModo("editar");
             // Creamos una copia del servicio seleccionado sin incluir profesionales
-            const { profesionales, ...servicioSinProfesionales } = servicioSeleccionado;
+            const { ...servicioSinProfesionales } = servicioSeleccionado;
             setFormulario(servicioSinProfesionales);
             setMostrarModal(true);
         }
@@ -125,9 +115,6 @@ const ServiciosSection = () => {
     return (
         <div id="servicios">
             <h2>Servicios</h2>
-            <button className="btn-agregar" onClick={handleAgregar} disabled={cargando}>
-                Agregar Servicio
-            </button>
 
             {error && <div className="error-message">{error}</div>}
             {cargando && <div className="loading">Cargando...</div>}
@@ -182,12 +169,7 @@ const ServiciosSection = () => {
                 </button>
             </div>
 
-            <ModalForm 
-                isOpen={mostrarModal} 
-                onClose={() => setMostrarModal(false)} 
-                title={`${modo === "crear" ? "Agregar" : "Editar"} Servicio`}
-                onSave={handleGuardar}
-            >
+            <ModalForm isOpen={mostrarModal} onClose={() => setMostrarModal(false)} title={`${modo === "crear" ? "Agregar" : "Editar"} Servicio`}>
                 <input
                     type="text"
                     placeholder="Nombre"
@@ -218,6 +200,9 @@ const ServiciosSection = () => {
                     value={formulario.descripcion}
                     onChange={e => setFormulario({ ...formulario, descripcion: e.target.value })}
                 ></textarea>
+                <button className="btn-guardar" onClick={handleGuardar}>
+                    Guardar
+                </button>
             </ModalForm>
         </div>
     );

@@ -39,18 +39,6 @@ const TurnosSection = () => {
         fetchTurnos();
     }, []);
 
-    const handleAgregar = () => {
-        setModo("crear");
-        setFormulario({
-            fecha: "",
-            hora: "",
-            profesional: "",
-            cliente: "",
-            servicio: "",
-            precio: "",
-        });
-        setMostrarModal(true);
-    };
 
     const handleEditar = () => {
         if (turnoSeleccionado) {
@@ -153,6 +141,7 @@ const TurnosSection = () => {
 
     const handleGenerarReporte = () => {
         alert("Generando reporte de turnos...");
+        alert("reporte enviado por mail")
         // lógica para generar el reporte
     };
 
@@ -161,10 +150,6 @@ const TurnosSection = () => {
             <h2>Turnos</h2>
             
             {error && <div className="error-message">{error}</div>}
-            
-            <button className="btn-agregar" onClick={handleAgregar} disabled={isLoading}>
-                Agregar Turno
-            </button>
 
             {isLoading ? (
                 <p>Cargando...</p>
