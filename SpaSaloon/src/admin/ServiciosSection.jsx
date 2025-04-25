@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ModalForm from "./ModalForm.jsx"; // Asegurate de tener este modal
+import ModalForm from "./ModalForm.jsx";
 
 const ServiciosSection = () => {
     const [servicios, setServicios] = useState([]);
@@ -12,37 +12,40 @@ const ServiciosSection = () => {
         tipo: "Individual",
         precio: "",
         descripcion: "",
-        profesionales: "",
     });
+    const [cargando, setCargando] = useState(false);
+    const [error, setError] = useState(null);
+
+    const fetchServicios = async () => {
+        try {
+            setCargando(true);
+            setError(null);
+            const response = await fetch("http://localhost:3001/api/serviciosAdm");
+            if (!response.ok) {
+                throw new Error("Error al obtener los servicios");
+            }
+            const data = await response.json();
+            setServicios(data);
+        } catch (error) {
+            console.error("Error al cargar los servicios:", error);
+            setError("No se pudieron cargar los servicios. Intenta nuevamente.");
+        } finally {
+            setCargando(false);
+        }
+    };
 
     useEffect(() => {
-            const fetchServicios = async () => {
-                try {
-                    const response = await fetch("http://localhost:3001/api/serviciosAdm"); // Cambia la URL si es necesario
-                    if (!response.ok) {
-                        throw new Error("Error al obtener los turnos");
-                    }
-                    const data = await response.json();
-                    setServicios(data); // Actualiza el estado con los turnos obtenidos
-                } catch (error) {
-                    console.error("Error al cargar los servicios:", error);
-                    alert("No se pudieron cargar los servicios. Intenta nuevamente.");
-                }
-            };
-    
-            fetchServicios();
-        }, []);
-
+        fetchServicios();
+    }, []);
 
     const handleAgregar = () => {
         setModo("crear");
         setFormulario({
             nombre: "",
             categoria: "",
-            tipo: "",
+            tipo: "Individual",
             precio: "",
             descripcion: "",
-            profesionales: "",
         });
         setMostrarModal(true);
     };
@@ -50,35 +53,84 @@ const ServiciosSection = () => {
     const handleEditar = () => {
         if (servicioSeleccionado) {
             setModo("editar");
-            setFormulario({ ...servicioSeleccionado });
+            // Creamos una copia del servicio seleccionado sin incluir profesionales
+            const { profesionales, ...servicioSinProfesionales } = servicioSeleccionado;
+            setFormulario(servicioSinProfesionales);
             setMostrarModal(true);
         }
     };
 
-    const handleEliminar = () => {
+    const handleEliminar = async () => {
         if (servicioSeleccionado && window.confirm("¿Eliminar este servicio?")) {
-            setServicios(servicios.filter(s => s.id !== servicioSeleccionado.id));
-            setServicioSeleccionado(null);
+            try {
+                setCargando(true);
+                const response = await fetch(`http://localhost:3001/api/serviciosAdm/${servicioSeleccionado.id}`, {
+                    method: 'DELETE',
+                });
+                
+                if (!response.ok) {
+                    throw new Error("Error al eliminar el servicio");
+                }
+                
+                // Actualizar la lista de servicios
+                await fetchServicios();
+                setServicioSeleccionado(null);
+                
+            } catch (error) {
+                console.error("Error al eliminar el servicio:", error);
+                alert("No se pudo eliminar el servicio. Intenta nuevamente.");
+            } finally {
+                setCargando(false);
+            }
         }
     };
 
-    const handleGuardar = () => {
-        if (modo === "crear") {
-            const nuevo = { ...formulario, id: Date.now() };
-            setServicios([...servicios, nuevo]);
-        } else {
-            setServicios(servicios.map(s => (s.id === formulario.id ? formulario : s)));
+    const handleGuardar = async () => {
+        try {
+            setCargando(true);
+            
+            if (modo === "crear") {
+                // Implementar la creación si es necesario
+                const nuevo = { ...formulario, id: Date.now() };
+                setServicios([...servicios, nuevo]);
+            } else {
+                // Actualizar el servicio en la base de datos
+                const response = await fetch(`http://localhost:3001/api/serviciosAdm/${formulario.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formulario),
+                });
+                
+                if (!response.ok) {
+                    throw new Error("Error al actualizar el servicio");
+                }
+                
+                // Actualizar la lista de servicios
+                await fetchServicios();
+            }
+            
+            setMostrarModal(false);
+            setServicioSeleccionado(null);
+            
+        } catch (error) {
+            console.error("Error al guardar el servicio:", error);
+            alert("No se pudo guardar el servicio. Intenta nuevamente.");
+        } finally {
+            setCargando(false);
         }
-        setMostrarModal(false);
-        setServicioSeleccionado(null);
     };
 
     return (
         <div id="servicios">
             <h2>Servicios</h2>
-            <button className="btn-agregar" onClick={handleAgregar}>
+            <button className="btn-agregar" onClick={handleAgregar} disabled={cargando}>
                 Agregar Servicio
             </button>
+
+            {error && <div className="error-message">{error}</div>}
+            {cargando && <div className="loading">Cargando...</div>}
 
             <table className="tabla">
                 <thead>
@@ -88,7 +140,6 @@ const ServiciosSection = () => {
                         <th>Categoría</th>
                         <th>Tipo</th>
                         <th>Precio</th>
-                        <th>Profesionales</th>
                         <th>Descripción</th>
                     </tr>
                 </thead>
@@ -108,7 +159,6 @@ const ServiciosSection = () => {
                             <td>{servicio.categoria}</td>
                             <td>{servicio.tipo}</td>
                             <td>${servicio.precio}</td>
-                            <td>{servicio.profesionales}</td>
                             <td>{servicio.descripcion}</td>
                         </tr>
                     ))}
@@ -118,21 +168,26 @@ const ServiciosSection = () => {
             <div className="acciones-turno">
                 <button
                     className="btn-editar"
-                    disabled={!servicioSeleccionado}
+                    disabled={!servicioSeleccionado || cargando}
                     onClick={handleEditar}
                 >
                     Editar
                 </button>
                 <button
                     className="btn-eliminar"
-                    disabled={!servicioSeleccionado}
+                    disabled={!servicioSeleccionado || cargando}
                     onClick={handleEliminar}
                 >
                     Eliminar
                 </button>
             </div>
 
-            <ModalForm isOpen={mostrarModal} onClose={() => setMostrarModal(false)} onSave={handleGuardar} title={`${modo === "crear" ? "Agregar" : "Editar"} Servicio`}>
+            <ModalForm 
+                isOpen={mostrarModal} 
+                onClose={() => setMostrarModal(false)} 
+                title={`${modo === "crear" ? "Agregar" : "Editar"} Servicio`}
+                onSave={handleGuardar}
+            >
                 <input
                     type="text"
                     placeholder="Nombre"
@@ -158,18 +213,11 @@ const ServiciosSection = () => {
                     value={formulario.precio}
                     onChange={e => setFormulario({ ...formulario, precio: e.target.value })}
                 />
-                <input
-                    type="text"
-                    placeholder="Profesionales"
-                    value={formulario.profesionales}
-                    onChange={e => setFormulario({ ...formulario, profesionales: e.target.value })}
-                />
                 <textarea
                     placeholder="Descripción"
                     value={formulario.descripcion}
                     onChange={e => setFormulario({ ...formulario, descripcion: e.target.value })}
                 ></textarea>
-                
             </ModalForm>
         </div>
     );

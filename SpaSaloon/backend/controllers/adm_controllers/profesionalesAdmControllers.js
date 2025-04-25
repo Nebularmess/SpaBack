@@ -9,17 +9,29 @@ const getAdmProfesionales = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los profesionales' });
     }
 }
-const addProfesional = async (req, res) => {
+const actualizarProfesional = async (req, res) => {
     try {
-        const nuevoProfesional = req.body; // Datos enviados desde el frontend
-        const id = await profesionalesAdmModel.pushProfesionales(nuevoProfesional);
-        res.status(201).json({ message: 'Profesional agregado exitosamente', id });
+        const { id } = req.params;
+        const profesionalActualizado = await profesionalesAdmModel.actualizarProfesional(id, req.body);
+        res.status(200).json(profesionalActualizado);
     } catch (error) {
-        console.error('Error al agregar un profesional:', error);
-        res.status(500).json({ error: 'Error al agregar un profesional' });
+        console.error('Error al actualizar el profesional:', error);
+        res.status(500).json({ error: 'Error al actualizar el profesional' });
     }
 };
+const eliminarProfesional = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const resultado = await profesionalesAdmModel.eliminarProfesional(id);
+        res.status(200).json(resultado);
+    } catch (error) {
+        console.error('Error al eliminar el profesional:', error);
+        res.status(500).json({ error: 'Error al eliminar el profesional' });
+    }
+};
+
 module.exports = {
     getAdmProfesionales,
-    addProfesional
+    actualizarProfesional,
+    eliminarProfesional
 };

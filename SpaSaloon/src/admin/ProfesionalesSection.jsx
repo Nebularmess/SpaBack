@@ -9,7 +9,7 @@ const ProfesionalesSection = () => {
     const [formulario, setFormulario] = useState({
         nombre: "",
         apellido: "",
-        servicios: "",
+        servicio: "",
         activo: "",
         email: "",
         telefono: "" ,
@@ -32,13 +32,50 @@ const ProfesionalesSection = () => {
        
                fetchProfesionales();
            }, []);
+           const actualizarProfesional = async (profesionalEditado) => {
+            try {
+                const response = await fetch(`http://localhost:3001/api/profesionalesAdm/${profesionalEditado.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(profesionalEditado),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al actualizar el profesional');
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('Error al actualizar el profesional:', error);
+                throw error;
+            }
+        };
+        const eliminarProfesional = async (id) => {
+            try {
+                const response = await fetch(`http://localhost:3001/api/profesionalesAdm/${id}`, {
+                    method: 'DELETE',
+                });
+        
+                if (!response.ok) {
+                    throw new Error('Error al eliminar el profesional');
+                }
+        
+                return await response.json();
+            } catch (error) {
+                console.error('Error al eliminar el profesional:', error);
+                throw error;
+            }
+        };
+
 
     const handleAgregar = () => {
         setModo("crear");
         setFormulario({
             nombre: "",
             apellido: "",
-            servicios: "",
+            servicio: "",
             activo: "",
             email: "",
             telefono: "",
@@ -54,63 +91,41 @@ const ProfesionalesSection = () => {
         }
     };
 
-    const handleEliminar = () => {
-        if (profesionalSeleccionado && window.confirm("¿Eliminar este profesional?")) {
-            setProfesionales(profesionales.filter(p => p.id !== profesionalSeleccionado.id));
-            setProfesionalSeleccionado(null);
+    const handleEliminar = async () => {
+        if (!profesionalSeleccionado) return;
+        
+        if (window.confirm("¿Estás seguro de querer eliminar a este profesional?")) {
+            try {
+                await eliminarProfesional(profesionalSeleccionado.id);
+                
+                // Remover el profesional de la lista mostrada en UI
+                setProfesionales(profesionales.filter(p => p.id !== profesionalSeleccionado.id));
+                
+                setProfesionalSeleccionado(null);
+                alert("Profesional eliminado correctamente");
+            } catch (error) {
+                alert("Error al eliminar el profesional: " + error.message);
+            }
         }
     };
-
     const handleGuardar = async () => {
-        const nuevoProfesional = {
-            nombre: formulario.nombre,
-            apellido: formulario.apellido,
-            servicio: formulario.servicios, // Asegúrate de enviar el ID del servicio
-            activo: formulario.activo === "1" || formulario.activo === 1 ? 1 : 0,
-            email: formulario.email,
-            telefono: formulario.telefono,
-        };
-        
-        console.log("Datos enviados al backend:", nuevoProfesional);
-
         try {
-            let response;
             if (modo === "crear") {
-                response = await fetch("http://localhost:3001/api/profesionalesAdm", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(nuevoProfesional),
-                });
+                // Lógica para crear un nuevo profesional
+                // Puedes implementar esto de manera similar a la función de actualizar
+                const nuevo = { ...formulario, id: Date.now() };
+                setProfesionales([...profesionales, nuevo]);
             } else {
-                response = await fetch(`http://localhost:3001/api/profesionalesAdm/${formulario.id}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(nuevoProfesional),
-                });
+                // Lógica para editar un profesional existente
+                await actualizarProfesional(formulario);
+                
+                // Actualizar la lista de profesionales localmente
+                setProfesionales(profesionales.map(p => (p.id === formulario.id ? formulario : p)));
             }
-    
-            if (!response.ok) {
-                throw new Error("Error al guardar el profesional");
-            }
-    
-            const data = await response.json();
-            if (modo === "crear") {
-                setProfesionales([...profesionales, { ...nuevoProfesional, id: data.id }]); // Agrega el nuevo profesional
-            } else {
-                setProfesionales(
-                    profesionales.map(p => (p.id === formulario.id ? { ...nuevoProfesional, id: formulario.id } : p))
-                ); // Actualiza el profesional existente
-            }
-    
             setMostrarModal(false);
             setProfesionalSeleccionado(null);
         } catch (error) {
-            console.error(error);
-            alert("Hubo un error al guardar el profesional");
+            alert("Error al guardar los cambios: " + error.message);
         }
     };
 
@@ -128,7 +143,6 @@ const ProfesionalesSection = () => {
                         <th>Nombre</th>
                         <th>Apellido</th>
                         <th>Servicios</th>
-                        <th>Activo</th>
                         <th>Email</th>
                         <th>Teléfono</th>
                     </tr>
@@ -146,8 +160,7 @@ const ProfesionalesSection = () => {
                             <td>{p.id}</td>
                             <td>{p.nombre}</td>
                             <td>{p.apellido}</td>
-                            <td>{p.servicios}</td>
-                            <td>{p.activo}</td>
+                            <td>{p.servicio}</td>
                             <td>{p.email}</td>
                             <td>{p.telefono}</td>
                         </tr>
@@ -180,7 +193,7 @@ const ProfesionalesSection = () => {
                 <input
                     type="text"
                     placeholder="Servicios que ofrece"
-                    value={formulario.servicios}
+                    value={formulario.servicio}
                     onChange={e => setFormulario({ ...formulario, servicios: e.target.value })}
                 />
                 <select
@@ -202,7 +215,6 @@ const ProfesionalesSection = () => {
                     value={formulario.telefono}
                     onChange={e => setFormulario({ ...formulario, telefono: e.target.value })}
                 />
-                
             </ModalForm>
         </div>
     );

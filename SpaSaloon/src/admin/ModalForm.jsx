@@ -1,7 +1,7 @@
 import React from "react";
 import "./ModalForm.css";
 
-const Modal = ({ isOpen, onClose, title, children, onSave }) => {
+const ModalForm = ({ isOpen, onClose, title, children, onSave }) => {
   if (!isOpen) return null;
 
   const handleSubmit = (e) => {
@@ -29,4 +29,4 @@ const Modal = ({ isOpen, onClose, title, children, onSave }) => {
   );
 };
 
-export default Modal;
+export default ModalForm;
