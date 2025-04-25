@@ -28,7 +28,6 @@ const Servicios = () => {
     if (name.includes('corporal')) return saunaImg;
     if (name.includes('hidro')) return hidromasajesImg;
     if (name.includes('yoga')) return yogaImg;
-    // Imagen por defecto si no hay coincidencia
     return masagesImg;
   };
 
