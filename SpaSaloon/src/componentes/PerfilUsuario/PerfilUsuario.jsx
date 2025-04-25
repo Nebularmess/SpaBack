@@ -52,12 +52,25 @@ const PerfilUsuario = () => {
     
     setLoadingTurnos(true);
     setErrorTurnos(null);
-
+  
     axios.get(`http://localhost:3001/api/turnos/${user.id_cliente}`)
       .then(res => {
         // Filtrar para mostrar solo los turnos no cancelados
         const turnosActivos = res.data.filter(turno => turno.estado !== 'Cancelado');
-        setFechasConTurno(turnosActivos);
+        
+        // Aquí procesamos las fechas para el calendario
+        const turnosProcesados = turnosActivos.map(turno => {
+          // Creamos una copia para no mutar el objeto original
+          const turnoProcesado = {...turno};
+          
+          // Guardamos también la fecha/hora ajustada como propiedad adicional para el calendario
+          const { fecha } = ajustarZonaHoraria(turno.fecha_hora);
+          turnoProcesado.fechaAjustada = fecha;
+          
+          return turnoProcesado;
+        });
+        
+        setFechasConTurno(turnosProcesados);
       })
       .catch(err => {
         console.error('Error al cargar turnos:', err);
@@ -66,6 +79,21 @@ const PerfilUsuario = () => {
       .finally(() => {
         setLoadingTurnos(false);
       });
+  };
+  
+  //funcion para corregir zona horaria en el read
+  const ajustarZonaHoraria = (fechaHoraString) => {
+    if (!fechaHoraString) return { fecha: '', hora: '' };
+    
+    // Crear un objeto Date a partir del string de fecha y hora
+    const fecha = new Date(fechaHoraString);
+    
+    
+    // Formatear localmente -- Esto me dejo ciego -- firma el principe mestizo
+    const fechaAjustada = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`;
+    const horaAjustada = `${String(fecha.getHours()).padStart(2, '0')}:${String(fecha.getMinutes()).padStart(2, '0')}`;
+    
+    return { fecha: fechaAjustada, hora: horaAjustada };
   };
 
   // Nueva función para cargar los datos completos del usuario
@@ -104,15 +132,19 @@ const PerfilUsuario = () => {
   // Handlers
   const handleDateChange = date => setFechaSeleccionada(date);
   const handleTurnoClick = (fecha) => {
-    // Find all turnos for the selected date
-    const turnosDelDia = fechasConTurno.filter(t => t.fecha_hora.startsWith(fecha));
+    // Encontrar todos los turnos para la fecha seleccionada
+    // Necesitamos comparar con las fechas ajustadas
+    const turnosDelDia = fechasConTurno.filter(t => {
+      const { fecha: fechaAjustada } = ajustarZonaHoraria(t.fecha_hora);
+      return fechaAjustada === fecha;
+    });
     
     if (turnosDelDia.length > 0) {
       if (turnosDelDia.length === 1) {
-        // If there's only one appointment, show it directly
+        // Si hay un solo turno, mostrarlo directamente
         setTurnoSeleccionado(turnosDelDia[0]);
       } else {
-        // If there are multiple appointments, show a selection popup
+        // Si hay múltiples turnos, mostrar popup de selección
         setMultiplesTurnos(turnosDelDia);
         setMostrarSeleccionTurnos(true);
       }
@@ -126,17 +158,21 @@ const PerfilUsuario = () => {
           <p>Selecciona el turno que deseas ver:</p>
           
           <div className="lista-turnos">
-            {turnos.map((turno) => (
-              <div 
-                key={turno.id_turno} 
-                className="item-turno"
-                onClick={() => onSeleccionar(turno)}
-              >
-                <p><strong>Hora:</strong> {turno.fecha_hora.split('T')[1].substring(0,5)}</p>
-                <p><strong>Servicio:</strong> {turno.nombre_servicio || 'N/A'}</p>
-                <p><strong>Profesional:</strong> {turno.nombre_profesional || 'N/A'}</p>
-              </div>
-            ))}
+            {turnos.map((turno) => {
+              const { hora } = ajustarZonaHoraria(turno.fecha_hora);
+              
+              return (
+                <div 
+                  key={turno.id_turno} 
+                  className="item-turno"
+                  onClick={() => onSeleccionar(turno)}
+                >
+                  <p><strong>Hora:</strong> {hora}</p>
+                  <p><strong>Servicio:</strong> {turno.nombre_servicio || 'N/A'}</p>
+                  <p><strong>Profesional:</strong> {turno.nombre_profesional || 'N/A'}</p>
+                </div>
+              );
+            })}
           </div>
           
           <div className="modal-botones">
@@ -286,10 +322,17 @@ const PerfilUsuario = () => {
         <div className="modal-turno">
           <div className="modal-contenido">
             <h3>Detalle del Turno</h3>
-            <p><strong>Fecha:</strong> {turnoSeleccionado.fecha_hora.split('T')[0]}</p>
-            <p><strong>Hora:</strong> {turnoSeleccionado.fecha_hora.split('T')[1].substring(0,5)}</p>
-            <p><strong>Servicio:</strong> {turnoSeleccionado.nombre_servicio || 'N/A'}</p>
-            <p><strong>Profesional:</strong> {turnoSeleccionado.nombre_profesional || 'N/A'}</p>
+            {(() => {
+              const { fecha, hora } = ajustarZonaHoraria(turnoSeleccionado.fecha_hora);
+              return (
+                <>
+                  <p><strong>Fecha:</strong> {fecha}</p>
+                  <p><strong>Hora:</strong> {hora}</p>
+                  <p><strong>Servicio:</strong> {turnoSeleccionado.nombre_servicio || 'N/A'}</p>
+                  <p><strong>Profesional:</strong> {turnoSeleccionado.nombre_profesional || 'N/A'}</p>
+                </>
+              );
+            })()}
             <div className="modal-botones">
               <Boton 
                 text={reprogramando ? "Reprogramando..." : "Reprogramar"} 
@@ -312,21 +355,24 @@ const PerfilUsuario = () => {
       )}
       
       {/* Popup de confirmación para la cancelación */}
-      {mostrarConfirmacion && turnoSeleccionado && (
-        <PopupConfirmacion
-          titulo="Confirmar Cancelación"
-          mensaje={`¿Estás seguro que deseas cancelar el turno del ${turnoSeleccionado.fecha_hora.split('T')[0]} a las ${turnoSeleccionado.fecha_hora.split('T')[1].substring(0,5)}?`}
-          submensaje="Esta acción no se puede deshacer."
-          textoConfirmar="Sí, cancelar turno"
-          textoCancelar="No, mantener turno"
-          onConfirmar={confirmarCancelacion}
-          onCancelar={cancelarConfirmacion}
-          colorConfirmar="#c62828"
-          hoverColorConfirmar="#b71c1c"
-          colorCancelar="#757575"
-          hoverColorCancelar="#616161"
-        />
-      )}
+      {mostrarConfirmacion && turnoSeleccionado && (() => {
+  const { fecha, hora } = ajustarZonaHoraria(turnoSeleccionado.fecha_hora);
+  return (
+    <PopupConfirmacion
+      titulo="Confirmar Cancelación"
+      mensaje={`¿Estás seguro que deseas cancelar el turno del ${fecha} a las ${hora}?`}
+      submensaje="Esta acción no se puede deshacer."
+      textoConfirmar="Sí, cancelar turno"
+      textoCancelar="No, mantener turno"
+      onConfirmar={confirmarCancelacion}
+      onCancelar={cancelarConfirmacion}
+      colorConfirmar="#c62828"
+      hoverColorConfirmar="#b71c1c"
+      colorCancelar="#757575"
+      hoverColorCancelar="#616161"
+    />
+  );
+})()}
       
       {/* Popup de reprogramación */}
       {mostrarReprogramacion && turnoSeleccionado && (
@@ -371,7 +417,7 @@ const PerfilUsuario = () => {
               <Calendario
                 onDateChange={handleDateChange}
                 onTurnoClick={handleTurnoClick}
-                turnos={fechasConTurno.map(t => t.fecha_hora.split('T')[0])}
+                turnos={fechasConTurno.map(t => t.fechaAjustada || ajustarZonaHoraria(t.fecha_hora).fecha)}
                 backgroundColor="#0c3c6e"
                 borderColor="#2a5f8f"
                 headerBackgroundColor="#0a325d"

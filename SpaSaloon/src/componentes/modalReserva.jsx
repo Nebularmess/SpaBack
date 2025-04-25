@@ -356,13 +356,22 @@ const CalendarioPersonalizado = ({
   profesionales = []
 }) => {
   const today = new Date();
+  // Iniciar con el mes actual
   const [fechaActual, setFechaActual] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1)
   );
+  // Autoseleccionar el día actual
   const [diaSeleccionado, setDiaSeleccionado] = useState(
-    fechaSeleccionada || null
+    fechaSeleccionada || today
   );
   const [horaElegida, setHoraElegida] = useState(horaSeleccionada || null);
+
+  // Inicialización con día actual seleccionado
+  useEffect(() => {
+    if (!fechaSeleccionada) {
+      onSeleccionarFechaHora(today, horaElegida);
+    }
+  }, []);
 
   const obtenerDiasDelMes = fecha => {
     const dias = [];
@@ -370,21 +379,43 @@ const CalendarioPersonalizado = ({
     const mes = fecha.getMonth();
     const totalDias = new Date(año, mes + 1, 0).getDate();
     const primerDia = new Date(año, mes, 1).getDay();
+    
+    // Ajustar para que la semana empiece en domingo (0) o lunes (1)
+    const primerDiaAjustado = primerDia === 0 ? 7 : primerDia;
+    
+    // Días del mes anterior para completar la primera semana
+    const diasAnteriores = primerDiaAjustado - 1;
     const diasAnteriorMes = new Date(año, mes, 0).getDate();
-    for (let i = primerDia - 1; i >= 0; i--) {
+    
+    for (let i = diasAnteriores; i > 0; i--) {
       dias.push({
-        fecha: new Date(año, mes - 1, diasAnteriorMes - i),
+        fecha: new Date(año, mes, 1 - i),
         esDelMesActual: false
       });
     }
+    
+    // Días del mes actual
     for (let i = 1; i <= totalDias; i++) {
       const fechaDia = new Date(año, mes, i);
       dias.push({
         fecha: fechaDia,
         esDelMesActual: true,
-        esPasado: fechaDia < today
+        esPasado: fechaDia < new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+        esHoy: fechaDia.getDate() === today.getDate() && 
+               fechaDia.getMonth() === today.getMonth() && 
+               fechaDia.getFullYear() === today.getFullYear()
       });
     }
+    
+    // Días del mes siguiente para completar la última semana
+    const diasSiguientes = 42 - dias.length; // 6 filas * 7 días = 42
+    for (let i = 1; i <= diasSiguientes; i++) {
+      dias.push({
+        fecha: new Date(año, mes + 1, i),
+        esDelMesActual: false
+      });
+    }
+    
     return dias;
   };
 
@@ -427,7 +458,6 @@ const CalendarioPersonalizado = ({
     } 
     
     // If no professional is selected, check if ALL professionals are booked at this time
-    // First, get all unique professional IDs from the turnos data
     const allProfesionales = profesionales.map(prof => prof.id_profesional);
     
     // Now check if there's a booking for each professional at this time slot
@@ -442,8 +472,6 @@ const CalendarioPersonalizado = ({
       }
     });
     
-    // If the number of occupied professionals equals the total number of professionals
-    // for this service, then the time slot should be disabled
     return profesionalesOcupados.size === allProfesionales.length && allProfesionales.length > 0;
   };
 
@@ -452,6 +480,9 @@ const CalendarioPersonalizado = ({
     month: "long",
     year: "numeric"
   });
+  
+  const diasSemana = ["L", "M", "X", "J", "V", "S", "D"];
+
   const horarios = {
     mañana: ["08:00", "09:00", "10:00", "11:00", "12:00"],
     tarde: ["13:00", "14:00", "15:00", "16:00", "17:00", "18:00"],
@@ -474,17 +505,26 @@ const CalendarioPersonalizado = ({
           →
         </button>
       </div>
-      <div className="dias-scroll">
+      
+      {/* Cuadrícula de días de la semana */}
+      <div className="dias-semana">
+        {diasSemana.map(dia => (
+          <div key={dia} className="dia-semana">{dia}</div>
+        ))}
+      </div>
+      
+      {/* Cuadrícula de días del mes */}
+      <div className="dias-grid">
         {dias.map((dia, index) => (
           <div
             key={index}
-            className={`dia ${!dia.esDelMesActual ? "otro-mes" : ""} ${
+            className={`dia-grid ${!dia.esDelMesActual ? "otro-mes" : ""} ${
               dia.esPasado ? "pasado" : ""
             } ${
-              diaSeleccionado?.toDateString() ===
-              dia.fecha.toDateString()
-                ? "seleccionado"
-                : ""
+              diaSeleccionado?.toDateString() === dia.fecha.toDateString()
+                ? "seleccionado" : ""
+            } ${
+              dia.esHoy ? "hoy" : ""
             }`}
             onClick={() =>
               dia.esDelMesActual && !dia.esPasado && seleccionarDia(dia.fecha)
@@ -494,12 +534,13 @@ const CalendarioPersonalizado = ({
           </div>
         ))}
       </div>
+      
       {diaSeleccionado && (
         <div className="horarios">
           <h5>
             Horarios disponibles para el{" "}
             {diaSeleccionado.toLocaleDateString("es-ES")}
-          :</h5>
+          </h5>
           {Object.entries(horarios).map(([turno, horas]) => (
             <div className="bloque-horario" key={turno}>
               <h6>{turno.charAt(0).toUpperCase() + turno.slice(1)}</h6>
