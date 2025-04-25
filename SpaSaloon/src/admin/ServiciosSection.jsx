@@ -132,7 +132,7 @@ const ServiciosSection = () => {
                 </button>
             </div>
 
-            <ModalForm isOpen={mostrarModal} onClose={() => setMostrarModal(false)} title={`${modo === "crear" ? "Agregar" : "Editar"} Servicio`}>
+            <ModalForm isOpen={mostrarModal} onClose={() => setMostrarModal(false)} onSave={handleGuardar} title={`${modo === "crear" ? "Agregar" : "Editar"} Servicio`}>
                 <input
                     type="text"
                     placeholder="Nombre"
@@ -169,9 +169,7 @@ const ServiciosSection = () => {
                     value={formulario.descripcion}
                     onChange={e => setFormulario({ ...formulario, descripcion: e.target.value })}
                 ></textarea>
-                <button className="btn-guardar" onClick={handleGuardar}>
-                    Guardar
-                </button>
+                
             </ModalForm>
         </div>
     );

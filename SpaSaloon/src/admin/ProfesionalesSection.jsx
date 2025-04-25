@@ -61,15 +61,57 @@ const ProfesionalesSection = () => {
         }
     };
 
-    const handleGuardar = () => {
-        if (modo === "crear") {
-            const nuevo = { ...formulario, id: Date.now() };
-            setProfesionales([...profesionales, nuevo]);
-        } else {
-            setProfesionales(profesionales.map(p => (p.id === formulario.id ? formulario : p)));
+    const handleGuardar = async () => {
+        const nuevoProfesional = {
+            nombre: formulario.nombre,
+            apellido: formulario.apellido,
+            servicio: formulario.servicios, // Asegúrate de enviar el ID del servicio
+            activo: formulario.activo === "1" || formulario.activo === 1 ? 1 : 0,
+            email: formulario.email,
+            telefono: formulario.telefono,
+        };
+        
+        console.log("Datos enviados al backend:", nuevoProfesional);
+
+        try {
+            let response;
+            if (modo === "crear") {
+                response = await fetch("http://localhost:3001/api/profesionalesAdm", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(nuevoProfesional),
+                });
+            } else {
+                response = await fetch(`http://localhost:3001/api/profesionalesAdm/${formulario.id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(nuevoProfesional),
+                });
+            }
+    
+            if (!response.ok) {
+                throw new Error("Error al guardar el profesional");
+            }
+    
+            const data = await response.json();
+            if (modo === "crear") {
+                setProfesionales([...profesionales, { ...nuevoProfesional, id: data.id }]); // Agrega el nuevo profesional
+            } else {
+                setProfesionales(
+                    profesionales.map(p => (p.id === formulario.id ? { ...nuevoProfesional, id: formulario.id } : p))
+                ); // Actualiza el profesional existente
+            }
+    
+            setMostrarModal(false);
+            setProfesionalSeleccionado(null);
+        } catch (error) {
+            console.error(error);
+            alert("Hubo un error al guardar el profesional");
         }
-        setMostrarModal(false);
-        setProfesionalSeleccionado(null);
     };
 
     return (
@@ -122,7 +164,7 @@ const ProfesionalesSection = () => {
                 </button>
             </div>
 
-            <ModalForm isOpen={mostrarModal} onClose={() => setMostrarModal(false)} title={`${modo === "crear" ? "Agregar" : "Editar"} Profesional`}>
+            <ModalForm isOpen={mostrarModal} onClose={() => setMostrarModal(false)} onSave={handleGuardar} title={`${modo === "crear" ? "Agregar" : "Editar"} Profesional`}>
                 <input
                     type="text"
                     placeholder="Nombre"
@@ -160,9 +202,7 @@ const ProfesionalesSection = () => {
                     value={formulario.telefono}
                     onChange={e => setFormulario({ ...formulario, telefono: e.target.value })}
                 />
-                <button className="btn-guardar" onClick={handleGuardar}>
-                    Guardar
-                </button>
+                
             </ModalForm>
         </div>
     );

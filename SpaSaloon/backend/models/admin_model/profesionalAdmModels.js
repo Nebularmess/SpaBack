@@ -32,4 +32,19 @@ const getProfesionales = async () => {
     }
 };
 
-module.exports = {getProfesionales};
+const pushProfesionales = async (nuevoProfesional) => {
+    try {
+        const { nombre, apellido, servicio, activo, email, telefono } = nuevoProfesional;
+        const [result] = await db.execute(`
+            INSERT INTO profesional (nombre, apellido, id_servicio, activo, email, telefono)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `, [nombre, apellido, servicio, activo, email, telefono]);
+        console.log("Nuevo profesional agregado con ID:", result.insertId);
+        return result.insertId;
+    } catch (error) {
+        console.error('Error al agregar un nuevo profesional:', error);
+        throw error;
+    }
+}
+
+module.exports = {getProfesionales, pushProfesionales};
