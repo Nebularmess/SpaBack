@@ -31,9 +31,9 @@ const LoginButton = () => {
       {!isAuthenticated() ? (
         <>
           <Boton
-            text="Iniciar Sesión"
+            text="Iniciar sesión"
             onClick={() => setIsOpen(true)}
-            className="login-button custom-button primary medium"
+            className="login-button custom-button primary medium rounded"
           />
           {isOpen && <Formulario onClose={closeSidebar} />}
         </>
@@ -46,11 +46,11 @@ const LoginButton = () => {
             <div className="profile-dropdown">
               <Link to="/perfil" className="dropdown-item" onClick={() => setMenuOpen(false)}>
                 <User size={18} />
-                <span>Mi Perfil</span>
+                <span>Mi perfil</span>
               </Link>
               <button onClick={handleLogout} className="dropdown-item">
                 <LogOut size={18} />
-                <span>Cerrar Sesión</span>
+                <span>Cerrar sesión</span>
               </button>
             </div>
           )}

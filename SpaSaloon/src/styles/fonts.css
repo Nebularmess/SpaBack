@@ -91,6 +91,13 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.8;
 }
 
+.login-container {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 /* Media queries para responsive */
 @media screen and (max-width: 768px) {
   .hero-title {

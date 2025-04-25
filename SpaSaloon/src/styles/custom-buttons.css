@@ -54,9 +54,9 @@
   
   /* Variantes de color */
   .custom-button.primary {
-    background-color: #4F9EC4;
+    background-color: #6B4226;
     color: white;
-    --hover-bg-color: #256D85;
+    --hover-bg-color: #8C5D35;
   }
   
   .custom-button.secondary {
@@ -79,9 +79,9 @@
   
   .custom-button.outline {
     background-color: transparent;
-    border: 2px solid #4F9EC4;
-    color: #4F9EC4;
-    --hover-bg-color: rgba(79, 158, 196, 0.1);
+    border: 2px solid #6B4226;
+    color: #6B4226;
+    --hover-bg-color: rgba(107, 66, 38, 0.1);
   }
   
   .custom-button.outline.white {

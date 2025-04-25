@@ -5,6 +5,14 @@
 
 .login-button {
   cursor: pointer;
+  background-color: #FADADD !important; /* Color rosa claro */
+  color: #000 !important; /* Texto negro */
+  --hover-bg-color: #f8c8ca !important; /* Versión ligeramente más oscura para hover */
+}
+
+.login-button.custom-button:hover {
+  background-color: #f8c8ca !important;
+  color: #000 !important;
 }
 
 .profile-menu-container {
@@ -62,13 +70,22 @@
   font-size: 0.95rem;
   text-decoration: none;
   transition: background-color 0.2s ease;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .dropdown-item:hover {
   background-color: #f5f8fa;
-  color: #256D85;
+  color: #FADADD; /* Cambiado para que coincida con el botón */
 }
 
 .dropdown-item svg {
-  color: #4F9EC4;
+  color: #FADADD; /* Cambiado para que coincida con el botón */
+}
+
+.custom-button.login-button {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
