@@ -1,0 +1,132 @@
+:root {
+    /* Nueva paleta de colores */
+    --soft-sand: #F4EBD0;     /* Fondo general, headers */
+    --rose-quartz: #FADADD;   /* Botones primarios, fondos de tarjetas */
+    --taupe: #8B7E74;         /* Texto, navbar, elementos sutiles */
+    --cream: #FFF5E4;         /* Paneles translúcidos, fondo de formularios */
+    --espresso: #4B3832;      /* Footer, texto principal */
+  }
+  
+  /* Modificación del header */
+  .main-header {
+    background-color: var(--soft-sand);
+    color: var(--espresso);
+    box-shadow: 0 2px 10px rgba(75, 56, 50, 0.15);
+  }
+  
+  /* Modificación del logo */
+  .logo-main {
+    background: linear-gradient(45deg, var(--espresso), var(--taupe));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .logo-subtitle {
+    color: var(--taupe);
+  }
+  
+  /* Modificación de la navegación */
+  .nav-item a {
+    color: var(--espresso);
+  }
+  
+  .nav-item a::after {
+    background-color: var(--rose-quartz);
+  }
+  
+  .nav-item a:hover {
+    color: var(--taupe);
+  }
+  
+  /* Modificación del hero */
+  .hero-overlay {
+    background: linear-gradient(to right, rgba(244, 235, 208, 0.7), rgba(255, 245, 228, 0.5));
+  }
+  
+  .hero-content {
+    color: var(--espresso);
+    text-align: left;
+    margin-left: 10%;
+  }
+  
+  .hero-title .highlight {
+    color: var(--taupe);
+  }
+  
+  .hero-title .highlight::after {
+    background-color: var(--rose-quartz);
+  }
+  
+  /* Sombras de texto para mejorar legibilidad sobre fondos claros */
+  .hero-title, .hero-subtitle {
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.6);
+  }
+  
+  /* Botones del hero */
+  .hero-button.primary {
+    background-color: var(--rose-quartz);
+    color: var(--espresso);
+  }
+  
+  .hero-button.primary:hover {
+    background-color: #f8c4c7; /* Rose Quartz más oscuro */
+  }
+  
+  .hero-button.outline {
+    background-color: transparent;
+    color: var(--espresso);
+    border: 2px solid var(--taupe);
+  }
+  
+  .hero-button.outline:hover {
+    background-color: rgba(139, 126, 116, 0.1);
+  }
+  
+  /* Modificación de los botones personalizados */
+  .custom-button.primary {
+    background-color: var(--rose-quartz);
+    color: var(--espresso);
+    --hover-bg-color: #f8c4c7;
+  }
+  
+  .custom-button.secondary {
+    background-color: var(--taupe);
+    color: var(--cream);
+    --hover-bg-color: #7d7267;
+  }
+  
+  .custom-button.outline {
+    background-color: transparent;
+    border: 2px solid var(--taupe);
+    color: var(--taupe);
+    --hover-bg-color: rgba(139, 126, 116, 0.1);
+  }
+  
+  /* Ajuste de colores para el texto general */
+  body {
+    font-family: var(--font-body);
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--espresso);
+    background-color: var(--soft-sand);
+  }
+  
+  /* Login y profile menu */
+  .profile-dropdown {
+    background-color: var(--cream);
+    border: 1px solid var(--taupe);
+  }
+  
+  .dropdown-item {
+    color: var(--espresso);
+  }
+  
+  .dropdown-item:hover {
+    background-color: var(--rose-quartz);
+  }
+  
+  /* Para formularios y paneles translúcidos */
+  .formulario-container, .form-panel {
+    background-color: var(--cream);
+    border: 1px solid rgba(139, 126, 116, 0.2);
+  }

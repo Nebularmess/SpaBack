@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
+import './styles/fonts.css';
 import './App.css';
 
 import Hero from './componentes/Body/hero.jsx';

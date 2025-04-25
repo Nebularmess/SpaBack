@@ -7,11 +7,11 @@ const Header = () => {
   return (
     <header className="main-header">
       <div className="container">
-        <div className="left-section">
+        <Logo />
+        <div className="right-content">
+          <Navigation />
           <LoginButton />
         </div>
-        <Logo />
-        <Navigation />
       </div>
     </header>
   );
