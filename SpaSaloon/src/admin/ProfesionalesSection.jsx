@@ -1,19 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ModalForm from "./ModalForm.jsx";
 
 const ProfesionalesSection = () => {
-    const [profesionales, setProfesionales] = useState([
-        {
-            id: 1,
-            nombre: "Ana",
-            apellido: "López",
-            servicios: "Masajes relajantes, Reflexología",
-            activo: "1",
-            email: "ana@example.com",
-            telefono: "123456789",
-        },
-    ]);
-
+    const [profesionales, setProfesionales] = useState([]);
     const [modo, setModo] = useState("crear");
     const [mostrarModal, setMostrarModal] = useState(false);
     const [profesionalSeleccionado, setProfesionalSeleccionado] = useState(null);
@@ -25,6 +14,24 @@ const ProfesionalesSection = () => {
         email: "",
         telefono: "",
     });
+
+    useEffect(() => {
+               const fetchProfesionales = async () => {
+                   try {
+                       const response = await fetch("http://localhost:3001/api/profesionalesAdm"); // Cambia la URL si es necesario
+                       if (!response.ok) {
+                           throw new Error("Error al obtener los profesionales");
+                       }
+                       const data = await response.json();
+                       setProfesionales(data); // Actualiza el estado con los pros obtenidos
+                   } catch (error) {
+                       console.error("Error al cargar los mas capos del rubro:", error);
+                       alert("No se pudieron cargar la info de los cracks. Intenta nuevamente.");
+                   }
+               };
+       
+               fetchProfesionales();
+           }, []);
 
     const handleAgregar = () => {
         setModo("crear");
@@ -153,6 +160,9 @@ const ProfesionalesSection = () => {
                     value={formulario.telefono}
                     onChange={e => setFormulario({ ...formulario, telefono: e.target.value })}
                 />
+                <button className="btn-guardar" onClick={handleGuardar}>
+                    Guardar
+                </button>
             </ModalForm>
         </div>
     );

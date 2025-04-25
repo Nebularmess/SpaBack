@@ -8,6 +8,7 @@ const profesionalesRoutes = require('./routes/profesionalesRoutes.js'); // Nueva
 //admin
 const turnosAdmRoutes = require('./routes/adm_routes/turnosAdmRoute.js'); // Cambia la ruta según tu estructura de carpetas
 const serviciosAdmRoutes = require('./routes/adm_routes/serviciosAdmRoutes.js'); // Cambia la ruta según tu estructura de carpetas
+const profesionalesAdmRoutes = require('./routes/adm_routes/profesionalesRoutes.js'); // Nueva línea
 require('dotenv').config();
 
 const app = express();
@@ -22,6 +23,7 @@ app.use('/api/profesionales', profesionalesRoutes); // Nueva línea
 //adn¿min
 app.use('/api/turnosAdmin', turnosAdmRoutes); // Cambia la ruta según tu estructura de carpetas
 app.use('/api/serviciosAdm', serviciosAdmRoutes); // Cambia la ruta según tu estructura de carpetas
+app.use('/api/profesionalesAdm', profesionalesAdmRoutes); // Nueva línea
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
