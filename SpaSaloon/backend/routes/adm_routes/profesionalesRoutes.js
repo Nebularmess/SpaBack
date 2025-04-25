@@ -4,5 +4,6 @@ const profesionalesAdmController = require('../../controllers/adm_controllers/pr
 
 // Ruta GET para obtener todos los profesionales del admin
 router.get('/', profesionalesAdmController.getAdmProfesionales);
-
+router.put('/:id', profesionalesAdmController.actualizarProfesional);
+router.delete('/:id', profesionalesAdmController.eliminarProfesional);
 module.exports = router;
