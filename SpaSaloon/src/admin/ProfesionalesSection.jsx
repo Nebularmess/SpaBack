@@ -215,6 +215,9 @@ const ProfesionalesSection = () => {
                     value={formulario.telefono}
                     onChange={e => setFormulario({ ...formulario, telefono: e.target.value })}
                 />
+                <button className="btn-guardar" onClick={handleGuardar}>
+                    Guardar
+                </button>
             </ModalForm>
         </div>
     );

@@ -1,4 +1,4 @@
-const db = require('../db');
+const db = require('../../db');
 
 // Obtener todos los turnos de un cliente
 const getTurnosPorCliente = (req, res) => {

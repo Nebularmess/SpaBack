@@ -1,4 +1,4 @@
-const db = require('../db');
+const db = require('../../db');
 
 // Obtener todas las categorías de servicios
 const getCategorias = (req, res) => {
