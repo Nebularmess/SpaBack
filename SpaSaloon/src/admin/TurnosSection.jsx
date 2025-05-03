@@ -6,6 +6,7 @@ const TurnosSection = () => {
     const [modo, setModo] = useState("crear");
     const [mostrarModal, setMostrarModal] = useState(false);
     const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
+    const [profesionales, setProfesionales] = useState([]);
     const [formulario, setFormulario] = useState({
         fecha: "",
         hora: "",
@@ -34,8 +35,19 @@ const TurnosSection = () => {
             setIsLoading(false);
         }
     };
+    const fetchProfesionales = async () => {
+        try {
+            const res = await fetch("http://localhost:3001/api/profesionalesAdmin");
+            if (!res.ok) throw new Error("Error al obtener profesionales");
+            const data = await res.json();
+            setProfesionales(data);
+        } catch (err) {
+            console.error("Error cargando profesionales:", err);
+        }
+    };
 
     useEffect(() => {
+        fetchProfesionales();
         fetchTurnos();
     }, []);
 
