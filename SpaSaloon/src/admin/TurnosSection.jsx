@@ -278,17 +278,23 @@ const TurnosSection = () => {
                         required
                     />
                 </div>
-                
+                // fijarse sintaxis
                 <div className="form-group">
                     <label htmlFor="profesional">Profesional:</label>
-                    <input
+                    <select
                         id="profesional"
-                        type="text"
                         value={formulario.profesional}
                         onChange={e => setFormulario({ ...formulario, profesional: e.target.value })}
                         disabled={isLoading}
                         required
-                    />
+                    >
+                        <option value="">Seleccione un profesional</option>
+                            {profesionales.map(prof => (
+                                <option key={prof.id} value={prof.nombre}>
+                                    {prof.nombre}
+                                </option>
+                            ))}
+                    </select>
                 </div>
                 
                 <div className="form-group">
