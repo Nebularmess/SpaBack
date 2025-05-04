@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ModalForm from "./ModalForm.jsx";
+import DropdownCategorias from "./dropDownCat.jsx";
+import DropdownServicios from "./dropDownServicios.jsx";
 
 const ProfesionalesSection = () => {
     const [profesionales, setProfesionales] = useState([]);
@@ -9,6 +11,7 @@ const ProfesionalesSection = () => {
     const [formulario, setFormulario] = useState({
         nombre: "",
         apellido: "",
+        categoria: "",
         servicio: "",
         activo: "",
         email: "",
@@ -75,6 +78,7 @@ const ProfesionalesSection = () => {
         setFormulario({
             nombre: "",
             apellido: "",
+            categoria: "",
             servicio: "",
             activo: "",
             email: "",
@@ -91,23 +95,6 @@ const ProfesionalesSection = () => {
         }
     };
 
-    const handleEliminar = async () => {
-        if (!profesionalSeleccionado) return;
-        
-        if (window.confirm("¿Estás seguro de querer eliminar a este profesional?")) {
-            try {
-                await eliminarProfesional(profesionalSeleccionado.id);
-                
-                // Remover el profesional de la lista mostrada en UI
-                setProfesionales(profesionales.filter(p => p.id !== profesionalSeleccionado.id));
-                
-                setProfesionalSeleccionado(null);
-                alert("Profesional eliminado correctamente");
-            } catch (error) {
-                alert("Error al eliminar el profesional: " + error.message);
-            }
-        }
-    };
     const handleGuardar = async () => {
         try {
             if (modo === "crear") {
@@ -126,6 +113,23 @@ const ProfesionalesSection = () => {
             setProfesionalSeleccionado(null);
         } catch (error) {
             alert("Error al guardar los cambios: " + error.message);
+        }
+    };
+    const handleEliminar = async () => {
+        if (!profesionalSeleccionado) return;
+        
+        if (window.confirm("¿Estás seguro de querer eliminar a este profesional?")) {
+            try {
+                await eliminarProfesional(profesionalSeleccionado.id);
+                
+                // Remover el profesional de la lista mostrada en UI
+                setProfesionales(profesionales.filter(p => p.id !== profesionalSeleccionado.id));
+                
+                setProfesionalSeleccionado(null);
+                alert("Profesional eliminado correctamente");
+            } catch (error) {
+                alert("Error al eliminar el profesional: " + error.message);
+            }
         }
     };
 
@@ -190,11 +194,14 @@ const ProfesionalesSection = () => {
                     value={formulario.apellido}
                     onChange={e => setFormulario({ ...formulario, apellido: e.target.value })}
                 />
-                <input
-                    type="text"
-                    placeholder="Servicios que ofrece"
+                <DropdownCategorias 
+                    value={formulario.categoria} 
+                    onChange={(valor) => setFormulario({ ...formulario, categoria: valor, servicio: "" })}
+                />
+                <DropdownServicios
+                    categoriaId={formulario.categoria}
                     value={formulario.servicio}
-                    onChange={e => setFormulario({ ...formulario, servicios: e.target.value })}
+                    onChange={(valor) => setFormulario({ ...formulario, servicio: valor })}
                 />
                 <select
                     value={formulario.activo}

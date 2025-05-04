@@ -37,7 +37,7 @@ const TurnosSection = () => {
     };
     const fetchProfesionales = async () => {
         try {
-            const res = await fetch("http://localhost:3001/api/profesionalesAdmin");
+            const res = await fetch("http://localhost:3001/api/profesionalesAdm");
             if (!res.ok) throw new Error("Error al obtener profesionales");
             const data = await res.json();
             setProfesionales(data);

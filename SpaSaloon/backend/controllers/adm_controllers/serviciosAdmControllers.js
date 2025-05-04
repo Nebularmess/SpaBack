@@ -9,6 +9,21 @@ const getAdmServicios = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los servicios' });
     }
 };
+const getServiciosPorCategoria = async (req, res) => {
+    try {
+        const { id_categoria } = req.params;
+        const servicios = await serviciosAdmModel.getServiciosPorCategoria(id_categoria);
+        
+        if (servicios && servicios.length > 0) {
+            res.status(200).json(servicios);
+        } else {
+            res.status(404).json({ mensaje: 'No se encontraron servicios para esta categoría' });
+        }
+    } catch (error) {
+        console.error('Error al obtener los servicios por categoría:', error);
+        res.status(500).json({ error: 'Error al obtener los servicios por categoría' });
+    }
+};
 
 const actualizarServicio = async (req, res) => {
     try {
@@ -48,5 +63,6 @@ const eliminarServicio = async (req, res) => {
 module.exports = {
     getAdmServicios,
     actualizarServicio,
-    eliminarServicio
+    eliminarServicio,
+    getServiciosPorCategoria
 };

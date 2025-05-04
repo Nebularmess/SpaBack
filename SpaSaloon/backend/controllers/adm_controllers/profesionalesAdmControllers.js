@@ -29,9 +29,40 @@ const eliminarProfesional = async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar el profesional' });
     }
 };
+const crearProfesional = async (req, res) => {
+    try {
+        const { nombre, apellido, id_servicio, email, telefono } = req.body;
+
+        // Validación simple
+        if (!nombre || !apellido || !id_servicio || !email || !telefono) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+
+        const nuevoProfesional = await profesionalesAdmModel.crearProfesional({
+            nombre,
+            apellido,
+            id_servicio,
+            email,
+            telefono
+        });
+
+        res.status(201).json({
+            mensaje: 'Profesional creado correctamente',
+            profesional: nuevoProfesional
+        });
+    } catch (error) {
+        console.error('Error al crear el profesional:', error);
+        if (error.code === 'ER_DUP_ENTRY') {
+            res.status(409).json({ error: 'El email ya está registrado' });
+        } else {
+            res.status(500).json({ error: 'Error al crear el profesional' });
+        }
+    }
+};
 
 module.exports = {
     getAdmProfesionales,
     actualizarProfesional,
-    eliminarProfesional
+    eliminarProfesional,
+    crearProfesional
 };
