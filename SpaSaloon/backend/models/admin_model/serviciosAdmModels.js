@@ -35,6 +35,15 @@ const getServicios = async () => {
         throw error;
     }
 };
+const getServiciosPorCategoria = async (id_categoria) => {
+    const query = `
+        SELECT id_servicio, nombre
+        FROM servicio
+        WHERE id_categoria = ?
+    `;
+    const [rows] = await db.execute(query, [id_categoria]);
+    return rows;
+};
 const actualizarServicio = async (id, datosServicio) => {
     try {
         const { nombre, categoria, tipo, precio, descripcion } = datosServicio;
@@ -82,5 +91,6 @@ const eliminarServicio = async (id) => {
 module.exports = {
     getServicios,
     actualizarServicio,
-    eliminarServicio
+    eliminarServicio,
+    getServiciosPorCategoria
 };

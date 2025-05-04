@@ -95,9 +95,27 @@ const eliminarProfesional = async (id) => {
         throw error;
     }
 };
+const crearProfesional = async ({ nombre, apellido, id_servicio, email, telefono }) => {
+    const query = `
+        INSERT INTO profesional (nombre, apellido, id_servicio, email, telefono)
+        VALUES (?, ?, ?, ?, ?)
+    `;
+    const [result] = await db.execute(query, [nombre, apellido, id_servicio, email, telefono]);
+
+    return {
+        id_profesional: result.insertId,
+        nombre,
+        apellido,
+        id_servicio,
+        email,
+        telefono,
+        activo: 1
+    };
+};
 
 module.exports = {
     getProfesionales,
     actualizarProfesional,
-    eliminarProfesional
+    eliminarProfesional,
+    crearProfesional
 };

@@ -6,4 +6,6 @@ const profesionalesAdmController = require('../../controllers/adm_controllers/pr
 router.get('/', profesionalesAdmController.getAdmProfesionales);
 router.put('/:id', profesionalesAdmController.actualizarProfesional);
 router.delete('/:id', profesionalesAdmController.eliminarProfesional);
+router.post('/profesionales', profesionalesAdmController.crearProfesional);
+
 module.exports = router;

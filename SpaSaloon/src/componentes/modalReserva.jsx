@@ -26,7 +26,7 @@ const ModalReserva = ({
   const [error, setError] = useState(null);
   const [horariosCargados, setHorariosCargados] = useState(false);
   const [turnosOcupados, setTurnosOcupados] = useState([]);
-  const [servicioIdState, setServicioIdState] = useState(servicioId); // Add state for service ID
+  const [servicioIdState, setServicioIdState] = useState(servicioId); // Estado para el ID del servicio
 
   // Usar el ID del servicio directamente si está disponible
   useEffect(() => {
@@ -37,8 +37,13 @@ const ModalReserva = ({
       setServicioIdState(servicioId);
     }
     // Si el servicio tiene un ID directo (caso de servicios grupales)
+    else if (servicio && servicio.id_servicio) {
+      console.log("Usando ID de servicio directo:", servicio.id_servicio);
+      setServicioIdState(servicio.id_servicio);
+    }
+    // Si solo tenemos un ID genérico
     else if (servicio && servicio.id) {
-      console.log("Usando ID de servicio directo:", servicio.id);
+      console.log("Usando ID genérico:", servicio.id);
       setServicioIdState(servicio.id);
     }
     // Si solo tenemos el título del servicio
@@ -64,7 +69,7 @@ const ModalReserva = ({
       );
       if (servicioEncontrado) {
         console.log("Servicio encontrado:", servicioEncontrado);
-        setServicioId(servicioEncontrado.id_servicio);
+        setServicioIdState(servicioEncontrado.id_servicio);
       } else {
         console.error(
           "No se encontró el servicio con nombre:",
@@ -82,17 +87,17 @@ const ModalReserva = ({
 
   useEffect(() => {
     const fetchProfesionales = async () => {
-      if (!servicioId) {
-        console.error("No se recibió ID de servicio");
+      if (!servicioIdState) {
+        console.error("No se tiene un ID de servicio válido para buscar profesionales");
         setError("No se pudo identificar el servicio seleccionado");
         return;
       }
       
       setLoading(true);
       try {
-        console.log(`Llamando a la API con servicioId: ${servicioId}`);
+        console.log(`Llamando a la API con servicioId: ${servicioIdState}`);
         const response = await axios.get(
-          `http://localhost:3001/api/profesionales/servicio/${servicioId}`
+          `http://localhost:3001/api/profesionales/servicio/${servicioIdState}`
         );
         
         console.log("Datos de profesionales:", JSON.stringify(response.data));
@@ -111,16 +116,19 @@ const ModalReserva = ({
       }
     };
     
-    fetchProfesionales();
-  }, [servicioId]);
+    // Solo hacer la llamada cuando tengamos un ID válido
+    if (servicioIdState) {
+      fetchProfesionales();
+    }
+  }, [servicioIdState]); // Depender de servicioIdState en lugar de servicioId
 
   const verificarDisponibilidad = async (fecha, idProfesional = null) => {
-    if (!servicioId) return;
+    if (!servicioIdState) return;
     try {
       const fechaStr = fecha.toISOString().split("T")[0];
       const params = { 
         fecha: fechaStr, 
-        id_servicio: servicioId 
+        id_servicio: servicioIdState
       };
       
       // If a professional is selected, include their ID in the query
@@ -154,37 +162,55 @@ const ModalReserva = ({
     if (nuevaHora) setHora(nuevaHora);
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    if (paso === 1) {
-      if (!fecha || !hora)
-        return alert("Selecciona fecha y hora para continuar.");
-      setPaso(2);
-    } else {
-      if (!profesionalId) return alert("Selecciona un profesional.");
-      if (!clienteId) return alert("Debes iniciar sesión para reservar un turno.");
-      if (!servicioId)
-        return alert("No se ha podido identificar el servicio seleccionado.");
+const handleSubmit = async e => {
+  e.preventDefault();
+  if (paso === 1) {
+    if (!fecha || !hora)
+      return alert("Selecciona fecha y hora para continuar.");
+    setPaso(2);
+  } else {
+    if (!profesionalId) return alert("Selecciona un profesional.");
+    if (!clienteId) return alert("Debes iniciar sesión para reservar un turno.");
+    if (!servicioIdState)
+      return alert("No se ha podido identificar el servicio seleccionado.");
 
-      const fechaHoraCompleta = `${fecha}T${hora}:00`;
-      const datosTurno = {
-        id_cliente: clienteId,
-        id_servicio: servicioId, // Usar directamente el servicioId recibido como prop
-        id_profesional: profesionalId,
-        fecha_hora: fechaHoraCompleta,
-        duracion_minutos: opcionSeleccionada?.duracion || 60,
-        comentarios: `Reserva para ${servicio.title}${
-          opcionSeleccionada ? ` - ${opcionSeleccionada.nombre}` : ""
-        }`
-      };
-      console.log("Enviando datos de turno:", datosTurno);
+    const fechaHoraSQL = `${fecha} ${hora}:00`;  // MySQL DATETIME
+    const datosTurno = {
+      id_cliente:     Number(clienteId),
+      id_servicio:    Number(servicioIdState),
+      id_profesional: Number(profesionalId),
+      fecha_hora:     fechaHoraSQL,
+      duracion_minutos: Number(opcionSeleccionada?.duracion || 60),
+      comentarios:    `Reserva para ${servicio.title}${opcionSeleccionada ? ` - ${opcionSeleccionada.nombre}` : ""}`
+    };
+    console.log("Enviando datos de turno:", datosTurno);
 
-      try {
-        setLoading(true);
-        const response = await axios.post(
-          "http://localhost:3001/api/turnos",
-          datosTurno
-        );
+    // Agregar un timeout para evitar colgarse indefinidamente
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      setError("La solicitud ha tardado demasiado. Por favor, inténtalo de nuevo.");
+    }, 15000); // 15 segundos de timeout
+
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        "http://localhost:3001/api/turnos",
+        datosTurno,
+        {
+          // Agregar headers para CORS y timeout
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000 // 10 segundos de timeout para axios
+        }
+      );
+      
+      // Limpiar el timeout ya que la solicitud tuvo éxito
+      clearTimeout(timeoutId);
+      
+      console.log("Respuesta recibida:", response.data);
+      
+      if (response.data && response.data.id_turno) {
         const detallesReserva = {
           id_turno: response.data.id_turno,
           servicio: servicio.title,
@@ -200,16 +226,39 @@ const ModalReserva = ({
           )} a las ${hora}.`
         );
         setTimeout(onClose, 1000);
-      } catch (err) {
-        console.error("Error al crear el turno:", err);
-        setError(
-          err.response?.data?.error || "Hubo un problema al realizar la reserva."
-        );
-      } finally {
-        setLoading(false);
+      } else {
+        throw new Error("La respuesta del servidor no incluyó el ID del turno");
       }
+    } catch (err) {
+      // Limpiar el timeout en caso de error
+      clearTimeout(timeoutId);
+      
+      console.error("Error al crear el turno:", err);
+      
+      // Manejo detallado de errores
+      if (err.response) {
+        // El servidor respondió con un código de estado fuera del rango 2xx
+        console.error("Error del servidor:", err.response.data);
+        console.error("Estado HTTP:", err.response.status);
+        setError(
+          `Error del servidor: ${err.response.data?.error || err.response.status}`
+        );
+      } else if (err.request) {
+        // La solicitud fue hecha pero no se recibió respuesta
+        console.error("No se recibió respuesta del servidor:", err.request);
+        setError(
+          "No se recibió respuesta del servidor. Verifica tu conexión a internet."
+        );
+      } else {
+        // Algo sucedió durante la configuración de la solicitud
+        console.error("Error al configurar la solicitud:", err.message);
+        setError(`Error: ${err.message}`);
+      }
+    } finally {
+      setLoading(false);
     }
-  };
+  }
+};
 
   const formatearFecha = fechaString => {
     const [año, mes, dia] = fechaString.split("-");
@@ -570,4 +619,3 @@ const CalendarioPersonalizado = ({
 };
 
 export default ModalReserva;
-

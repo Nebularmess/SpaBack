@@ -6,6 +6,7 @@ const TurnosSection = () => {
     const [modo, setModo] = useState("crear");
     const [mostrarModal, setMostrarModal] = useState(false);
     const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
+    const [profesionales, setProfesionales] = useState([]);
     const [formulario, setFormulario] = useState({
         fecha: "",
         hora: "",
@@ -34,8 +35,19 @@ const TurnosSection = () => {
             setIsLoading(false);
         }
     };
+    const fetchProfesionales = async () => {
+        try {
+            const res = await fetch("http://localhost:3001/api/profesionalesAdm");
+            if (!res.ok) throw new Error("Error al obtener profesionales");
+            const data = await res.json();
+            setProfesionales(data);
+        } catch (err) {
+            console.error("Error cargando profesionales:", err);
+        }
+    };
 
     useEffect(() => {
+        fetchProfesionales();
         fetchTurnos();
     }, []);
 
@@ -266,17 +278,23 @@ const TurnosSection = () => {
                         required
                     />
                 </div>
-                
+                // fijarse sintaxis
                 <div className="form-group">
                     <label htmlFor="profesional">Profesional:</label>
-                    <input
+                    <select
                         id="profesional"
-                        type="text"
                         value={formulario.profesional}
                         onChange={e => setFormulario({ ...formulario, profesional: e.target.value })}
                         disabled={isLoading}
                         required
-                    />
+                    >
+                        <option value="">Seleccione un profesional</option>
+                            {profesionales.map(prof => (
+                                <option key={prof.id} value={prof.nombre}>
+                                    {prof.nombre}
+                                </option>
+                            ))}
+                    </select>
                 </div>
                 
                 <div className="form-group">

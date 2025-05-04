@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const turnosController = require('../controllers/turnosController');
+const turnosController = require('../../controllers/user_controllers/turnosController');
 
 // La ruta específica debe ir antes que la ruta con parámetros
 router.get('/disponibilidad', turnosController.verificarDisponibilidad);
