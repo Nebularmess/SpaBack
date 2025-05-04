@@ -11,16 +11,20 @@ const Modal = ({ servicio, onClose }) => {
     setMostrarModalReserva(false);
   }, [servicio]);
 
+  // Depuración: Registrar el servicio recibido
+  useEffect(() => {
+    console.log("Servicio recibido en Modal:", servicio);
+  }, [servicio]);
+
   if (!servicio) return null;
 
   const handleSeleccion = (opcion) => {
-    // Guardar explícitamente el id_servicio en la opción seleccionada para usarlo después
+    console.log("Opción seleccionada:", opcion);
     setOpcionSeleccionada(opcion);
   };
 
-  // Aquí está el error: tienes una función dentro de otra función
   const handleReservar = () => {
-    // Quitamos la función anidada y dejamos solo el contenido
+    // Validación: para servicios con opciones, debe seleccionarse alguna
     if (servicio.options && !opcionSeleccionada) {
       alert("Por favor seleccioná una opción primero.");
       return;
@@ -29,21 +33,34 @@ const Modal = ({ servicio, onClose }) => {
   };
 
   const handleReservaConfirmada = (detallesReserva) => {
-    // Acá se podría integrar con el backend 
     console.log('Reserva confirmada:', detallesReserva);
   };
 
   if (mostrarModalReserva) {
+    // Importante: Determinar correctamente el ID del servicio a pasar
+    let servicioIdToPass;
+    
+    // Si hay una opción seleccionada y tiene ID de servicio, usar esa
+    if (opcionSeleccionada && opcionSeleccionada.id_servicio) {
+      servicioIdToPass = opcionSeleccionada.id_servicio;
+      console.log("Pasando ID de servicio de la opción:", servicioIdToPass);
+    } 
+    // Si el servicio directamente tiene ID de servicio (servicios grupales)
+    else if (servicio.id_servicio) {
+      servicioIdToPass = servicio.id_servicio;
+      console.log("Pasando ID de servicio directo:", servicioIdToPass);
+    }
+    // Compatibilidad con la estructura actual que usa id
+    else if (servicio.id) {
+      servicioIdToPass = servicio.id;
+      console.log("Pasando ID general:", servicioIdToPass);
+    }
+
     return (
       <ModalReserva
         servicio={servicio}
         opcionSeleccionada={opcionSeleccionada}
-        // Este es el key: pasar el ID del servicio correcto
-        servicioId={
-          opcionSeleccionada ? 
-          opcionSeleccionada.id_servicio : // Si hay una opción seleccionada, usa su id_servicio
-          servicio.id_servicio // Si no, usa el id_servicio del servicio (para servicios grupales)
-        }
+        servicioId={servicioIdToPass}
         onClose={() => {
           setMostrarModalReserva(false);
           onClose();
