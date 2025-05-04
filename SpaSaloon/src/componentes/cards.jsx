@@ -10,7 +10,7 @@ const Card = ({ title, imageSrc }) => {
           <div className="section-card-overlay"></div>
         </div>
       )}
-      <h3 className="section-title">{title}</h3>
+      <h3 className="card-title">{title}</h3>
     </div>
   );
 }

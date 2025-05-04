@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../cards';
-import Etiqueta from '../Formularios/etiquetas.jsx';
 import Modal from '../Modal.jsx';
 import '../../styles/servicios.css';
 import '../../styles/modal.css';
@@ -29,7 +28,6 @@ const Servicios = () => {
     if (name.includes('corporal')) return saunaImg;
     if (name.includes('hidro')) return hidromasajesImg;
     if (name.includes('yoga')) return yogaImg;
-    // Imagen por defecto si no hay coincidencia
     return masagesImg;
   };
 
@@ -80,8 +78,8 @@ const Servicios = () => {
     setServicioSeleccionado(null);
   };
 
-  if (loading) return <div className="loading">Cargando servicios...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
+  if (loading) return <div className="loading-container"><div className="loading-spinner"></div></div>;
+  if (error) return <div className="error-container">Error: {error}</div>;
 
   // Separar categorías por tipo de servicio (Individual vs Grupal)
   const serviciosIndividuales = [];
@@ -128,45 +126,53 @@ const Servicios = () => {
   });
 
   return (
-    <section className="servicios-section">
+    <section className="servicios-section" id="servicios">
+      <div className="servicios-overlay"></div>
       <div className="servicios-container">
-        <div className="servicios-column">
-          <Etiqueta
-            text="Servicios Individuales"
-            fontSize="40px"
-            textColor="white"
-            padding="10px 0"
-            className="servicios-title"
-          />
-          <div className="servicios-cards-grid">
-            {serviciosIndividuales.map((servicio) => (
-              <div key={servicio.id} onClick={() => handleCardClick(servicio)}>
-                <Card
-                  title={servicio.title}
-                  imageSrc={servicio.imageSrc}
-                />
-              </div>
-            ))}
+        <h2 className="section-title">Servicios</h2>
+        <p className="servicios-description">
+          Descubre nuestra amplia variedad de tratamientos diseñados para renovar tu cuerpo y calmar tu mente. Para más detalles, seleccioná una categoría.
+        </p>
+        
+        <div className="servicios-columns-wrapper">
+          <div className="servicios-column">
+            <h3 className="servicios-category-title">
+              Servicios <span className="highlight">Individuales</span>
+            </h3>
+            <div className="servicios-cards-grid">
+              {serviciosIndividuales.map((servicio) => (
+                <div 
+                  key={servicio.id} 
+                  className="servicio-card-wrapper"
+                  onClick={() => handleCardClick(servicio)}
+                >
+                  <Card
+                    title={servicio.title}
+                    imageSrc={servicio.imageSrc}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="servicios-column">
-          <Etiqueta
-            text="Servicios Grupales"
-            fontSize="40px"
-            textColor="white"
-            padding="10px 0"
-            className="servicios-title"
-          />
-          <div className="servicios-cards-grid servicios-grid-grupales">
-            {serviciosGrupales.map((servicio) => (
-              <div key={servicio.id} onClick={() => handleCardClick(servicio)}>
-                <Card
-                  title={servicio.title}
-                  imageSrc={servicio.imageSrc}
-                />
-              </div>
-            ))}
+          <div className="servicios-column">
+            <h3 className="servicios-category-title">
+              Servicios <span className="highlight">Grupales</span>
+            </h3>
+            <div className="servicios-cards-grid servicios-grid-grupales">
+              {serviciosGrupales.map((servicio) => (
+                <div 
+                  key={servicio.id} 
+                  className="servicio-card-wrapper"
+                  onClick={() => handleCardClick(servicio)}
+                >
+                  <Card
+                    title={servicio.title}
+                    imageSrc={servicio.imageSrc}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

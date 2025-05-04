@@ -1,106 +1,91 @@
-
 .main-header {
   width: 100%;
-  background-color: #0A2647;
+  background-color: transparent; /* Header completamente transparente */
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.3) 60%, transparent 100%); /* Degradado sutil para legibilidad */
   color: white;
-  height: 70px; 
+  height: 80px; 
   display: flex;
   align-items: center;
   position: fixed; 
   top: 0;           
   left: 0;         
-  z-index: 1000;
+  z-index: 1010;
+  transition: all 0.3s ease;
 }
+
+/* Cambiamos el estilo cuando se hace scroll para que sea más visible 
+.main-header.scrolled {
+  background-color: rgba(10, 38, 71, 0.98); /* Cuando se hace scroll, se vuelve más sólido
+  background-image: none; /* Eliminamos el degradado al hacer scroll 
+  height: 70px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+} */
 
 .container {
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-.left-section {
-  display: flex;
-  align-items: center;
-}
-
-/* Estilos para el botón de login */
-.login-container {
   position: relative;
 }
 
-.login-button {
-  background-color: #153A46;
-  color: white;
-  border: none;
-  padding: 0 20px;
-  cursor: pointer;
-  height: 70px;
-  font-size: 16px;
-  transition: background-color 0.3s;
+.right-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 30px;
 }
 
-.login-button:hover {
-  background-color: #0c222b;
-}
-
-/* Estilos para el sidebar */
-.login-sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 300px;
-  height: 100vh;
-  background-color: #256D85;
-  z-index: 1001;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
-}
-
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: white;
-  cursor: pointer;
-}
-
-.sidebar-content {
-  padding: 20px;
-  margin-top: 40px;
-  color: white;
-}
-
+/* Logo styles */
 .logo {
-    background-color: #0A2647;
-    max-height: 70px;
-    display: flex;
-    align-items: center;
-    justify-content: center; 
-    padding: 0 20px; 
-    box-sizing: border-box;
-  }
+  background-color: transparent;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; 
+  padding: 0;
+  box-sizing: border-box;
+  transition: transform 0.3s ease;
+  z-index: 1001;
+  text-decoration: none; 
+  position: relative; 
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
   
-  .logo-text {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    line-height: 1.2;
-  }
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.2;
+}
 
 .logo-main {
-  font-size: 16px;
+  font-size: 28px;
   font-weight: bold;
   margin: 0;
+  letter-spacing: 2px;
+  background: linear-gradient(45deg, #fff, #FADADD);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .logo-subtitle {
   font-size: 14px;
   margin: 0;
+  color: #FADADD;
+  letter-spacing: 1px;
 }
 
+/* Navigation styles */
+.navigation {
+  margin-right: 20px;
+}
 
 .navigation ul {
   display: flex;
@@ -108,14 +93,17 @@
   margin: 0;
   padding: 0;
   height: 100%;
-
 }
 
 .nav-item {
-  height: 70px;
+  height: 80px;
   display: flex;
   align-items: center;
-  border-left: 1px solid #fff;
+  position: relative;
+}
+
+.scrolled .nav-item {
+  height: 70px;
 }
 
 .nav-item a {
@@ -125,28 +113,142 @@
   height: 100%;
   display: flex;
   align-items: center;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.nav-item a::after {
+  content: '';
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #FADADD;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.scrolled .nav-item a::after {
+  bottom: 20px;
 }
 
 .nav-item a:hover {
-  background-color: #144272;
+  color: #FADADD;
+}
+
+.nav-item a:hover::after {
+  width: 40%;
+}
+
+/* Login button container styles */
+.login-container {
+  margin-left: 10px;
+}
+
+/* Mobile menu button */
+.mobile-menu-button {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 22px;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.mobile-menu-button span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 992px) {
+  .container {
+    padding: 0 20px;
+  }
+  
+  .nav-item a {
+    padding: 0 15px;
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 768px) {
-  .container {
+  .mobile-menu-button {
+    display: flex;
+  }
+  
+  .right-content {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 320px;
+    height: 100vh;
+    background-color: rgba(10, 38, 71, 0.98);
     flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 100px 0 50px;
+    transition: right 0.4s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .right-content.open {
+    right: 0;
+  }
+  
+  .navigation {
+    margin-right: 0;
+    width: 100%;
+    margin-bottom: 30px;
   }
   
   .navigation ul {
     flex-direction: column;
+    width: 100%;
   }
   
-  .main-header {
+  .nav-item {
     height: auto;
-  }
-  
-  .nav-item, .logo {
     width: 100%;
     justify-content: center;
+    margin: 10px 0;
+  }
+  
+  .nav-item a {
+    height: auto;
+    width: 100%;
+    padding: 15px 20px;
+    justify-content: center;
+    font-size: 16px;
+  }
+  
+  .nav-item a::after {
+    display: none;
+  }
+  
+  .login-container {
+    margin-left: 0;
+    width: 80%;
+  }
+  
+  /* Animación hamburguesa a X */
+  .open .mobile-menu-button span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  
+  .open .mobile-menu-button span:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .open .mobile-menu-button span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -8px);
   }
 }

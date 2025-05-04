@@ -154,7 +154,7 @@ const PerfilUsuario = () => {
     return (
       <div className="modal-turno">
         <div className="modal-contenido">
-          <h3>Múltiples Turnos en esta Fecha</h3>
+          <h3>Múltiples turnos en esta fecha.</h3>
           <p>Selecciona el turno que deseas ver:</p>
           
           <div className="lista-turnos">
@@ -439,7 +439,7 @@ const PerfilUsuario = () => {
 
       <div className="perfil-seccion datos-seccion">
         <Etiqueta 
-          text="Datos personales" 
+          text="Datos personales"
           fontSize="22px" 
           textColor="white" 
           padding="10px 0" 
