@@ -16,6 +16,7 @@ const PerfilUsuario = () => {
   const [mostrarReprogramacion, setMostrarReprogramacion] = useState(false);
   const [datosUsuario, setDatosUsuario] = useState({
     nombre: '',
+    apellido: '',
     email: '',
     telefono: '',
     direccion: ''
@@ -129,6 +130,7 @@ const PerfilUsuario = () => {
         console.log("Datos del usuario recibidos:", res.data);
         setDatosUsuario({
           nombre: res.data.nombre || '',
+          apellido: res.data.apellido || '',
           email: res.data.email || '',
           telefono: res.data.telefono || '',
           direccion: res.data.direccion || ''
@@ -475,7 +477,7 @@ const PerfilUsuario = () => {
             <div className="error-datos">{errorUserData}</div>
           ) : editando ? (
             <div className="datos-formulario">
-              {['nombre','email','telefono','direccion'].map(field => (
+              {['nombre','apellido','email','telefono','direccion'].map(field => (
                 <div key={field} className="dato-grupo">
                   <label>{field.charAt(0).toUpperCase() + field.slice(1)}:</label>
                   <input 
