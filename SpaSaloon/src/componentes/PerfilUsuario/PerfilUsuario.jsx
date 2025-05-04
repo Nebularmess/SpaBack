@@ -32,15 +32,25 @@ const PerfilUsuario = () => {
   const [multiplesTurnos, setMultiplesTurnos] = useState([]);
   const [mostrarSeleccionTurnos, setMostrarSeleccionTurnos] = useState(false);
 
-  // 🔄 Una vez que el contexto auth termine de cargar:
   useEffect(() => {
-    if (loadingAuth) return;           // todavía estamos cargando el contexto
-    if (!user || !user.id_cliente) {   // no hay usuario: cancelamos cualquier fetch y salimos
+    if (loadingAuth) return;  // todavía estamos cargando el contexto
+    
+    console.log("Estado del contexto auth:", { user, loadingAuth });
+    
+    if (!user) {
+      console.log("No hay usuario en el contexto");
       setFechasConTurno([]);
       return setErrorTurnos('Por favor, inicia sesión para ver tus turnos');
     }
-
-    // Hay usuario: traemos sus turnos
+    
+    if (!user.id_cliente) {
+      console.log("Usuario sin ID de cliente:", user);
+      setFechasConTurno([]);
+      return setErrorTurnos('No se encontró ID de cliente');
+    }
+  
+    // Hay usuario con ID: traemos sus turnos
+    console.log("Cargando turnos para el cliente ID:", user.id_cliente);
     cargarTurnos();
     // Y cargamos sus datos completos
     cargarDatosUsuario();
@@ -53,10 +63,16 @@ const PerfilUsuario = () => {
     setLoadingTurnos(true);
     setErrorTurnos(null);
   
-    axios.get(`http://localhost:3001/api/turnos/${user.id_cliente}`)
+    const endpoint = `http://localhost:3001/api/turnos/${user.id_cliente}`;
+    console.log("Consultando turnos en:", endpoint);
+  
+    axios.get(endpoint)
       .then(res => {
+        console.log("Turnos recibidos:", res.data);
+        
         // Filtrar para mostrar solo los turnos no cancelados
         const turnosActivos = res.data.filter(turno => turno.estado !== 'Cancelado');
+        console.log("Turnos activos filtrados:", turnosActivos);
         
         // Aquí procesamos las fechas para el calendario
         const turnosProcesados = turnosActivos.map(turno => {
@@ -70,11 +86,13 @@ const PerfilUsuario = () => {
           return turnoProcesado;
         });
         
+        console.log("Turnos procesados con fecha ajustada:", turnosProcesados);
         setFechasConTurno(turnosProcesados);
       })
       .catch(err => {
         console.error('Error al cargar turnos:', err);
-        setErrorTurnos('No se pudieron cargar los turnos');
+        console.error('Detalles del error:', err.response?.data || 'No hay detalles adicionales');
+        setErrorTurnos('No se pudieron cargar los turnos: ' + (err.response?.data?.error || err.message));
       })
       .finally(() => {
         setLoadingTurnos(false);
@@ -102,19 +120,24 @@ const PerfilUsuario = () => {
     
     setLoadingUserData(true);
     setErrorUserData(null);
-
-    axios.get(`http://localhost:3001/api/clientes/${user.id_cliente}`)
+  
+    const endpoint = `http://localhost:3001/api/clientes/${user.id_cliente}`;
+    console.log("Consultando API en:", endpoint);
+  
+    axios.get(endpoint)
       .then(res => {
+        console.log("Datos del usuario recibidos:", res.data);
         setDatosUsuario({
-          nombre: res.data.nombre,
-          email: res.data.email,
+          nombre: res.data.nombre || '',
+          email: res.data.email || '',
           telefono: res.data.telefono || '',
           direccion: res.data.direccion || ''
         });
       })
       .catch(err => {
         console.error('Error al cargar datos del usuario:', err);
-        setErrorUserData('No se pudieron cargar los datos del usuario');
+        console.error('Detalles del error:', err.response?.data || 'No hay detalles adicionales');
+        setErrorUserData('No se pudieron cargar los datos del usuario: ' + (err.response?.data?.error || err.message));
         
         // Si fallamos, al menos intentamos usar lo que teníamos del contexto auth
         if (user && user.nombre) {
