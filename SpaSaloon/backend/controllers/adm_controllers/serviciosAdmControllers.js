@@ -9,6 +9,7 @@ const getAdmServicios = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los servicios' });
     }
 };
+
 const getServiciosPorCategoria = async (req, res) => {
     try {
         const { id_categoria } = req.params;
@@ -22,6 +23,23 @@ const getServiciosPorCategoria = async (req, res) => {
     } catch (error) {
         console.error('Error al obtener los servicios por categoría:', error);
         res.status(500).json({ error: 'Error al obtener los servicios por categoría' });
+    }
+};
+
+const crearServicio = async (req, res) => {
+    try {
+        const nuevoServicio = req.body;
+
+        const resultado = await serviciosAdmModel.crearServicio(nuevoServicio);
+
+        if (resultado) {
+            res.status(201).json({ mensaje: 'Servicio creado correctamente', servicio: resultado });
+        } else {
+            res.status(400).json({ error: 'No se pudo crear el servicio' });
+        }
+    } catch (error) {
+        console.error('Error al crear el servicio:', error);
+        res.status(500).json({ error: 'Error al crear el servicio' });
     }
 };
 
@@ -62,7 +80,8 @@ const eliminarServicio = async (req, res) => {
 
 module.exports = {
     getAdmServicios,
+    getServiciosPorCategoria,
+    crearServicio,
     actualizarServicio,
-    eliminarServicio,
-    getServiciosPorCategoria
+    eliminarServicio
 };
