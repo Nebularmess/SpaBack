@@ -10,45 +10,75 @@ export const AuthProvider = ({ children }) => {
 
   // Verificar si el usuario ya está autenticado (al cargar la aplicación)
   useEffect(() => {
-    const clienteId = localStorage.getItem('clienteId');
-    const clienteNombre = localStorage.getItem('clienteNombre');
-    
-    // Verificación de datos obtenidos del localStorage
-    console.log('clienteId desde localStorage:', clienteId);  // Asegúrate de que este valor esté presente
-    console.log('clienteNombre desde localStorage:', clienteNombre);  // Asegúrate de que este valor esté presente
+    try {
+      const clienteId = localStorage.getItem('clienteId');
+      const clienteNombre = localStorage.getItem('clienteNombre');
+      
+      // Verificación de datos obtenidos del localStorage
+      console.log('clienteId desde localStorage:', clienteId);
+      console.log('clienteNombre desde localStorage:', clienteNombre);
 
-    if (clienteId && clienteNombre) {
-      setUser({
-        id_cliente: clienteId,
-        nombre: clienteNombre
-      });
+      if (clienteId && clienteNombre) {
+        setUser({
+          id_cliente: clienteId,
+          nombre: clienteNombre
+        });
+      }
+    } catch (error) {
+      console.error('Error al recuperar datos de la sesión:', error);
+    } finally {
+      setLoading(false);
     }
-    
-    setLoading(false);
   }, []);
 
-  // Función de login
-// src/contexts/AuthContext.js
-// …
-const login = (userData) => {
-  // si el objeto trae .id_cliente lo usamos, si no usamos .id
-  const id = userData.id_cliente ?? userData.id;
-  const nombre = userData.nombre;
+  // Función de login mejorada con validación
+  const login = (userData) => {
+    try {
+      if (!userData) {
+        console.error('Error en login: No se recibieron datos de usuario');
+        return;
+      }
+      
+      // Depuración de datos recibidos
+      console.log('Datos recibidos en login:', userData);
+      
+      // si el objeto trae .id_cliente lo usamos, si no usamos .id
+      const id = userData.id_cliente ?? userData.id;
+      const nombre = userData.nombre;
+      
+      if (!id) {
+        console.error('Error en login: ID de cliente no presente en los datos');
+        return;
+      }
+      
+      if (!nombre) {
+        console.error('Error en login: Nombre no presente en los datos');
+        return;
+      }
 
-  localStorage.setItem('clienteId', id);
-  localStorage.setItem('clienteNombre', nombre);
+      // Almacenar en localStorage
+      localStorage.setItem('clienteId', id.toString());
+      localStorage.setItem('clienteNombre', nombre);
 
-  // dejamos el estado uniformizado bajo la propiedad id_cliente
-  setUser({ id_cliente: id, nombre });
-};
-// …
-
+      // Actualizar el estado
+      setUser({ id_cliente: id, nombre });
+      
+      console.log('Usuario autenticado correctamente:', { id_cliente: id, nombre });
+    } catch (error) {
+      console.error('Error en el proceso de login:', error);
+    }
+  };
 
   // Función de logout
   const logout = () => {
-    localStorage.removeItem('clienteId');
-    localStorage.removeItem('clienteNombre');
-    setUser(null);
+    try {
+      localStorage.removeItem('clienteId');
+      localStorage.removeItem('clienteNombre');
+      setUser(null);
+      console.log('Sesión cerrada correctamente');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
   };
 
   // Verificar si el usuario está autenticado

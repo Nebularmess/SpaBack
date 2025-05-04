@@ -48,6 +48,7 @@ const Formulario = ({ onClose }) => {
     setError('');
   
     try {
+      // Parte modificada de la función handleSubmit para el login
       if (formMode === 'login') {
         // Validación básica
         if (!formData.email || !formData.password) {
@@ -56,34 +57,54 @@ const Formulario = ({ onClose }) => {
           return;
         }
         
-        const response = await fetch('http://localhost:3001/api/clientes/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password
-          })
-        });
-    
-        const data = await response.json();
-    
-        if (!response.ok) {
-          setError(data.error || 'Error al iniciar sesión');
+        try {
+          console.log('Intentando login con:', { email: formData.email });
+          
+          const response = await fetch('http://localhost:3001/api/clientes/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              password: formData.password
+            })
+          });
+      
+          // Log para depuración
+          console.log('Status de respuesta:', response.status);
+          
+          const data = await response.json();
+          console.log('Datos recibidos del servidor:', data);
+      
+          if (!response.ok) {
+            setError(data.error || 'Error al iniciar sesión');
+            setLoading(false);
+            return;
+          }
+      
+          // Verificar que la estructura de la respuesta sea la esperada
+          if (!data.cliente || !data.cliente.id_cliente) {
+            console.error('Error: La respuesta del servidor no contiene los datos esperados', data);
+            setError('Error de formato en la respuesta. Contacte al administrador.');
+            setLoading(false);
+            return;
+          }
+      
+          // Usar la función login del contexto
+          login(data.cliente);
+          
+          console.log('Cliente logueado:', data.cliente);
+          alert(`¡Bienvenido, ${data.cliente.nombre}!`);
+      
+          // Cerrar el modal o redirigir a otra vista
+          onClose();
+        } catch (err) {
+          console.error('Error completo durante el login:', err);
+          setError('Error de conexión con el servidor. Verifique su conexión a internet o contacte al administrador.');
           setLoading(false);
-          return;
         }
-    
-        // Usar la función login del contexto
-        login(data.cliente);
-        
-        console.log('Cliente logueado:', data.cliente);
-        alert(`¡Bienvenido, ${data.cliente.nombre}!`);
-    
-        // Cerrar el modal o redirigir a otra vista
-        onClose();
-      } 
+      }
       else if (formMode === 'register') {
         // Validaciones
         if (!formData.nombre || !formData.apellido || !formData.email || !formData.phone || !formData.direccion || !formData.password) {
