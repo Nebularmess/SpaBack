@@ -1,4 +1,5 @@
 const db = require('../../db');
+
 const getServicios = async () => {
     try {
         const [filas] = await db.execute(`
@@ -35,6 +36,7 @@ const getServicios = async () => {
         throw error;
     }
 };
+
 const getServiciosPorCategoria = async (id_categoria) => {
     const query = `
         SELECT id_servicio, nombre
@@ -44,11 +46,11 @@ const getServiciosPorCategoria = async (id_categoria) => {
     const [rows] = await db.execute(query, [id_categoria]);
     return rows;
 };
+
 const actualizarServicio = async (id, datosServicio) => {
     try {
         const { nombre, categoria, tipo, precio, descripcion } = datosServicio;
         
-        // Primero obtenemos el id_categoria basado en el nombre de la categoría
         const [categoriaResult] = await db.execute(
             'SELECT id_categoria FROM categoria_servicio WHERE nombre = ?',
             [categoria]
@@ -59,8 +61,7 @@ const actualizarServicio = async (id, datosServicio) => {
         }
         
         const id_categoria = categoriaResult[0].id_categoria;
-        
-        // Actualizamos el servicio
+
         const [resultado] = await db.execute(
             'UPDATE servicio SET nombre = ?, id_categoria = ?, tipo = ?, precio = ?, descripcion = ? WHERE id_servicio = ?',
             [nombre, id_categoria, tipo, precio, descripcion, id]
@@ -75,7 +76,6 @@ const actualizarServicio = async (id, datosServicio) => {
 
 const eliminarServicio = async (id) => {
     try {
-        // Eliminación lógica: simplemente marcamos como inactivo
         const [resultado] = await db.execute(
             'UPDATE servicio SET activo = 0 WHERE id_servicio = ?',
             [id]
@@ -88,9 +88,46 @@ const eliminarServicio = async (id) => {
     }
 };
 
+const crearServicio = async (nuevoServicio) => {
+    try {
+        const { nombre, categoria, tipo, precio, descripcion } = nuevoServicio;
+
+        // Obtener el id de la categoría
+        const [categoriaResult] = await db.execute(
+            'SELECT id_categoria FROM categoria_servicio WHERE nombre = ?',
+            [categoria]
+        );
+
+        if (!categoriaResult.length) {
+            throw new Error('Categoría no encontrada');
+        }
+
+        const id_categoria = categoriaResult[0].id_categoria;
+
+        // Insertar el nuevo servicio
+        const [resultado] = await db.execute(
+            'INSERT INTO servicio (nombre, id_categoria, tipo, precio, descripcion, activo) VALUES (?, ?, ?, ?, ?, 1)',
+            [nombre, id_categoria, tipo, precio, descripcion]
+        );
+
+        return {
+            id_servicio: resultado.insertId,
+            nombre,
+            categoria,
+            tipo,
+            precio,
+            descripcion
+        };
+    } catch (error) {
+        console.error('Error al crear el servicio:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     getServicios,
     actualizarServicio,
     eliminarServicio,
-    getServiciosPorCategoria
+    getServiciosPorCategoria,
+    crearServicio
 };

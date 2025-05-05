@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
-const DropdownServicios = ({ onChange, value, categoriaId }) => {
+const DropdownServicios = ({ onChange, value, categoriaId, onServiciosLoaded }) => {
   const [servicios, setServicios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Memoizamos la función notificadora para evitar regeneraciones
+  const notifyServiciosLoaded = useCallback((data) => {
+    if (onServiciosLoaded && typeof onServiciosLoaded === 'function') {
+      onServiciosLoaded(data);
+    }
+  }, [onServiciosLoaded]);
 
   // Obtener los servicios según la categoría seleccionada
   useEffect(() => {
@@ -29,6 +36,9 @@ const DropdownServicios = ({ onChange, value, categoriaId }) => {
         const data = await response.json();
         console.log('Servicios cargados:', data);
         setServicios(data);
+        
+        // Notificar que los servicios se cargaron
+        notifyServiciosLoaded(data);
       } catch (err) {
         console.error('Error al cargar servicios:', err);
         setError(err.message);
@@ -38,7 +48,7 @@ const DropdownServicios = ({ onChange, value, categoriaId }) => {
     };
 
     fetchServicios();
-  }, [categoriaId]); // Se ejecuta cuando cambia la categoría seleccionada
+  }, [categoriaId, notifyServiciosLoaded]); // Solo se ejecuta cuando cambia la categoría o la función notificadora
 
   // Cuando cambia la categoría, resetear el valor del servicio seleccionado
   useEffect(() => {
@@ -47,9 +57,20 @@ const DropdownServicios = ({ onChange, value, categoriaId }) => {
     // 2. hay una categoría seleccionada
     // 3. hay un valor actualmente seleccionado (evita actualizaciones innecesarias)
     if (onChange && categoriaId && value) {
-      onChange('');
+      onChange('', '');
     }
-  }, [categoriaId]); // Solo se ejecuta cuando cambia la categoría, NO incluir onChange o value en las dependencias
+  }, [categoriaId]); // Solo se ejecuta cuando cambia la categoría
+
+  // Función para manejar el cambio de servicio
+  const handleServicioChange = (e) => {
+    const servicioId = e.target.value;
+    // Encontrar el nombre del servicio seleccionado
+    const servicioSeleccionado = servicios.find(s => s.id_servicio == servicioId);
+    const nombreServicio = servicioSeleccionado ? servicioSeleccionado.nombre : '';
+    
+    // Pasar tanto el ID como el nombre al componente padre
+    onChange(servicioId, nombreServicio);
+  };
 
   if (loading) return <div>Cargando servicios...</div>;
   if (error) return <div>Error: {error} - Por favor revisa la consola para más detalles.</div>;
@@ -61,7 +82,7 @@ const DropdownServicios = ({ onChange, value, categoriaId }) => {
       <select
         id="servicio"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={handleServicioChange}
         disabled={servicios.length === 0}
       >
         <option value="">Seleccione un servicio</option>
