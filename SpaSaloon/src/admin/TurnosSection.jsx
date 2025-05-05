@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ModalForm from "./ModalForm.jsx"; 
+import DropdownCategorias from "./DropdownCat.jsx";
+import DropdownServicios from "./DropdownServicios.jsx";
 
 const TurnosSection = () => {
     const [turnos, setTurnos] = useState([]);
@@ -7,6 +9,8 @@ const TurnosSection = () => {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
     const [profesionales, setProfesionales] = useState([]);
+    const [servicios, setServicios] = useState([]);
+    const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
     const [formulario, setFormulario] = useState({
         fecha: "",
         hora: "",
@@ -15,8 +19,33 @@ const TurnosSection = () => {
         servicio: "",
         precio: "",
     });
+    const [categorias, setCategorias] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    
+    const fetchServicios = async () => {
+        try {
+            setCargando(true);
+            setError(null);
+            
+            // Usamos una marca de tiempo para evitar caché
+            const timestamp = new Date().getTime();
+            const response = await fetch(`http://localhost:3001/api/serviciosAdm?_=${timestamp}`);
+            
+            if (!response.ok) {
+                throw new Error("Error al obtener los servicios");
+            }
+            
+            const data = await response.json();
+            console.log("Servicios actualizados:", data);
+            setServicios(data);
+        } catch (error) {
+            console.error("Error al cargar los servicios:", error);
+            setError("No se pudieron cargar los servicios. Intenta nuevamente.");
+        } finally {
+            setCargando(false);
+        }
+    };
 
     const fetchTurnos = async () => {
         try {
@@ -45,8 +74,21 @@ const TurnosSection = () => {
             console.error("Error cargando profesionales:", err);
         }
     };
+    const fetchCategorias = async () => {
+        try {
+            const response = await fetch("http://localhost:3001/api/categoriasAdm");
+            if (!response.ok) throw new Error("Error al obtener categorias");
+            const data = await response.json();
+            setCategorias(data);
+        } catch (error) {
+            console.log("Error cargando categorias:", error);
+            setError("No se pudieron cargar las categorias");
+        }
+    }
 
     useEffect(() => {
+        fetchCategorias();
+        fetchServicios();
         fetchProfesionales();
         fetchTurnos();
     }, []);
@@ -162,7 +204,13 @@ const TurnosSection = () => {
             setIsLoading(false);
         }
     };
-
+    const handleCategoriaChange = (categoriaId) => {
+        setFormulario({ ...formulario, categoria: categoriaId });
+    }
+    const handleServicioChange = (servicio) => {
+        setFormulario({ ...formulario, servicio });
+        setServicioSeleccionado(servicio);
+    }
     const handleGenerarReporte = () => {
         alert("Generando reporte de turnos...");
         // lógica para generar el reporte
@@ -278,7 +326,7 @@ const TurnosSection = () => {
                         required
                     />
                 </div>
-                // fijarse sintaxis
+                
                 <div className="form-group">
                     <label htmlFor="profesional">Profesional:</label>
                     <select
@@ -308,18 +356,20 @@ const TurnosSection = () => {
                         required
                     />
                 </div>
-                
-                <div className="form-group">
-                    <label htmlFor="servicio">Servicio:</label>
-                    <input
-                        id="servicio"
-                        type="text"
-                        value={formulario.servicio}
-                        onChange={e => setFormulario({ ...formulario, servicio: e.target.value })}
-                        disabled={isLoading}
-                        required
-                    />
-                </div>
+                <DropdownCategorias
+                    value={formulario.categoria}
+                    onChange={handleCategoriaChange}
+                />
+                <DropdownServicios
+                    categoriaId={formulario.categoria}
+                    value={formulario.servicio}
+                    onChange = {(visualViewport, nombreServicio) => {
+                        setFormulario({ ...formulario, servicio: visualViewport });
+                        setServicioSeleccionado(nombreServicio);
+                    }
+                    }
+                    
+                />
                 
                 <div className="form-group">
                     <label htmlFor="precio">Precio:</label>
