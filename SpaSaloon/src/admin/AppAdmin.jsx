@@ -3,6 +3,7 @@ import "./AppAdmin.css";
 import TurnosSection from "./TurnosSection.jsx";
 import ServiciosSection from "./ServiciosSection.jsx";
 import ProfesionalesSection from "./ProfesionalesSection.jsx"; 
+import ClientesSection from "./ClientesSection.jsx";
 
 const AppAdmin = () => {
   const [activeSection, setActiveSection] = useState("turnos");
@@ -48,6 +49,7 @@ const AppAdmin = () => {
         <TurnosSection />
         <ServiciosSection />
         <ProfesionalesSection />
+        <ClientesSection />
       </div>
     </div>
   );
