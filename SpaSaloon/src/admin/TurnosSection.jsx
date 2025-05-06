@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import ModalForm from "./ModalForm.jsx"; 
 import DropdownCategorias from "./DropdownCat.jsx";
 import DropdownServicios from "./DropdownServicios.jsx";
+import DropdownClientes from "./DropdownClientes.jsx";
 
 const TurnosSection = () => {
     const [turnos, setTurnos] = useState([]);
@@ -11,21 +12,23 @@ const TurnosSection = () => {
     const [profesionales, setProfesionales] = useState([]);
     const [servicios, setServicios] = useState([]);
     const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
     const [formulario, setFormulario] = useState({
         fecha: "",
         hora: "",
-        profesional: "",
-        cliente: "",
+        categoria: "",
         servicio: "",
+        profesional: "",
+        cliente_id: "",
+        cliente: "",
         precio: "",
     });
     const [categorias, setCategorias] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
     
     const fetchServicios = async () => {
         try {
-            setCargando(true);
+            setIsLoading(true);
             setError(null);
             
             // Usamos una marca de tiempo para evitar caché
@@ -43,7 +46,7 @@ const TurnosSection = () => {
             console.error("Error al cargar los servicios:", error);
             setError("No se pudieron cargar los servicios. Intenta nuevamente.");
         } finally {
-            setCargando(false);
+            setIsLoading(false);
         }
     };
 
@@ -56,6 +59,7 @@ const TurnosSection = () => {
                 throw new Error("Error al obtener los turnos");
             }
             const data = await response.json();
+            console.log("Turnos recibidos:", data); // Log para ver los datos recibidos
             setTurnos(data);
         } catch (error) {
             console.error("Error al cargar los turnos:", error);
@@ -64,6 +68,7 @@ const TurnosSection = () => {
             setIsLoading(false);
         }
     };
+    
     const fetchProfesionales = async () => {
         try {
             const res = await fetch("http://localhost:3001/api/profesionalesAdm");
@@ -74,6 +79,7 @@ const TurnosSection = () => {
             console.error("Error cargando profesionales:", err);
         }
     };
+    
     const fetchCategorias = async () => {
         try {
             const response = await fetch("http://localhost:3001/api/categoriasAdm");
@@ -98,9 +104,11 @@ const TurnosSection = () => {
         setFormulario({
             fecha: "",
             hora: "",
-            profesional: "",
-            cliente: "",
+            categoria: "",
             servicio: "",
+            profesional: "",
+            cliente_id: "",
+            cliente: "",
             precio: "",
         });
         setMostrarModal(true);
@@ -169,19 +177,47 @@ const TurnosSection = () => {
                 throw new Error(`Por favor complete todos los campos obligatorios: ${faltanCampos.join(', ')}`);
             }
             
+            // Obtener el precio del servicio seleccionado (si existe)
+            let precioServicio = "";
+            if (formulario.servicio) {
+                const servicioEncontrado = servicios.find(s => s.nombre === formulario.servicio);
+                if (servicioEncontrado) {
+                    precioServicio = servicioEncontrado.precio;
+                }
+            }
+            
             if (modo === "crear") {
-                // Lógica para crear un nuevo turno
-                alert("Funcionalidad de crear turno aún no implementada");
-                setMostrarModal(false);
-                return;
+                // Implementación de la creación de un nuevo turno
+                const response = await fetch('http://localhost:3001/api/turnosAdmin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        ...formulario, 
+                        precio: precioServicio, 
+                        estado: 'Solicitado' 
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Error al crear el turno");
+                }
+                
+                alert("Turno creado correctamente");
+                await fetchTurnos();
             } else {
                 // Editar turno existente
                 console.log(`Actualizando turno ID: ${formulario.id}`, formulario);
                 
+                const datosActualizados = {
+                    ...formulario,
+                    precio: precioServicio || formulario.precio // Usar el precio del servicio o mantener el original
+                };
+                
                 const response = await fetch(`http://localhost:3001/api/turnosAdmin/${formulario.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formulario)
+                    body: JSON.stringify(datosActualizados)
                 });
                 
                 if (!response.ok) {
@@ -204,16 +240,45 @@ const TurnosSection = () => {
             setIsLoading(false);
         }
     };
+    
     const handleCategoriaChange = (categoriaId) => {
         setFormulario({ ...formulario, categoria: categoriaId });
     }
+    
     const handleServicioChange = (servicio) => {
         setFormulario({ ...formulario, servicio });
         setServicioSeleccionado(servicio);
+        
+        // Actualizar el precio automáticamente al seleccionar el servicio
+        const servicioEncontrado = servicios.find(s => s.nombre === servicio);
+        if (servicioEncontrado) {
+            setFormulario(prev => ({ ...prev, precio: servicioEncontrado.precio }));
+        }
     }
+    
+    const handleClienteChange = (clienteId, nombreCompleto) => {
+        setFormulario({
+            ...formulario,
+            cliente_id: clienteId,
+            cliente: nombreCompleto
+        });
+    }
+    
     const handleGenerarReporte = () => {
         alert("Generando reporte de turnos...");
-        // lógica para generar el reporte
+        // Implementación del reporte de turnos (pendiente)
+    };
+
+    // Función para dar estilo al estado según su valor
+    const getEstadoClass = (estado) => {
+        switch (estado) {
+            case 'Solicitado':
+                return 'estado-solicitado';
+            case 'Cancelado':
+                return 'estado-cancelado';
+            default:
+                return '';
+        }
     };
 
     return (
@@ -239,12 +304,13 @@ const TurnosSection = () => {
                             <th>Cliente</th>
                             <th>Servicio</th>
                             <th>Precio</th>
+                            <th>Estado</th>
                         </tr>
                     </thead>
                     <tbody>
                         {turnos.length === 0 ? (
                             <tr>
-                                <td colSpan="7" style={{ textAlign: "center" }}>
+                                <td colSpan="8" style={{ textAlign: "center" }}>
                                     No hay turnos disponibles
                                 </td>
                             </tr>
@@ -265,6 +331,7 @@ const TurnosSection = () => {
                                     <td>{t.cliente}</td>
                                     <td>{t.servicio}</td>
                                     <td>${t.precio}</td>
+                                    <td className={getEstadoClass(t.estado)}>{t.estado}</td>
                                 </tr>
                             ))
                         )}
@@ -327,6 +394,19 @@ const TurnosSection = () => {
                     />
                 </div>
                 
+                <DropdownCategorias
+                    value={formulario.categoria}
+                    onChange={handleCategoriaChange}
+                />
+                
+                <DropdownServicios
+                    categoriaId={formulario.categoria}
+                    value={formulario.servicio}
+                    onChange={(servicio, nombreServicio) => {
+                        handleServicioChange(servicio);
+                    }}
+                />
+                
                 <div className="form-group">
                     <label htmlFor="profesional">Profesional:</label>
                     <select
@@ -345,43 +425,24 @@ const TurnosSection = () => {
                     </select>
                 </div>
                 
-                <div className="form-group">
-                    <label htmlFor="cliente">Cliente:</label>
-                    <input
-                        id="cliente"
-                        type="text"
-                        value={formulario.cliente}
-                        onChange={e => setFormulario({ ...formulario, cliente: e.target.value })}
-                        disabled={isLoading}
-                        required
-                    />
-                </div>
-                <DropdownCategorias
-                    value={formulario.categoria}
-                    onChange={handleCategoriaChange}
+                <DropdownClientes
+                    value={formulario.cliente_id}
+                    onChange={handleClienteChange}
                 />
-                <DropdownServicios
-                    categoriaId={formulario.categoria}
-                    value={formulario.servicio}
-                    onChange = {(visualViewport, nombreServicio) => {
-                        setFormulario({ ...formulario, servicio: visualViewport });
-                        setServicioSeleccionado(nombreServicio);
-                    }
-                    }
-                    
-                />
-                
-                <div className="form-group">
-                    <label htmlFor="precio">Precio:</label>
-                    <input
-                        id="precio"
-                        type="number"
-                        value={formulario.precio}
-                        onChange={e => setFormulario({ ...formulario, precio: e.target.value })}
-                        disabled={isLoading}
-                    />
-                </div>
             </ModalForm>
+
+            <style>
+                {`
+                .estado-solicitado {
+                    color: #ff9800;
+                    font-weight: bold;
+                }
+                .estado-cancelado {
+                    color: #f44336;
+                    font-weight: bold;
+                }
+                `}
+            </style>
         </div>
     );
 };

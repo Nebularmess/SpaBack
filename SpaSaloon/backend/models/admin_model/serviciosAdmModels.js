@@ -4,18 +4,19 @@ const getServicios = async () => {
     try {
         const [filas] = await db.execute(`
             SELECT 
-                servicio.id_servicio AS id,
-                servicio.nombre AS nombre,
-                categoria_servicio.nombre AS categoria,
-                servicio.tipo AS tipo,
-                servicio.precio AS precio,
-                GROUP_CONCAT(profesional.nombre SEPARATOR ', ') AS profesionales,    
-                servicio.descripcion AS descripcion
+            servicio.id_servicio AS id,
+            servicio.nombre AS nombre,
+            categoria_servicio.nombre AS categoria,
+            servicio.tipo AS tipo,
+            servicio.precio AS precio,
+            IFNULL(GROUP_CONCAT(profesional.nombre SEPARATOR ', '), 'No tiene profesionales actualmente') AS profesionales,    
+            servicio.descripcion AS descripcion
             FROM servicio
-            JOIN profesional ON servicio.id_servicio = profesional.id_servicio
+            LEFT JOIN profesional ON servicio.id_servicio = profesional.id_servicio
             JOIN categoria_servicio ON servicio.id_categoria = categoria_servicio.id_categoria
             WHERE servicio.activo = 1
             GROUP BY servicio.id_servicio;
+
         `);
         
         console.log("Resultados obtenidos:", filas);

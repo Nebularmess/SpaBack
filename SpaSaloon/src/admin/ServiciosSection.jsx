@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ModalForm from "./ModalForm.jsx";
-import DropdownCategorias from "./DropdownCat"; // Importamos el componente DropdownCategorias
+import DropdownCategorias from "./dropDownCat.jsx"; // Importamos el componente DropdownCategorias
 
 const ServiciosSection = () => {
     const [servicios, setServicios] = useState([]);

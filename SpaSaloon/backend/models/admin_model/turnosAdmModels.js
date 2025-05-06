@@ -18,7 +18,8 @@ const getTurnos = async () => {
             JOIN profesional ON turno.id_profesional = profesional.id_profesional
             JOIN cliente ON turno.id_cliente = cliente.id_cliente
             JOIN servicio ON turno.id_servicio = servicio.id_servicio
-            WHERE turno.estado != 'Cancelado'; -- Filtrar los turnos no cancelados
+            WHERE turno.estado IN ('Solicitado', 'Cancelado')
+            AND turno.fecha_hora >= NOW();
         `);
         console.log("Turnos obtenidos:", filas.length);
         return filas;
