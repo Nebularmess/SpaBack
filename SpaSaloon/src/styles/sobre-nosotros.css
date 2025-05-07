@@ -1,6 +1,6 @@
 .sobre-nosotros-section {
   width: 100%;
-  height: 100vh; /* Exactamente altura de pantalla */
+  height: 100vh; 
   background-color: #032547;
   background-image: linear-gradient(135deg, #0A2647 0%, #032547 100%);
   display: flex;
@@ -37,7 +37,6 @@
   height: 100%;
 }
 
-/* Columna de texto - Establecer un ancho fijo para texto */
 .sobre-nosotros-text {
   flex: 1;
   max-width: 550px;
@@ -64,8 +63,6 @@
   font-weight: 750;
 }
 
-
-
 .section-description {
   font-family: var(--font-body);
   font-size: 1.1rem;
@@ -74,7 +71,6 @@
   margin-bottom: 2rem;
 }
 
-/* Features Grid */
 .features-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -86,7 +82,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  flex-direction: row-reverse; /* Invertimos el orden para que el icono quede a la derecha */
+  flex-direction: row-reverse; 
   justify-content: flex-start;
 }
 
@@ -124,10 +120,9 @@
 .sobre-nosotros-buttons {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end; /* Alineamos botones a la derecha */
+  justify-content: flex-end; 
 }
 
-/* Galería de imágenes */
 .sobre-nosotros-gallery {
   flex: 1;
   display: flex;
@@ -173,7 +168,6 @@
   transform: scale(1.05);
 }
 
-/* Animaciones */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -193,78 +187,5 @@
   to {
     opacity: 1;
     transform: translateX(0);
-  }
-}
-
-/* Responsive */
-@media screen and (max-width: 1024px) {
-  .sobre-nosotros-content-wrapper {
-    flex-direction: column;
-    gap: 2rem;
-    justify-content: center;
-    padding: 2rem 0;
-  }
-  
-  .sobre-nosotros-text,
-  .sobre-nosotros-gallery {
-    max-width: 100%;
-  }
-  
-  .section-title {
-    font-size: 2.5rem;
-  }
-  
-  .gallery-main {
-    height: 250px;
-  }
-  
-  .gallery-secondary {
-    height: 120px;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .sobre-nosotros-section {
-    height: auto;
-    min-height: 100vh;
-    padding: 80px 0;
-  }
-  
-  .section-title {
-    font-size: 2.2rem;
-  }
-  
-  .sobre-nosotros-buttons {
-    flex-direction: column;
-    align-items: flex-end;
-  }
-  
-  .sobre-nosotros-buttons a {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-@media screen and (max-width: 576px) {
-  .sobre-nosotros-container {
-    padding: 0 1.5rem;
-  }
-  
-  .gallery-secondary {
-    flex-direction: column;
-    height: auto;
-  }
-  
-  .gallery-secondary img {
-    width: 100%;
-    height: 120px;
-  }
-  
-  .section-title {
-    font-size: 2rem;
-  }
-  
-  .section-description {
-    font-size: 1rem;
   }
 }

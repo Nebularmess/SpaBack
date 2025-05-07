@@ -1,4 +1,3 @@
-/* popUpReprogramacion.css - Versión optimizada para evitar scroll */
 :root {
   --font-body: 'Montserrat', sans-serif;
 }
@@ -15,27 +14,27 @@
   justify-content: center;
   z-index: 999;
   backdrop-filter: blur(5px);
-  padding-top: 60px; /* Margen para la barra de navegación */
+  padding-top: 60px; 
   box-sizing: border-box;
 }
 
 .popup-reprogramacion .popup-contenido {
-  background: rgba(75, 44, 32, 0.95); /* Fondo marrón oscuro casi opaco */
+  background: rgba(75, 44, 32, 0.95); 
   padding: 20px;
   border-radius: 12px;
   width: 100%;
   max-width: 650px;
-  max-height: calc(100vh - 100px); /* Altura máxima para evitar scroll de página */
-  overflow-y: auto; /* Permitir scroll dentro del popup si es necesario */
+  max-height: calc(100vh - 100px); 
+  overflow-y: auto; 
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(212, 165, 116, 0.3);
-  color: #F4EBD0; /* Texto en color crema */
+  color: #F4EBD0; 
 }
 
 .popup-reprogramacion h3 {
   font-family: 'Montserrat', sans-serif;
   font-weight: 600;
-  color: #D4A574; /* Título en color café claro */
+  color: #D4A574; 
   margin-bottom: 12px;
   padding-bottom: 8px;
   border-bottom: 1px solid rgba(212, 165, 116, 0.3);
@@ -65,12 +64,6 @@
   margin: 15px 0;
 }
 
-@media (max-width: 768px) {
-  .reprogramar-seleccion {
-    flex-direction: column;
-  }
-}
-
 .reprogramar-calendario {
   flex: 1;
 }
@@ -86,7 +79,6 @@
   margin-bottom: 10px;
 }
 
-/* Estilos para el calendario mini */
 .mini-calendario {
   width: 100%;
   background-color: rgba(75, 44, 32, 0.7) !important;
@@ -112,15 +104,14 @@
 
 .mini-calendario .react-calendar__tile {
   color: #F4EBD0 !important;
-  padding: 6px 4px !important; /* Reducido para optimizar espacio */
+  padding: 6px 4px !important; 
 }
 
-/* Estilos para la selección de horas */
 .horas-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
   gap: 8px;
-  max-height: 220px; /* Reducida para optimizar espacio */
+  max-height: 220px; 
   overflow-y: auto;
   padding: 5px;
   border-radius: 8px;
@@ -153,49 +144,9 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Botones */
 .popup-botones {
   display: flex;
   justify-content: space-between;
   margin-top: 15px;
   gap: 10px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .popup-reprogramacion .popup-contenido {
-    width: 90%;
-    max-width: 500px;
-    padding: 15px;
-  }
-  
-  .popup-botones {
-    flex-direction: column;
-  }
-  
-  .popup-botones button {
-    width: 100%;
-  }
-}
-
-@media (max-height: 700px) {
-  .popup-reprogramacion .popup-contenido {
-    padding: 15px;
-    max-height: calc(100vh - 80px);
-  }
-  
-  .mini-calendario .react-calendar__tile {
-    padding: 4px 2px !important;
-    font-size: 0.9em !important;
-  }
-  
-  .horas-grid {
-    max-height: 180px;
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-  }
-  
-  .hora-item {
-    padding: 6px 2px;
-    font-size: 12px;
-  }
 }

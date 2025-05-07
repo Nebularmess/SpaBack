@@ -31,7 +31,6 @@
   box-shadow: none;
 }
 
-/* Variantes de tamaño predefinidas */
 .custom-button.small {
   font-size: 14px;
   padding: 8px 16px;
@@ -47,14 +46,11 @@
   padding: 16px 32px;
 }
 
-/* Variantes de color predefinidas */
 .custom-button.primary {
   background-color: #6B4226;
-  /* Color marrón para el spa */
   color: white;
   --hover-bg-color: #8C5D35;
   border-radius: 50px;
-  /* Para mantener la consistencia con otros botones */
 }
 
 .custom-button.secondary {

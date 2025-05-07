@@ -1,5 +1,3 @@
-/* Estilos específicos del proceso de reserva */
-
 .modal-reserva .modal-image-container {
   position: relative;
 }
@@ -374,7 +372,6 @@
   background: #e0e0e02f;
 }
 
-
 .modal-reservar-btn {
   padding: 0.9rem 1.8rem;
   background-color: #4B3832;
@@ -396,8 +393,6 @@
   box-shadow: 0 6px 15px #4B3832;
   transform: translateY(-2px);
 }
-/*estilos para el calendario de reserva*/
-/* Añade estos estilos a tu archivo modal.css o modalReserva.css */
 
 .calendario-custom {
   width: 100%;
@@ -512,23 +507,5 @@
 
   to {
     opacity: 1;
-  }
-}
-
-@media (max-width: 992px) {
-  .modal-image-overlay {
-    padding: 1rem;
-  }
-
-  .modal-servicio-info {
-    max-width: 100%;
-  }
-
-  .dias-scroll {
-    padding-bottom: 0.8rem;
-  }
-
-  .profesionales-grid {
-    grid-template-columns: 1fr;
   }
 }

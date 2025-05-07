@@ -1,5 +1,5 @@
 .hero-section {
-  height: 100vh; /* Volvemos a usar 100vh para ocupar toda la pantalla */
+  height: 100vh; 
   width: 100%;
   background-size: cover;
   background-position: center;
@@ -7,14 +7,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 0; /* Sin margen */
-  padding-top: 0; /* Sin padding */
+  margin-top: 0; 
+  padding-top: 0; 
   overflow: hidden;
-  top: 0; /* Alineado con la parte superior */
+  top: 0; 
   left: 0;
 }
 
-/* Ajustar la posición del contenido para compensar el header */
 .hero-content {
   text-align: left;
   color: white;
@@ -23,7 +22,7 @@
   z-index: 3;
   animation: fadeIn 1.5s ease-out;
   margin-left: 10%;
-  margin-top: 0; /* Desplazamos el contenido para que no quede detrás del header */
+  margin-top: 0; 
 }
 
 .hero-section::before {
@@ -94,7 +93,7 @@
 }
 
 .hero-title .highlight {
-  color: #D4A574; /* Un dorado suave, complementario al marrón */
+  color: #D4A574; 
   position: relative;
   display: inline-block;
 }
@@ -199,66 +198,5 @@
   50% {
     opacity: 1;
     transform: translateY(10px) translateX(-50%);
-  }
-}
-
-@media screen and (max-width: 992px) {
-  .hero-title {
-    font-size: 3.8rem;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .hero-overlay {
-    background: linear-gradient(to right, rgba(75, 56, 50, 0.9) 0%, rgba(75, 56, 50, 0.8) 100%);
-    justify-content: center;
-  }
-  
-  .hero-content {
-    text-align: center;
-    margin-left: 0;
-    padding: 1.5rem;
-  }
-  
-  .hero-title {
-    font-size: 3.2rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1.3rem;
-  }
-
-  .hero-buttons {
-    justify-content: center;
-    gap: 15px;
-  }
-
-  .hero-button {
-    width: auto;
-    padding: 12px 24px;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .hero-title {
-    font-size: 2.8rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1.1rem;
-  }
-
-  .hero-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .hero-button {
-    width: 100%;
-    text-align: center;
-  }
-
-  .hero-section {
-    margin-top: 60px;
   }
 }

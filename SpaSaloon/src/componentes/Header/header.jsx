@@ -30,13 +30,6 @@ const Header = () => {
     <header className={`main-header ${scrolled ? 'scrolled' : ''}`}>
       <div className="container">
         <Logo />
-        
-        <div className="mobile-menu-button" onClick={toggleMenu}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        
         <div className={`right-content ${menuOpen ? 'open' : ''}`}>
           <Navigation />
           <LoginButton />

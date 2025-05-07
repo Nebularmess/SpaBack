@@ -39,35 +39,24 @@
   left: 0;
   width: 100%;
   height: 100%;
-  /* Ajustado para dar mejor contraste al texto */
   background-color: rgba(0, 0, 0, 0.4);
   z-index: 1;
 }
 
-/* Clase modificada para el título de la sección */
 .section-title {
-  font-size: 1.2rem; /* Reducido aún más para que sea más pequeño */
+  font-size: 1.2rem; 
   font-weight: 600;
   text-align: center;
   position: relative;
   z-index: 2; 
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Shadow para mejorar legibilidad */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); 
   padding: 0.5rem;
   margin: 0;
-  width: auto; /* Ajustado para eliminar las franjas negras */
+  width: auto; 
   letter-spacing: 0.5px;
   line-height: 1.2;
-  /* Quitadas las propiedades que creaban franjas negras */
   background-color: transparent;
   backdrop-filter: none;
-}
-
-/* Media query para ajustar el tamaño en pantallas pequeñas */
-@media (max-width: 768px) {
-  .section-title {
-    font-size: 1rem;
-    padding: 0.5rem;
-  }
 }
 
 .card-title {

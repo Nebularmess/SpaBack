@@ -1,6 +1,3 @@
-/* PerfilUsuario.css - Estilos optimizados para evitar scroll y ajustar al viewport */
-
-/* Estilos generales del contenedor principal */
 :root {
   --font-body: 'Montserrat', sans-serif;
 }
@@ -21,41 +18,37 @@
   min-height: 100vh;
 }
 
-/* Estilos para cada sección */
 .perfil-seccion {
-  border-radius: 10px; /* Reducido de 12px a 10px */
+  border-radius: 10px; 
   background-color: rgba(75, 44, 32, 0.7);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3); /* Sombra más sutil */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3); 
   overflow: hidden;
   flex: 1;
   display: flex;
   flex-direction: column;
   backdrop-filter: blur(5px);
   border: 1px solid rgba(212, 165, 116, 0.3);
-  max-height: calc(100vh - 95px); /* Reducido espacio para ajustar mejor */
+  max-height: calc(100vh - 95px); 
   margin: 150px 0;
 }
 
-/* Sección de turnos */
 .turnos-seccion {
   flex: 3;
-  max-width: 58%; /* Reducido de 60% a 58% */
+  max-width: 58%; 
 }
 
-/* Sección de datos personales */
 .datos-seccion {
   flex: 2;
-  max-width: 42%; /* Aumentado de 40% a 42% para compensar */
+  max-width: 42%; 
 }
 
-/* Títulos de sección */
 .seccion-titulo {
   width: 100%;
-  padding: 8px !important; /* Reducido de 12px a 8px */
+  padding: 8px !important; 
   background-color: rgba(161, 101, 73, 0.8) !important;
   font-weight: 600 !important;
   text-align: center;
-  margin-bottom: 8px; /* Reducido de 10px a 8px */
+  margin-bottom: 8px; 
   border-bottom: 1px solid rgba(212, 165, 116, 0.3);
   letter-spacing: 1px !important;
   text-transform: uppercase;
@@ -63,16 +56,14 @@
   flex-shrink: 0;
 }
 
-/* Contenido de turnos */
 .turnos-contenido {
   display: flex;
   flex-direction: column;
-  padding: 6px; /* Reducido de 10px a 8px */
+  padding: 6px; 
   flex: 1;
   overflow: auto;
 }
 
-/* Estilos para el contenedor del calendario */
 .turnos-calendario {
   flex: 1;
   display: flex;
@@ -81,7 +72,6 @@
   min-height: 0;
 }
 
-/* Ajustes para que el calendario ocupe todo el espacio disponible */
 .turnos-calendario .custom-calendar-container {
   width: 100%;
   height: 100%;
@@ -94,7 +84,6 @@
   height: 100%;
 }
 
-/* Modificación para el día con turno en el calendario */
 .dia-con-turno {
   background-color: #D4A574 !important;
   color: #32210c !important;
@@ -102,7 +91,6 @@
   font-weight: bold;
 }
 
-/* Estilos para el calendario */
 .turnos-calendario .react-calendar {
   width: 100%;
   height: auto;
@@ -115,12 +103,11 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Cabecera del calendario */
 .turnos-calendario .react-calendar__navigation {
   background-color: rgba(161, 101, 73, 0.8);
   color: #F4EBD0;
   border-radius: 8px 8px 0 0;
-  padding: 6px; /* Reducido de 8px a 6px */
+  padding: 6px; 
 }
 
 .turnos-calendario .react-calendar__navigation button {
@@ -128,28 +115,25 @@
   font-family: 'Montserrat', sans-serif;
 }
 
-/* Días de la semana en el calendario */
 .turnos-calendario .react-calendar__month-view__weekdays {
   background-color: rgba(107, 66, 38, 0.5);
   color: #F4EBD0;
   font-weight: 500;
   text-transform: uppercase;
-  font-size: 0.75rem; /* Reducido de 0.8rem a 0.75rem */
+  font-size: 0.75rem; 
 }
 
-/* Días del calendario */
 .turnos-calendario .react-calendar__tile {
   background: none;
   color: #F4EBD0;
   font-family: 'Montserrat', sans-serif;
-  padding: 6px 3px; /* Reducido de 8px 4px a 6px 3px */
+  padding: 6px 3px; 
   border-radius: 4px;
   transition: all 0.2s ease;
 }
 
-/* Datos personales */
 .datos-contenido {
-  padding: 6px; /* Reducido de 15px a 12px */
+  padding: 6px; 
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -159,61 +143,59 @@
 .datos-visualizacion {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Reducido de 10px a 8px */
+  gap: 8px; 
 }
 
 .dato-item {
   display: flex;
   flex-direction: column;
-  gap: 4px; /* Reducido de 5px a 4px */
-  padding: 8px; /* Reducido de 10px a 8px */
+  gap: 4px; 
+  padding: 8px; 
   background-color: rgba(161, 101, 73, 0.3);
   border-radius: 8px;
   border-left: 3px solid #D4A574;
 }
 
 .dato-item span {
-  font-size: 15px; /* Reducido de 16px a 15px */
-  padding: 4px 8px; /* Reducido de 5px 10px a 4px 8px */
+  font-size: 15px; 
+  padding: 4px 8px; 
   color: #F4EBD0;
 }
 
 .datos-acciones {
-  margin-top: 12px; /* Reducido de 15px a 12px */
+  margin-top: 12px; 
   text-align: right;
 }
 
-/* Formulario de edición */
 .datos-formulario {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Reducido de 12px a 10px */
+  gap: 10px; 
   overflow-y: auto;
 }
 
 .dato-grupo {
   display: flex;
   flex-direction: column;
-  gap: 4px; /* Reducido de 5px a 4px */
+  gap: 4px; 
 }
 
 .dato-grupo label {
-  font-size: 13px; /* Reducido de 14px a 13px */
+  font-size: 13px; 
   color: #D4A574;
   font-weight: 500;
 }
 
 .dato-grupo input {
-  padding: 8px; /* Reducido de 10px a 8px */
+  padding: 8px; 
   border: 1px solid #D4A574;
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.1);
   color: #F4EBD0;
-  font-size: 15px; /* Reducido de 16px a 15px */
+  font-size: 15px; 
   font-family: 'Montserrat', sans-serif;
 }
 
-/* Estilos para el modal */
 .modal-turno {
   position: fixed;
   top: 0;
@@ -232,10 +214,10 @@
 
 .modal-contenido {
   background: rgba(75, 44, 32, 0.95);
-  padding: 16px; /* Reducido de 20px a 16px */
-  border-radius: 10px; /* Reducido de 12px a 10px */
+  padding: 16px; 
+  border-radius: 10px; 
   width: 100%;
-  max-width: 380px; /* Reducido de 400px a 380px */
+  max-width: 380px; 
   max-height: calc(100vh - 100px);
   overflow-y: auto;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
@@ -243,22 +225,21 @@
   color: #F4EBD0;
 }
 
-/* Lista de turnos en selección */
 .lista-turnos {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Reducido de 10px a 8px */
-  max-height: 230px; /* Reducido de 250px a 230px */
+  gap: 8px; 
+  max-height: 230px; 
   overflow-y: auto;
-  padding: 8px 0; /* Reducido de 10px a 8px */
-  margin: 12px 0; /* Reducido de 15px a 12px */
+  padding: 8px 0; 
+  margin: 12px 0; 
 }
 
 .item-turno {
   background-color: rgba(161, 101, 73, 0.3);
-  padding: 10px; /* Reducido de 12px a 10px */
+  padding: 10px; 
   border-radius: 8px;
-  margin-bottom: 8px; /* Reducido de 10px a 8px */
+  margin-bottom: 8px; 
   border-left: 3px solid #D4A574;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -268,34 +249,4 @@
   background-color: rgba(161, 101, 73, 0.6);
   transform: translateY(-2px);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .perfil-container {
-    flex-direction: column;
-    height: auto;
-    overflow-y: auto;
-  }
-  
-  .turnos-seccion,
-  .datos-seccion {
-    max-width: 100%;
-    height: auto;
-  }
-  
-  .datos-seccion {
-    max-height: 45vh; /* Reducido de 50vh a 45vh */
-  }
-}
-
-@media (max-height: 700px) {
-  .turnos-calendario .react-calendar__tile {
-    padding: 4px 2px; /* Reducido de 5px 2px a 4px 2px */
-    font-size: 0.85rem; /* Reducido de 0.9rem a 0.85rem */
-  }
-  
-  .seccion-titulo {
-    padding: 6px !important; /* Reducido de 8px a 6px */
-  }
 }

@@ -32,7 +32,6 @@ const images = [
 ];
 
 const Galeria = () => {
-  // Opciones para la galería
   const galleryOptions = {
     showPlayButton: true,
     showFullscreenButton: true,

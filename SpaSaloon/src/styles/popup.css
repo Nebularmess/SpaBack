@@ -12,27 +12,27 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Asegura que esté por encima de otros elementos */
-  padding-top: 60px; /* Margen para la barra de navegación */
+  z-index: 1000;
+  padding-top: 60px; 
   box-sizing: border-box;
 }
 
 .popup-contenido {
-  background-color: rgba(75, 44, 32, 0.95); /* Fondo marrón oscuro casi opaco */
+  background-color: rgba(75, 44, 32, 0.95); 
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   width: 90%;
   max-width: 400px;
-  max-height: calc(100vh - 100px); /* Altura máxima para evitar scroll */
-  overflow-y: auto; /* Scroll interno si es necesario */
+  max-height: calc(100vh - 100px); 
+  overflow-y: auto; 
   border: 1px solid rgba(212, 165, 116, 0.3);
-  color: #F4EBD0; /* Texto en color crema */
+  color: #F4EBD0; 
 }
 
 .popup-contenido h3 {
   margin-top: 0;
-  color: #D4A574; /* Título en color café claro */
+  color: #D4A574; 
   font-family: 'Montserrat', sans-serif;
   font-weight: 600;
   padding-bottom: 10px;
@@ -49,12 +49,4 @@
   justify-content: space-between;
   margin-top: 20px;
   gap: 10px;
-}
-
-/* Responsive */
-@media screen and (max-height: 700px) {
-  .popup-contenido {
-    padding: 15px;
-    max-height: calc(100vh - 80px);
-  }
 }

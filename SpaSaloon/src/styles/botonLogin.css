@@ -5,9 +5,9 @@
 
 .login-button {
   cursor: pointer;
-  background-color: #FADADD !important; /* Color rosa claro */
-  color: #000 !important; /* Texto negro */
-  --hover-bg-color: #f8c8ca !important; /* Versión ligeramente más oscura para hover */
+  background-color: #FADADD !important; 
+  color: #000 !important; 
+  --hover-bg-color: #f8c8ca !important; 
 }
 
 .login-button.custom-button:hover {
@@ -75,11 +75,11 @@
 
 .dropdown-item:hover {
   background-color: #f5f8fa;
-  color: #FADADD; /* Cambiado para que coincida con el botón */
+  color: #FADADD; 
 }
 
 .dropdown-item svg {
-  color: #FADADD; /* Cambiado para que coincida con el botón */
+  color: #FADADD; 
 }
 
 .custom-button.login-button {

@@ -1,4 +1,3 @@
-/* Estilos base para el sidebar de autenticación */
 .auth-sidebar {
   position: fixed;
   top: 0;
@@ -59,10 +58,9 @@ form {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  font-size: 16px; /* Aumentado el tamaño de las etiquetas */
+  font-size: 16px; 
 }
 
-/* Enlaces de recuperación de contraseña */
 .forgot-password-container {
   text-align: right;
   margin-top: -5px;
@@ -72,7 +70,7 @@ form {
 }
 
 .forgot-password-link {
-  color: #D4A574; /* Cambiado a un tono marrón más claro */
+  color: #D4A574; 
   font-size: 14px;
   cursor: pointer;
   transition: color 0.2s ease;
@@ -81,11 +79,10 @@ form {
 }
 
 .forgot-password-link:hover {
-  color: #F4DFC8; /* Tono más claro al pasar el cursor */
+  color: #F4DFC8; 
   text-decoration: underline;
 }
 
-/* Botones de acción */
 .auth-buttons {
   display: flex;
   flex-direction: column;
@@ -99,16 +96,15 @@ form {
   margin-bottom: 10px;
   min-height: 40px;
   width: 100%;
-  font-size: 16px !important; /* Importante para sobrescribir otros estilos */
+  font-size: 16px !important; 
 }
 
-/* Mensajes */
 .recovery-message {
   margin-bottom: 20px;
   font-size: 14px;
-  color: #F4DFC8; /* Cambiado a un tono marrón claro */
+  color: #F4DFC8; 
   padding: 10px;
-  background-color: rgba(107, 66, 38, 0.1); /* Fondo marrón semi-transparente */
+  background-color: rgba(107, 66, 38, 0.1); 
   border-radius: 4px;
 }
 
@@ -122,30 +118,20 @@ form {
   text-align: center;
 }
 
-/* Estado deshabilitado de botones */
 button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
-/* Animaciones */
 @keyframes fadeInRight {
   from { opacity: 0; transform: translateX(20px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .auth-sidebar {
-    width: 100%;
-  }
-}
-
-/* Estilos para los inputs personalizados */
 .custom-input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #A67B5B; /* Borde marrón claro */
+  border: 1px solid #A67B5B; 
   border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.9);
   color: #333;
@@ -156,7 +142,7 @@ button:disabled {
 
 .custom-input:focus {
   outline: none;
-  border-color: #8C5D35; /* Marrón más oscuro al enfocar */
+  border-color: #8C5D35; 
   box-shadow: 0 0 0 2px rgba(107, 66, 38, 0.2);
 }
 
@@ -165,14 +151,13 @@ button:disabled {
   opacity: 0.7;
 }
 
-/* Estilos de botones específicos */
 .custom-button {
   font-family: 'Montserrat', sans-serif !important;
   font-size: 16px !important;
   font-weight: 500 !important;
   letter-spacing: 0.5px;
-  background-color: #8C5D35 !important; /* Marrón como color primario */
-  --hover-bg-color: #6B4226 !important; /* Marrón más oscuro para hover */
+  background-color: #8C5D35 !important; 
+  --hover-bg-color: #6B4226 !important; 
 }
 
 .custom-button:hover {

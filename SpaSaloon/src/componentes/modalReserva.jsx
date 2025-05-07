@@ -7,14 +7,12 @@ import { useAuth } from "../context/AuthContext.jsx";
 const ModalReserva = ({
   servicio,
   opcionSeleccionada,
-  servicioId, // ID directo del servicio seleccionado
+  servicioId,
   onClose,
   onReservaConfirmada,
 }) => {
-  // Obtener usuario autenticado desde el contexto
   const { user } = useAuth();
   const clienteId = user?.id_cliente;
-
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
   const [profesional, setProfesional] = useState("");
@@ -26,27 +24,22 @@ const ModalReserva = ({
   const [error, setError] = useState(null);
   const [horariosCargados, setHorariosCargados] = useState(false);
   const [turnosOcupados, setTurnosOcupados] = useState([]);
-  const [servicioIdState, setServicioIdState] = useState(servicioId); // Estado para el ID del servicio
+  const [servicioIdState, setServicioIdState] = useState(servicioId);
 
-  // Usar el ID del servicio directamente si está disponible
   useEffect(() => {
     console.log("Servicio recibido:", servicio);
-    // Si recibimos un ID específico del servicio seleccionado, usamos ese
     if (servicioId) {
       console.log("Usando ID de servicio específico:", servicioId);
       setServicioIdState(servicioId);
     }
-    // Si el servicio tiene un ID directo (caso de servicios grupales)
     else if (servicio && servicio.id_servicio) {
       console.log("Usando ID de servicio directo:", servicio.id_servicio);
       setServicioIdState(servicio.id_servicio);
     }
-    // Si solo tenemos un ID genérico
     else if (servicio && servicio.id) {
       console.log("Usando ID genérico:", servicio.id);
       setServicioIdState(servicio.id);
     }
-    // Si solo tenemos el título del servicio
     else if (servicio && servicio.title) {
       console.log("Buscando servicio por nombre:", servicio.title);
       fetchServicios();
@@ -92,14 +85,14 @@ const ModalReserva = ({
         setError("No se pudo identificar el servicio seleccionado");
         return;
       }
-      
+
       setLoading(true);
       try {
         console.log(`Llamando a la API con servicioId: ${servicioIdState}`);
         const response = await axios.get(
           `http://localhost:3001/api/profesionales/servicio/${servicioIdState}`
         );
-        
+
         console.log("Datos de profesionales:", JSON.stringify(response.data));
         if (response.data && response.data.length > 0) {
           setProfesionales(response.data);
@@ -115,32 +108,30 @@ const ModalReserva = ({
         setLoading(false);
       }
     };
-    
-    // Solo hacer la llamada cuando tengamos un ID válido
+
     if (servicioIdState) {
       fetchProfesionales();
     }
-  }, [servicioIdState]); // Depender de servicioIdState en lugar de servicioId
+  }, [servicioIdState]);
 
   const verificarDisponibilidad = async (fecha, idProfesional = null) => {
     if (!servicioIdState) return;
     try {
       const fechaStr = fecha.toISOString().split("T")[0];
-      const params = { 
-        fecha: fechaStr, 
+      const params = {
+        fecha: fechaStr,
         id_servicio: servicioIdState
       };
-      
-      // If a professional is selected, include their ID in the query
+
       if (idProfesional) {
         params.id_profesional = idProfesional;
       }
-      
+
       const response = await axios.get(
         "http://localhost:3001/api/turnos/disponibilidad",
         { params }
       );
-      
+
       if (response.data && response.data.turnosOcupados) {
         setTurnosOcupados(response.data.turnosOcupados);
       }
@@ -156,109 +147,100 @@ const ModalReserva = ({
       const fechaStr = nuevaFecha.toISOString().split("T")[0];
       setFecha(fechaStr);
       setDiaSeleccionado(nuevaFecha);
-      // Pass profesional ID if it's already selected
       verificarDisponibilidad(nuevaFecha, profesionalId);
     }
     if (nuevaHora) setHora(nuevaHora);
   };
 
-const handleSubmit = async e => {
-  e.preventDefault();
-  if (paso === 1) {
-    if (!fecha || !hora)
-      return alert("Selecciona fecha y hora para continuar.");
-    setPaso(2);
-  } else {
-    if (!profesionalId) return alert("Selecciona un profesional.");
-    if (!clienteId) return alert("Debes iniciar sesión para reservar un turno.");
-    if (!servicioIdState)
-      return alert("No se ha podido identificar el servicio seleccionado.");
+  const handleSubmit = async e => {
+    e.preventDefault();
+    if (paso === 1) {
+      if (!fecha || !hora)
+        return alert("Selecciona fecha y hora para continuar.");
+      setPaso(2);
+    } else {
+      if (!profesionalId) return alert("Selecciona un profesional.");
+      if (!clienteId) return alert("Debes iniciar sesión para reservar un turno.");
+      if (!servicioIdState)
+        return alert("No se ha podido identificar el servicio seleccionado.");
 
-    const fechaHoraSQL = `${fecha} ${hora}:00`;  // MySQL DATETIME
-    const datosTurno = {
-      id_cliente:     Number(clienteId),
-      id_servicio:    Number(servicioIdState),
-      id_profesional: Number(profesionalId),
-      fecha_hora:     fechaHoraSQL,
-      duracion_minutos: Number(opcionSeleccionada?.duracion || 60),
-      comentarios:    `Reserva para ${servicio.title}${opcionSeleccionada ? ` - ${opcionSeleccionada.nombre}` : ""}`
-    };
-    console.log("Enviando datos de turno:", datosTurno);
+      const fechaHoraSQL = `${fecha} ${hora}:00`;
+      const datosTurno = {
+        id_cliente: Number(clienteId),
+        id_servicio: Number(servicioIdState),
+        id_profesional: Number(profesionalId),
+        fecha_hora: fechaHoraSQL,
+        duracion_minutos: Number(opcionSeleccionada?.duracion || 60),
+        comentarios: `Reserva para ${servicio.title}${opcionSeleccionada ? ` - ${opcionSeleccionada.nombre}` : ""}`
+      };
+      console.log("Enviando datos de turno:", datosTurno);
 
-    // Agregar un timeout para evitar colgarse indefinidamente
-    const timeoutId = setTimeout(() => {
-      setLoading(false);
-      setError("La solicitud ha tardado demasiado. Por favor, inténtalo de nuevo.");
-    }, 15000); // 15 segundos de timeout
+      const timeoutId = setTimeout(() => {
+        setLoading(false);
+        setError("La solicitud ha tardado demasiado. Por favor, inténtalo de nuevo.");
+      }, 15000); // 15 segundos de timeout
 
-    try {
-      setLoading(true);
-      const response = await axios.post(
-        "http://localhost:3001/api/turnos",
-        datosTurno,
-        {
-          // Agregar headers para CORS y timeout
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000 // 10 segundos de timeout para axios
+      try {
+        setLoading(true);
+        const response = await axios.post(
+          "http://localhost:3001/api/turnos",
+          datosTurno,
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            timeout: 10000 // 10 segundos de timeout para axios
+          }
+        );
+
+        clearTimeout(timeoutId);
+
+        console.log("Respuesta recibida:", response.data);
+
+        if (response.data && response.data.id_turno) {
+          const detallesReserva = {
+            id_turno: response.data.id_turno,
+            servicio: servicio.title,
+            opcion: opcionSeleccionada?.nombre,
+            fecha,
+            hora,
+            profesional
+          };
+          onReservaConfirmada?.(detallesReserva);
+          alert(
+            `Tu reserva ha sido confirmada para el ${formatearFecha(
+              fecha
+            )} a las ${hora}.`
+          );
+          setTimeout(onClose, 1000);
+        } else {
+          throw new Error("La respuesta del servidor no incluyó el ID del turno");
         }
-      );
-      
-      // Limpiar el timeout ya que la solicitud tuvo éxito
-      clearTimeout(timeoutId);
-      
-      console.log("Respuesta recibida:", response.data);
-      
-      if (response.data && response.data.id_turno) {
-        const detallesReserva = {
-          id_turno: response.data.id_turno,
-          servicio: servicio.title,
-          opcion: opcionSeleccionada?.nombre,
-          fecha,
-          hora,
-          profesional
-        };
-        onReservaConfirmada?.(detallesReserva);
-        alert(
-          `Tu reserva ha sido confirmada para el ${formatearFecha(
-            fecha
-          )} a las ${hora}.`
-        );
-        setTimeout(onClose, 1000);
-      } else {
-        throw new Error("La respuesta del servidor no incluyó el ID del turno");
+      } catch (err) {
+        clearTimeout(timeoutId);
+
+        console.error("Error al crear el turno:", err);
+
+        if (err.response) {
+          console.error("Error del servidor:", err.response.data);
+          console.error("Estado HTTP:", err.response.status);
+          setError(
+            `Error del servidor: ${err.response.data?.error || err.response.status}`
+          );
+        } else if (err.request) {
+          console.error("No se recibió respuesta del servidor:", err.request);
+          setError(
+            "No se recibió respuesta del servidor. Verifica tu conexión a internet."
+          );
+        } else {
+          console.error("Error al configurar la solicitud:", err.message);
+          setError(`Error: ${err.message}`);
+        }
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      // Limpiar el timeout en caso de error
-      clearTimeout(timeoutId);
-      
-      console.error("Error al crear el turno:", err);
-      
-      // Manejo detallado de errores
-      if (err.response) {
-        // El servidor respondió con un código de estado fuera del rango 2xx
-        console.error("Error del servidor:", err.response.data);
-        console.error("Estado HTTP:", err.response.status);
-        setError(
-          `Error del servidor: ${err.response.data?.error || err.response.status}`
-        );
-      } else if (err.request) {
-        // La solicitud fue hecha pero no se recibió respuesta
-        console.error("No se recibió respuesta del servidor:", err.request);
-        setError(
-          "No se recibió respuesta del servidor. Verifica tu conexión a internet."
-        );
-      } else {
-        // Algo sucedió durante la configuración de la solicitud
-        console.error("Error al configurar la solicitud:", err.message);
-        setError(`Error: ${err.message}`);
-      }
-    } finally {
-      setLoading(false);
     }
-  }
-};
+  };
 
   const formatearFecha = fechaString => {
     const [año, mes, dia] = fechaString.split("-");
@@ -278,8 +260,6 @@ const handleSubmit = async e => {
   const seleccionarProfesional = prof => {
     setProfesional(`${prof.nombre} ${prof.apellido}`);
     setProfesionalId(prof.id_profesional);
-    
-    // Re-check availability with the selected professional
     if (diaSeleccionado) {
       verificarDisponibilidad(diaSeleccionado, prof.id_profesional);
     }
@@ -349,9 +329,8 @@ const handleSubmit = async e => {
                           profesionales.map(prof => (
                             <div
                               key={prof.id_profesional}
-                              className={`profesional-card ${
-                                profesionalId === prof.id_profesional ? "seleccionado" : ""
-                              }`}
+                              className={`profesional-card ${profesionalId === prof.id_profesional ? "seleccionado" : ""
+                                }`}
                               onClick={() => seleccionarProfesional(prof)}
                             >
                               <div className="profesional-avatar">{prof.nombre.charAt(0)}</div>
@@ -405,17 +384,14 @@ const CalendarioPersonalizado = ({
   profesionales = []
 }) => {
   const today = new Date();
-  // Iniciar con el mes actual
   const [fechaActual, setFechaActual] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1)
   );
-  // Autoseleccionar el día actual
   const [diaSeleccionado, setDiaSeleccionado] = useState(
     fechaSeleccionada || today
   );
   const [horaElegida, setHoraElegida] = useState(horaSeleccionada || null);
 
-  // Inicialización con día actual seleccionado
   useEffect(() => {
     if (!fechaSeleccionada) {
       onSeleccionarFechaHora(today, horaElegida);
@@ -428,21 +404,21 @@ const CalendarioPersonalizado = ({
     const mes = fecha.getMonth();
     const totalDias = new Date(año, mes + 1, 0).getDate();
     const primerDia = new Date(año, mes, 1).getDay();
-    
+
     // Ajustar para que la semana empiece en domingo (0) o lunes (1)
     const primerDiaAjustado = primerDia === 0 ? 7 : primerDia;
-    
+
     // Días del mes anterior para completar la primera semana
     const diasAnteriores = primerDiaAjustado - 1;
     const diasAnteriorMes = new Date(año, mes, 0).getDate();
-    
+
     for (let i = diasAnteriores; i > 0; i--) {
       dias.push({
         fecha: new Date(año, mes, 1 - i),
         esDelMesActual: false
       });
     }
-    
+
     // Días del mes actual
     for (let i = 1; i <= totalDias; i++) {
       const fechaDia = new Date(año, mes, i);
@@ -450,13 +426,12 @@ const CalendarioPersonalizado = ({
         fecha: fechaDia,
         esDelMesActual: true,
         esPasado: fechaDia < new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-        esHoy: fechaDia.getDate() === today.getDate() && 
-               fechaDia.getMonth() === today.getMonth() && 
-               fechaDia.getFullYear() === today.getFullYear()
+        esHoy: fechaDia.getDate() === today.getDate() &&
+          fechaDia.getMonth() === today.getMonth() &&
+          fechaDia.getFullYear() === today.getFullYear()
       });
     }
-    
-    // Días del mes siguiente para completar la última semana
+
     const diasSiguientes = 42 - dias.length; // 6 filas * 7 días = 42
     for (let i = 1; i <= diasSiguientes; i++) {
       dias.push({
@@ -464,7 +439,7 @@ const CalendarioPersonalizado = ({
         esDelMesActual: false
       });
     }
-    
+
     return dias;
   };
 
@@ -491,36 +466,33 @@ const CalendarioPersonalizado = ({
 
   const estaHoraOcupada = (hora) => {
     if (!diaSeleccionado) return false;
-    
+
     const fechaStr = diaSeleccionado.toISOString().split("T")[0];
-    
-    // If a professional is selected, check if they have appointments at this time
+
     if (profesionalId) {
       return turnosOcupados.some(turno => {
         const turnoFecha = new Date(turno.fecha_hora).toISOString().split("T")[0];
         const turnoHora = new Date(turno.fecha_hora).toTimeString().substring(0, 5);
-        
-        return turnoFecha === fechaStr && 
-               turnoHora === hora && 
-               turno.id_profesional === profesionalId;
+
+        return turnoFecha === fechaStr &&
+          turnoHora === hora &&
+          turno.id_profesional === profesionalId;
       });
-    } 
-    
-    // If no professional is selected, check if ALL professionals are booked at this time
+    }
+
     const allProfesionales = profesionales.map(prof => prof.id_profesional);
-    
-    // Now check if there's a booking for each professional at this time slot
+
     const profesionalesOcupados = new Set();
-    
+
     turnosOcupados.forEach(turno => {
       const turnoFecha = new Date(turno.fecha_hora).toISOString().split("T")[0];
       const turnoHora = new Date(turno.fecha_hora).toTimeString().substring(0, 5);
-      
+
       if (turnoFecha === fechaStr && turnoHora === hora) {
         profesionalesOcupados.add(turno.id_profesional);
       }
     });
-    
+
     return profesionalesOcupados.size === allProfesionales.length && allProfesionales.length > 0;
   };
 
@@ -529,7 +501,7 @@ const CalendarioPersonalizado = ({
     month: "long",
     year: "numeric"
   });
-  
+
   const diasSemana = ["L", "M", "X", "J", "V", "S", "D"];
 
   const horarios = {
@@ -554,27 +526,24 @@ const CalendarioPersonalizado = ({
           →
         </button>
       </div>
-      
+
       {/* Cuadrícula de días de la semana */}
       <div className="dias-semana">
         {diasSemana.map(dia => (
           <div key={dia} className="dia-semana">{dia}</div>
         ))}
       </div>
-      
+
       {/* Cuadrícula de días del mes */}
       <div className="dias-grid">
         {dias.map((dia, index) => (
           <div
             key={index}
-            className={`dia-grid ${!dia.esDelMesActual ? "otro-mes" : ""} ${
-              dia.esPasado ? "pasado" : ""
-            } ${
-              diaSeleccionado?.toDateString() === dia.fecha.toDateString()
+            className={`dia-grid ${!dia.esDelMesActual ? "otro-mes" : ""} ${dia.esPasado ? "pasado" : ""
+              } ${diaSeleccionado?.toDateString() === dia.fecha.toDateString()
                 ? "seleccionado" : ""
-            } ${
-              dia.esHoy ? "hoy" : ""
-            }`}
+              } ${dia.esHoy ? "hoy" : ""
+              }`}
             onClick={() =>
               dia.esDelMesActual && !dia.esPasado && seleccionarDia(dia.fecha)
             }
@@ -583,7 +552,7 @@ const CalendarioPersonalizado = ({
           </div>
         ))}
       </div>
-      
+
       {diaSeleccionado && (
         <div className="horarios">
           <h5>
@@ -599,9 +568,8 @@ const CalendarioPersonalizado = ({
                   return (
                     <button
                       key={idx}
-                      className={`horario-btn ${
-                        horaElegida === hora ? "seleccionado" : ""
-                      } ${ocupado ? "ocupado" : ""}`}
+                      className={`horario-btn ${horaElegida === hora ? "seleccionado" : ""
+                        } ${ocupado ? "ocupado" : ""}`}
                       onClick={() => !ocupado && seleccionarHora(hora)}
                       disabled={ocupado}
                     >
