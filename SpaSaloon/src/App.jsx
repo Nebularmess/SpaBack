@@ -2,7 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './styles/fonts.css';
 import './App.css';
-
+import AdminPrivateRoute from './admin/AdminPrivateRoute';
+import AdminLogin from './admin/AdminLogin';
+import Layout from './Layout.jsx';
 import Hero from './componentes/Body/hero.jsx';
 import Servicios from './componentes/Body/servicios.jsx';
 import SobreNosotros from './componentes/Body/sobre-nosotros.jsx';
@@ -38,10 +40,15 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Header />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/perfil" element={<PerfilUsuario />} />
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/perfil" element={<PerfilUsuario />} />
+          </Route>
+
+          {/* Rutas sin Header */}
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/dashboard" element={<AdminPrivateRoute />} />
         </Routes>
       </Router>
     </AuthProvider>
