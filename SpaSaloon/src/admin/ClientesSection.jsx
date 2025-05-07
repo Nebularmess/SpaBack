@@ -34,10 +34,15 @@ const ClientesSection = () => {
                     throw new Error("Error al obtener los clientes");
                 }
                 const data = await response.json();
-                setClientes(data);
+                // Asegurarte que todos los clientes tengan un campo id
+                const clientesConId = data.map(cliente => ({
+                    ...cliente,
+                    id: cliente.id || cliente.id_cliente
+                }));
+                setClientes(clientesConId);
             } catch (error) {
                 console.error("Error al cargar los clientes:", error);
-                setError("No se pudieron cargar los clienteses. Intenta nuevamente.");
+                setError("No se pudieron cargar los clientes. Intenta nuevamente.");
             } finally {
                 setLoading(false);
             }
@@ -89,8 +94,6 @@ const ClientesSection = () => {
             console.log("Datos recibidos para crear cliente:", nuevoCliente);
             
 
-            // El DropdownServicios ya está devolviendo el ID del servicio directamente
-            // así que no necesitamos hacer una conversión de nombre a ID
             const dataToSend = {
                 nombre: nuevoCliente.nombre,
                 apellido: nuevoCliente.apellido,
@@ -169,68 +172,52 @@ const ClientesSection = () => {
         try {
             setLoading(true);
             setError(null);
-            
+    
             // Validación básica
-            if (!formulario.nombre || !formulario.apellido || !formulario.direccion || !formulario.email || !formulario.telefono) {
+            if (
+                !formulario.nombre ||
+                !formulario.apellido ||
+                !formulario.direccion ||
+                !formulario.email ||
+                !formulario.telefono
+            ) {
                 setError("Todos los campos son obligatorios");
                 setLoading(false);
                 return;
             }
-
-            console.log("Intentando guardar profesional:", formulario);
-
+    
+            console.log("Intentando guardar cliente:", formulario);
+    
             if (modo === "crear") {
-                // Lógica para crear un nuevo profesional
                 const resultado = await crearCliente(formulario);
                 console.log("Resultado API:", resultado);
-                
-                // Obtener los datos del nuevo profesional
-                const nuevoCliente = resultado.cliente;
-                
-                // Determinar el nombre del servicio para mostrar
-                // Prioridad: 1) nombre guardado en el formulario, 2) buscar en servicios actuales, 3) mapa global
-                
-                
-                // Crear el objeto del profesional para la tabla
+    
+                const nuevoCliente = { ...formulario, id: resultado.id };
+    
                 const clienteParaTabla = {
-                    id: nuevoCliente.id_profesional,
+                    id: nuevoCliente.id,
                     nombre: nuevoCliente.nombre,
                     apellido: nuevoCliente.apellido,
                     direccion: nuevoCliente.direccion,
+                    password: nuevoCliente.password,
                     estado: nuevoCliente.estado,
                     email: nuevoCliente.email,
                     telefono: nuevoCliente.telefono
                 };
-                
-                console.log("Profesional para añadir a la tabla:", clienteParaTabla);
-                
-                // Actualizar la lista de profesionales
+    
                 setClientes([...clientes, clienteParaTabla]);
-                
+    
                 alert("Cliente creado correctamente");
             } else {
-                // Lógica para editar un profesional existente
                 await actualizarClientes(formulario);
-                
-                // Conseguir el nombre del servicio para mostrar en la tabla
-                // Usar la misma lógica que al crear, pero adaptada para edición
-        
-                
-                
-                // Actualizar la lista de profesionales localmente
-                setClientes(clientes.map(p => {
-                    if (p.id === formulario.id) {
-                        return {
-                            ...formulario,
-                            id: p.id, // Mantener el ID original
-                        };
-                    }
-                    return p;
-                }));
-                
-                alert("Clientes actualizado correctamente");
+    
+                setClientes(clientes.map(p =>
+                    p.id === formulario.id ? { ...formulario, id: p.id } : p
+                ));
+    
+                alert("Cliente actualizado correctamente");
             }
-            
+    
             setMostrarModal(false);
             setClienteSeleccionado(null);
         } catch (error) {
@@ -240,11 +227,11 @@ const ClientesSection = () => {
             setLoading(false);
         }
     };
-
+    
     const handleEliminar = async () => {
         if (!clienteSeleccionado) return;
         
-        if (window.confirm("¿Estás seguro de querer eliminar a este profesional?")) {
+        if (window.confirm("¿Estás seguro de querer eliminar a este cliente?")) {
             try {
                 setLoading(true);
                 await eliminarCliente(clienteSeleccionado.id);
@@ -326,7 +313,7 @@ const ClientesSection = () => {
             <ModalForm 
                 isOpen={mostrarModal} 
                 onClose={handleCancelar} 
-                title={`${modo === "crear" ? "Agregar" : "Editar"} Profesional`}
+                title={`${modo === "crear" ? "Agregar" : "Editar"} Cliente`}
                 onSave={handleGuardar}
             >
                 {error && <div className="error-message-modal">{error}</div>}
@@ -345,6 +332,12 @@ const ClientesSection = () => {
                     value={formulario.apellido}
                     onChange={e => setFormulario({ ...formulario, apellido: e.target.value })}
                     required
+                />
+                <input 
+                    type="text"
+                    placeholder="Contraseña"
+                    value={formulario.password}
+                    onChange={e => setFormulario({ ...formulario, password: e.target.value})}
                 />
                 <input
                     type="text"
