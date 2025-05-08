@@ -74,12 +74,12 @@
 }
 
 .dropdown-item:hover {
-  background-color: #f5f8fa;
-  color: #FADADD; 
+  background-color: #FADADD;
+  color: #000; 
 }
 
 .dropdown-item svg {
-  color: #FADADD; 
+  color: #6B4226; 
 }
 
 .custom-button.login-button {

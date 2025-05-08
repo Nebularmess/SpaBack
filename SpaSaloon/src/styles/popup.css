@@ -22,8 +22,8 @@
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  width: 90%;
-  max-width: 400px;
+  width: 100%;
+  max-width: 500px;
   max-height: calc(100vh - 100px); 
   overflow-y: auto; 
   border: 1px solid rgba(212, 165, 116, 0.3);

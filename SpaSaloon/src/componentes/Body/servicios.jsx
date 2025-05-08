@@ -3,8 +3,6 @@ import Card from '../cards';
 import Modal from '../Modal.jsx';
 import '../../styles/servicios.css';
 import '../../styles/modal.css';
-
-// Importación de imágenes por defecto (por si fallan las cargas)
 import masagesImg from '../../assets/masajes.jpg';
 import bellezaImg from '../../assets/belleza.jpg';
 import facialesImg from '../../assets/faciales.jpg';

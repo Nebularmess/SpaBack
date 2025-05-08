@@ -1,5 +1,80 @@
-.modal-reserva .modal-image-container {
+.modal-reserva .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  background: rgba(107, 66, 38, 0.5); /* Fondo marrón oscuro como en modal.css */
+}
+
+.modal-reserva .modal-content {
+  background: rgba(107, 66, 38, 0.7) !important; /* Marrón oscuro como en modal.css */
+  border-radius: 24px;
+  width: 95%;
+  max-width: 1500px;
+  min-width: 1150px;
+  height: 700px;
+  display: flex;
+  flex-direction: column;
   position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  animation: modalFadeIn 0.5s ease;
+  backdrop-filter: blur(15px);
+  border: 2px solid rgba(212, 165, 116, 0.3) !important; /* Borde dorado como en modal.css */
+}
+
+.modal-reserva .modal-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  background: rgba(212, 165, 116, 0.2);
+  border: 1px solid rgba(212, 165, 116, 0.4);
+  font-size: 1.2rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  color: #F4EBD0; /* Color de texto claro como en modal.css */
+}
+
+.modal-reserva .modal-close-btn:hover {
+  background: rgba(212, 165, 116, 0.4);
+  transform: scale(1.1);
+}
+
+.modal-reserva .modal-body {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.modal-reserva .modal-image-container {
+  width: 45%;
+  overflow: hidden;
+  position: relative;
+  border-radius: 0 0 0 24px;
+}
+
+.modal-reserva .modal-image-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(107, 66, 38, 0) 0%, rgba(107, 66, 38, 0.2) 100%);
 }
 
 .modal-image-overlay {
@@ -14,8 +89,19 @@
   align-items: center;
   justify-content: flex-start;
   padding: 2rem;
-  color: white;
+  color: #F4EBD0; /* Color claro como en modal.css */
   z-index: 2;
+}
+
+.modal-reserva .modal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.modal-reserva .modal-img:hover {
+  transform: scale(1.05);
 }
 
 .modal-reserva-title {
@@ -25,19 +111,26 @@
   margin-bottom: 1rem;
   font-weight: 600;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
+  color: #F4EBD0; /* Color claro como en modal.css */
+  border-bottom: none !important;
 }
 
 .modal-servicio-info {
-  background: #4B3832;
+  background: rgba(75, 56, 50, 0.8); /* Color de fondo oscuro similar a modal-description */
   padding: 1rem;
   border-radius: 10px;
   max-width: 80%;
+  color: #F4EBD0;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .modal-servicio-info h3 {
   margin-top: 0;
   margin-bottom: 0.5rem;
   font-size: 1.4rem;
+  color: #D4A574 !important; /* Color dorado como en modal.css */
 }
 
 .modal-opcion-elegida {
@@ -49,11 +142,17 @@
   font-size: 1.3rem;
   font-weight: 600;
   margin: 0.5rem 0 0;
+  color: #D4A574; /* Color dorado como en modal.css */
 }
 
-.modal-reserva-details {
+.modal-reserva .modal-details {
+  width: 55%;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, rgba(107, 66, 38, 0.9) 0%, rgba(107, 66, 38, 0.7) 100%) !important;
   overflow-y: auto;
+  border-radius: 0 0 24px 0;
 }
 
 .modal-pasos-indicador {
@@ -61,8 +160,9 @@
   align-items: center;
   margin-bottom: 2rem;
   padding: 0.5rem;
-  background: #f0f0f0;
+  background: rgba(75, 56, 50, 0.8); /* Color de fondo oscuro similar a modal-description */
   border-radius: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .paso {
@@ -72,19 +172,21 @@
   border-radius: 25px;
   font-weight: 500;
   transition: all 0.3s ease;
-  color: #000;
+  color: #F4EBD0; /* Color claro como en modal.css */
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .paso.activo {
-  background: #4B3832;
-  color: white;
-  box-shadow: 0 2px 8px #4B3832;
+  background: rgba(212, 165, 116, 0.3); /* Color dorado con transparencia */
+  color: #F4EBD0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-left: 3px solid #F4EBD0;
 }
 
 .paso-separador {
   width: 30px;
   height: 2px;
-  background: #ddd;
+  background: rgba(212, 165, 116, 0.4); /* Color dorado con transparencia */
 }
 
 .modal-reserva-form {
@@ -106,19 +208,20 @@
 .calendario-custom {
   max-width: 100%;
   margin: 0;
-  font-family: 'Kanit', sans-serif;
-  background-color: #f9f9f9;
+  font-family: var(--font-body, 'Montserrat', sans-serif);
+  background-color: rgba(75, 56, 50, 0.8);
   padding: 1rem;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  color: #000;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  color: #F4EBD0;
 }
 
 .titulo-seleccion {
-  color: #000;
+  color: #F4EBD0;
   margin-top: 0;
   font-size: 1.4rem;
   text-align: center;
+  font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
 }
 
 .encabezado {
@@ -129,8 +232,8 @@
 }
 
 .encabezado button {
-  background: #e0e0e0;
-  border: none;
+  background: rgba(212, 165, 116, 0.2);
+  border: 1px solid rgba(212, 165, 116, 0.4);
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -139,17 +242,20 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  color: #F4EBD0;
 }
 
 .encabezado button:hover {
-  background: #d0d0d0;
+  background: rgba(212, 165, 116, 0.4);
+  transform: scale(1.1);
 }
 
 .encabezado h5 {
   margin: 0;
   font-size: 1.2rem;
-  color: #000;
+  color: #F4EBD0;
   font-weight: 500;
+  font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
 }
 
 .dias-scroll {
@@ -157,9 +263,9 @@
   overflow-x: auto;
   gap: 0.5rem;
   padding-bottom: 0.8rem;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.3);
   scrollbar-width: thin;
-  scrollbar-color: #4B3832 #f0f0f0;
+  scrollbar-color: #D4A574 rgba(75, 56, 50, 0.6);
 }
 
 .dias-scroll::-webkit-scrollbar {
@@ -167,12 +273,12 @@
 }
 
 .dias-scroll::-webkit-scrollbar-track {
-  background: #f0f0f0;
+  background: rgba(75, 56, 50, 0.6);
   border-radius: 10px;
 }
 
 .dias-scroll::-webkit-scrollbar-thumb {
-  background-color: #4B3832;
+  background-color: #D4A574;
   border-radius: 10px;
 }
 
@@ -180,23 +286,25 @@
   min-width: 40px;
   padding: 10px;
   text-align: center;
-  background-color: #f0f0f0;
+  background-color: rgba(212, 165, 116, 0.2);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #000;
+  color: #F4EBD0;
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .dia:hover {
-  background-color: #e0e0e0;
+  background-color: rgba(212, 165, 116, 0.3);
   transform: translateY(-2px);
 }
 
 .dia.seleccionado {
-  background-color: #4B3832;
-  color: white;
+  background-color: rgba(212, 165, 116, 0.4);
+  color: #F4EBD0;
   font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0, 150, 136, 0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  border-left: 3px solid #F4EBD0;
 }
 
 .horarios {
@@ -204,15 +312,18 @@
 }
 
 .horarios h5 {
-  color: #000;
-  font-size: 1.1rem;
+  color: #F4EBD0;
+  font-size: 1.25rem;
   margin-bottom: 1rem;
+  font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
 }
 
 .horarios h6 {
   margin-bottom: 0.5rem;
-  color: #000;
+  color: #D4A574;
+  text-align: left;
   font-size: 1rem;
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .bloque-horario {
@@ -226,25 +337,27 @@
 }
 
 .horario-btn {
-  background-color: #e3e3e3;
+  background-color: rgba(212, 165, 116, 0.2);
   border: none;
   padding: 0.4rem 1rem;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #000;
+  color: #F4EBD0;
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .horario-btn:hover {
-  background-color: #d0d0d0;
+  background-color: rgba(212, 165, 116, 0.3);
   transform: translateY(-1px);
 }
 
 .horario-btn.seleccionado {
-  background-color: #4B3832;
-  color: white;
+  background-color: rgba(212, 165, 116, 0.4);
+  color: #F4EBD0;
   font-weight: 500;
-  box-shadow: 0 2px 5px rgba(0, 150, 136, 0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  border-left: 3px solid #F4EBD0;
 }
 
 .form-group {
@@ -255,15 +368,19 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #000;
+  color: #F4EBD0;
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .form-control {
   width: 100%;
   padding: 0.8rem;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(212, 165, 116, 0.3);
   border-radius: 8px;
   font-size: 1rem;
+  background-color: rgba(75, 56, 50, 0.6);
+  color: #F4EBD0;
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .profesionales-grid {
@@ -276,128 +393,144 @@
   display: flex;
   align-items: center;
   padding: 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(212, 165, 116, 0.3);
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #000;
+  color: #F4EBD0;
+  background-color: rgba(75, 56, 50, 0.6);
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .profesional-card:hover {
-  border-color: #4B3832;
-  background: #f0f7f6;
+  border-color: #D4A574;
+  background: rgba(75, 56, 50, 0.8);
   transform: translateY(-2px);
+  border-left: 3px solid rgba(212, 165, 116, 0.4);
 }
 
 .profesional-card.seleccionado {
-  background: #4B3832;
-  color: white;
-  border-color: #4B3832;
-  box-shadow: 0 4px 10px rgba(0, 150, 136, 0.3);
+  background: rgba(212, 165, 116, 0.3);
+  color: #F4EBD0;
+  border-color: #D4A574;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  border-left: 3px solid #F4EBD0;
 }
 
 .profesional-avatar {
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background: #f1f1f1;
+  background: rgba(212, 165, 116, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.3rem;
   font-weight: bold;
-  color: #4B3832;
+  color: #F4EBD0;
   margin-right: 1rem;
   transition: all 0.2s ease;
 }
 
 .profesional-card.seleccionado .profesional-avatar {
-  background: white;
+  background: rgba(212, 165, 116, 0.4);
 }
 
 .profesional-info h4 {
   margin: 0;
   font-size: 1.1rem;
-  color: #000;
+  color: #D4A574;
+  font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
 }
 
 .profesional-info p {
   margin: 0.3rem 0 0;
   font-size: 0.9rem;
   opacity: 0.8;
-  color: #000;
+  color: #F4EBD0;
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
-.profesional-card.seleccionado .profesional-info h4,
-.profesional-card.seleccionado .profesional-info p {
-  color: white;
+.profesional-card.seleccionado .profesional-info h4 {
+  color: #F4EBD0;
 }
 
 .resumen-reserva {
   margin-top: 2rem;
   padding: 1rem;
-  background: #f0f7f6;
+  background: rgba(75, 56, 50, 0.8);
   border-radius: 10px;
-  border-left: 4px solid #4B3832;
-  color: #000;
+  border-left: 4px solid #D4A574;
+  color: #F4EBD0;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .resumen-reserva h4 {
   margin-top: 0;
-  color: #000;
+  color: #D4A574;
+  font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
 }
 
 .resumen-reserva p {
   margin: 0.5rem 0;
 }
 
+.resumen-reserva p strong {
+  color: #D4A574;
+  font-weight: 600;
+}
+
 .modal-button-container {
-  margin-top: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 1.5rem;
 }
 
 .modal-volver-btn {
   padding: 0.8rem 1.5rem;
-  background: #f1f1f12c;
-  border: none;
+  background: rgba(212, 165, 116, 0.2);
+  border: 1px solid rgba(212, 165, 116, 0.4);
   border-radius: 30px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
+  color: #F4EBD0;
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .modal-volver-btn:hover {
-  background: #e0e0e02f;
+  background: rgba(212, 165, 116, 0.3);
+  transform: scale(1.05);
 }
 
 .modal-reservar-btn {
-  padding: 0.9rem 1.8rem;
-  background-color: #4B3832;
-  color: white;
+  padding: 1rem 2rem;
+  background-color: rgba(212, 165, 116, 0.8);
+  color: #4B3832; /* Marrón oscuro */
   border: none;
   border-radius: 30px;
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 10px #4B3832;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   letter-spacing: 0.5px;
   display: inline-flex;
   align-items: center;
+  font-family: var(--font-body, 'Montserrat', sans-serif);
 }
 
 .modal-reservar-btn:hover {
-  background-color: #4B3832;
-  box-shadow: 0 6px 15px #4B3832;
+  background-color: #D4A574;
+  box-shadow: 0 6px 18px rgba(212, 165, 116, 0.5);
   transform: translateY(-2px);
 }
 
-.calendario-custom {
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
+.modal-reservar-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 10px rgba(212, 165, 116, 0.5);
 }
 
 .dias-semana {
@@ -406,8 +539,9 @@
   text-align: center;
   font-weight: bold;
   margin-bottom: 8px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.3);
   padding-bottom: 8px;
+  color: #D4A574;
 }
 
 .dia-semana {
@@ -431,81 +565,58 @@
 }
 
 .dia-grid:hover:not(.otro-mes):not(.pasado) {
-  background-color: #f0f0f0;
+  background-color: rgba(212, 165, 116, 0.2);
 }
 
 .dia-grid.seleccionado {
-  background-color: #4a90e2;
-  color: white;
+  background-color: rgba(212, 165, 116, 0.4);
+  color: #F4EBD0;
+  border-left: 3px solid #F4EBD0;
 }
 
 .dia-grid.otro-mes {
-  color: #ccc;
+  color: rgba(244, 235, 208, 0.4);
   cursor: default;
 }
 
 .dia-grid.pasado {
-  color: #aaa;
+  color: rgba(244, 235, 208, 0.4);
   cursor: default;
   text-decoration: line-through;
 }
 
 .dia-grid.hoy:not(.seleccionado) {
-  border: 2px solid #4a90e2;
+  border: 2px solid #D4A574;
   font-weight: bold;
 }
 
-.horarios {
-  margin-top: 20px;
-}
-
-.horarios h5 {
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.bloque-horario {
-  margin-bottom: 15px;
-}
-
-.horarios-lista {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.horario-btn {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.horario-btn:hover:not(.ocupado) {
-  background-color: #f0f0f0;
-}
-
-.horario-btn.seleccionado {
-  background-color: #4a90e2;
-  color: white;
-  border-color: #4a90e2;
-}
-
 .horario-btn.ocupado {
-  background-color: #f5f5f5;
-  color: #aaa;
+  background-color: rgba(75, 56, 50, 0.6);
+  color: rgba(244, 235, 208, 0.4);
   cursor: not-allowed;
   text-decoration: line-through;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(10px);
   }
 
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }

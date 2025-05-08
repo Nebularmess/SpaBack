@@ -2,7 +2,7 @@
   position: fixed;
   top: 0;
   right: 0;
-  width: 300px;
+  width: 400px;
   height: 100vh;
   background-color: #6B4226; 
   color: white;
@@ -15,30 +15,33 @@
 }
 
 .auth-sidebar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  position: relative;
+  text-align: center;
   margin-bottom: 2rem;
-  text-align: right;
+  height: 50px; /* altura mínima para alinear */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .auth-sidebar-header h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  margin: 0;
+  margin: 0 auto;
   font-family: 'Montserrat', sans-serif;
-  text-align: right;
 }
 
 .close-button {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: white;
   cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0 15px;
+  font-size: 1.5rem;
 }
 
 .close-button:hover {
@@ -51,7 +54,7 @@ form {
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem;
 }
 
 .form-group label {
@@ -59,6 +62,7 @@ form {
   margin-bottom: 0.5rem;
   font-weight: 500;
   font-size: 16px; 
+  color: #F4EBD0;
 }
 
 .forgot-password-container {

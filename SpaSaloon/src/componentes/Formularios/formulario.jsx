@@ -6,8 +6,8 @@ import { X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 const Formulario = ({ onClose }) => {
-  const { login } = useAuth(); // Usar el contexto de autenticación
-  const [formMode, setFormMode] = useState('login'); // 'login', 'register', 'recovery', 'changePassword'
+  const { login } = useAuth(); 
+  const [formMode, setFormMode] = useState('login'); 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -292,11 +292,11 @@ const Formulario = ({ onClose }) => {
 
   const getFormTitle = () => {
     switch(formMode) {
-      case 'login': return 'Iniciar Sesión';
+      case 'login': return 'Iniciar sesión';
       case 'register': return 'Registrarse';
-      case 'recovery': return 'Recuperación de Clave';
-      case 'changePassword': return 'Cambio de Clave';
-      default: return 'Iniciar Sesión';
+      case 'recovery': return 'Recuperación';
+      case 'changePassword': return 'Cambio de clave';
+      default: return 'Iniciar sesión';
     }
   };
 

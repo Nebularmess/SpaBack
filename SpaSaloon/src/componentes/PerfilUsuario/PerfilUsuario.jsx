@@ -346,7 +346,7 @@ const PerfilUsuario = () => {
       {turnoSeleccionado && (
         <div className="modal-turno">
           <div className="modal-contenido">
-            <h3>Detalle del Turno</h3>
+            <h3>Detalle del turno</h3>
             {(() => {
               const { fecha, hora } = ajustarZonaHoraria(turnoSeleccionado.fecha_hora);
               return (
@@ -384,7 +384,7 @@ const PerfilUsuario = () => {
   const { fecha, hora } = ajustarZonaHoraria(turnoSeleccionado.fecha_hora);
   return (
     <PopupConfirmacion
-      titulo="Confirmar Cancelación"
+      titulo="Confirmar cancelación"
       mensaje={`¿Estás seguro que deseas cancelar el turno del ${fecha} a las ${hora}?`}
       submensaje="Esta acción no se puede deshacer."
       textoConfirmar="Sí, cancelar turno"
