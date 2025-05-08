@@ -59,8 +59,20 @@ const crearProfesional = async (req, res) => {
         }
     }
 };
+const getProfesionalesPorServicio = async (req, res) => {
+    try {
+        const { id_servicio } = req.params;
+        const profesionales = await profesionalesAdmModel.getProfesionalesPorServicio(id_servicio);
+        res.status(200).json(profesionales);
+    } catch (error) {
+        console.error('Error al obtener profesionales por servicio:', error);
+        res.status(500).json({ error: 'Error al obtener los profesionales por servicio' });
+    }
+};
+
 
 module.exports = {
+    getProfesionalesPorServicio,
     getAdmProfesionales,
     actualizarProfesional,
     eliminarProfesional,

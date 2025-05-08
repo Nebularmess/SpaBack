@@ -12,7 +12,6 @@ const profesionalesAdmRoutes = require('./routes/adm_routes/profesionalesRoutes.
 const categoriaAdmRoutes = require('./routes/adm_routes/categoriaAdmRoutes.js');
 const clienteRoutes = require('./routes/adm_routes/clienteAdmRoutes.js');
 
-
 require('dotenv').config();
 
 const app = express();

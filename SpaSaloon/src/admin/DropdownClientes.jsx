@@ -48,14 +48,25 @@ const DropdownClientes = ({ onChange, value, onClientesLoaded }) => {
   const handleClienteChange = (e) => {
     const clienteId = e.target.value;
     
+    // Intentamos convertir el ID a número solo si no está vacío
+    const numericId = clienteId ? parseInt(clienteId, 10) : "";
+    
+    // Verificamos que sea un número válido
+    if (clienteId && isNaN(numericId)) {
+      console.error("ID de cliente inválido:", clienteId);
+      return;
+    }
+    
     // Encontrar el cliente seleccionado para obtener su nombre completo
     const clienteSeleccionado = clientes.find(c => c.id_cliente == clienteId);
     const nombreCompleto = clienteSeleccionado 
       ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellido}`
       : '';
     
+    console.log("Selección de cliente - ID:", numericId, "Nombre:", nombreCompleto);
+    
     // Pasar tanto el ID como el nombre completo al componente padre
-    onChange(clienteId, nombreCompleto);
+    onChange(numericId, nombreCompleto);
   };
 
   if (loading) return <div className="form-group"><div>Cargando clientes...</div></div>;
@@ -66,9 +77,10 @@ const DropdownClientes = ({ onChange, value, onClientesLoaded }) => {
       <label htmlFor="cliente">Cliente:</label>
       <select
         id="cliente"
-        value={value}
+        value={value || ""}
         onChange={handleClienteChange}
         disabled={loading || clientes.length === 0}
+        required
       >
         <option value="">Seleccione un cliente</option>
         {clientes.map((cliente) => (

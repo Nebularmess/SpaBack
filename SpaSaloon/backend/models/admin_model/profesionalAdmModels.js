@@ -113,7 +113,40 @@ const crearProfesional = async ({ nombre, apellido, id_servicio, email, telefono
     };
 };
 
+const getProfesionalesPorServicio = async (id_servicio) => {
+    try {
+        const [filas] = await db.execute(`
+            SELECT 
+                profesional.id_profesional AS id,
+                profesional.nombre AS nombre,
+                profesional.apellido AS apellido,
+                servicio.nombre AS servicio,
+                profesional.activo AS activo,
+                profesional.email AS email,
+                profesional.telefono AS telefono
+            FROM profesional
+            JOIN servicio ON profesional.id_servicio = servicio.id_servicio
+            WHERE profesional.id_servicio = ? AND profesional.activo = 1;
+        `, [id_servicio]);
+
+        return filas.map(profesional => ({
+            id: profesional.id,
+            nombre: profesional.nombre,
+            apellido: profesional.apellido,
+            servicio: profesional.servicio,
+            activo: profesional.activo,
+            email: profesional.email,
+            telefono: profesional.telefono
+        }));
+    } catch (error) {
+        console.error('Error al obtener profesionales por servicio:', error);
+        throw error;
+    }
+};
+
+
 module.exports = {
+    getProfesionalesPorServicio,
     getProfesionales,
     actualizarProfesional,
     eliminarProfesional,
