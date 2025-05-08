@@ -59,8 +59,54 @@ const actualizarTurno = async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar el turno' });
     }
 };
+const crearTurno = async (req, res) => {
+    try {
+        console.log("Datos recibidos del frontend:", req.body);
+        
+        // Verificar que existan los campos necesarios
+        const { id_cliente, id_servicio, id_profesional, fecha, hora, estado, comentarios } = req.body;
+        
+        if (!id_cliente || !id_servicio || !id_profesional || !fecha || !hora) {
+            return res.status(400).json({
+                success: false,
+                error: 'Faltan datos requeridos para crear el turno'
+            });
+        }
+        
+        // Transformar los datos al formato esperado por el modelo
+        const nuevoTurno = {
+            id_cliente,
+            id_servicio,
+            id_profesional,
+            fecha,
+            hora,
+            estado: estado || 'Solicitado',
+            comentarios: comentarios || '',
+            duracion_minutos: req.body.duracion_minutos || 60
+        };
+        
+        console.log("Datos transformados para el modelo:", nuevoTurno);
+        
+        // Llamar al modelo para guardar en la BD
+        const resultado = await turnosAdmModel.crearNuevoTurno(nuevoTurno);
+        
+        res.status(201).json({
+            success: true,
+            mensaje: 'Turno creado correctamente',
+            data: resultado
+        });
+    } catch (error) {
+        console.error('Error en el controlador al crear turno:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al crear el turno: ' + error.message
+        });
+    }
+};
+
 
 module.exports = {
+    crearTurno,
     getAdmTurnos,
     actualizarEstadoTurno,
     actualizarTurno

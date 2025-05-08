@@ -21,7 +21,8 @@
   color: black;
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-content h3 {
@@ -35,7 +36,18 @@
 .modal-content form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  flex: 1;
+  height: 100%;
+  position: relative;
+}
+
+.modal-form-content {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(70vh - 120px); /* Altura máxima con espacio para botones */
+  overflow-y: auto;
+  padding-right: 10px; /* Espacio para la barra de desplazamiento */
+  margin-bottom: 20px;
 }
 
 .form-group {
@@ -60,41 +72,49 @@
   font-size: 14px;
 }
 
-.modal-actions {
+.modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 1.5rem;
-  padding-top: 15px;
+  margin-top: 1rem;
+  padding-top: 1rem;
   border-top: 1px solid #eee;
+  position: sticky;
+  bottom: 0;
+  background: white;
 }
 
-.modal-actions button {
+.btn-cancelar {
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
-}
-
-.modal-actions button:first-child {
+  min-width: 80px;
   background-color: #f2f2f2;
   border: 1px solid #ddd;
   color: #333;
 }
 
-.modal-actions button:last-child {
+.btn-guardar {
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  min-width: 80px;
   background-color: #4CAF50;
   border: 1px solid #4CAF50;
   color: white;
 }
 
-.modal-actions button:hover {
+.btn-cancelar:hover,
+.btn-guardar:hover {
   opacity: 0.9;
 }
 
-.modal-actions button:disabled {
+.btn-cancelar:disabled,
+.btn-guardar:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-  

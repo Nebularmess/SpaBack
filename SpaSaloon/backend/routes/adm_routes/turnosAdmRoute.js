@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const turnosAdmController = require('../../controllers/adm_controllers/turnosAdmController');
 
+router.post('/', turnosAdmController.crearTurno);
 // Rutas existentes
 router.get('/', turnosAdmController.getAdmTurnos);
 router.put('/estado/:id', turnosAdmController.actualizarEstadoTurno);

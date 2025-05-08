@@ -51,6 +51,39 @@ const actualizarEstadoTurno = async (idTurno, estado) => {
         throw error;
     }
 };
+/**
+ * Crea un nuevo turno en la base de datos
+ * @param {Object} nuevoTurno - Datos del turno a crear
+ * @returns {Promise} Resultado de la operación
+ */
+const crearNuevoTurno = async (nuevoTurno) => {
+    try {
+        console.log("Creando un nuevo turno en la BD:", nuevoTurno);
+        
+        const fechaHora = `${nuevoTurno.fecha} ${nuevoTurno.hora}:00`;
+        
+        const [resultado] = await db.execute(
+            `INSERT INTO turno (id_cliente, id_servicio, id_profesional, fecha_hora, duracion_minutos, estado, comentarios)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+                nuevoTurno.id_cliente,
+                nuevoTurno.id_servicio,
+                nuevoTurno.id_profesional,
+                fechaHora,
+                nuevoTurno.duracion_minutos || 60, // Valor por defecto si no se pasa
+                nuevoTurno.estado || 'Solicitado',
+                nuevoTurno.comentarios || null
+            ]
+        );
+        
+        console.log('Nuevo turno creado con ID:', resultado.insertId);
+        return resultado;
+    } catch (error) {
+        console.error('Error al crear un nuevo turno en la BD:', error);
+        throw error;
+    }
+};
+
 const actualizarTurno = async (idTurno, datosTurno) => {
     try {
         console.log(`Actualizando turno ID: ${idTurno} en la BD`);
@@ -106,6 +139,7 @@ const actualizarTurno = async (idTurno, datosTurno) => {
 
 // Exportar la nueva función
 module.exports = {
+    crearNuevoTurno,
     getTurnos,
     actualizarEstadoTurno,
     actualizarTurno

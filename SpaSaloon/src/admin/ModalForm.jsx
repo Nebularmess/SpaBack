@@ -14,12 +14,14 @@ const ModalForm = ({ isOpen, onClose, title, children, onSave }) => {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h3>{title}</h3>
         <form onSubmit={handleSubmit}>
-          {children}
-          <div className="modal-actions">
-            <button type="button" onClick={onClose}>
+          <div className="modal-form-content">
+            {children}
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn-cancelar" onClick={onClose}>
               Cancelar
             </button>
-            <button type="submit">
+            <button type="submit" className="btn-guardar">
               Guardar
             </button>
           </div>

@@ -3,9 +3,11 @@ import ModalForm from "./ModalForm.jsx";
 import DropdownCategorias from "./DropdownCat.jsx";
 import DropdownServicios from "./DropdownServicios.jsx";
 import DropdownClientes from "./DropdownClientes.jsx";
+import FilterComponent from "./FilterComponent.jsx";
 
 const TurnosSection = () => {
     const [turnos, setTurnos] = useState([]);
+    const [turnosFiltrados, setTurnosFiltrados] = useState([]);
     const [modo, setModo] = useState("crear");
     const [mostrarModal, setMostrarModal] = useState(false);
     const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
@@ -25,6 +27,9 @@ const TurnosSection = () => {
         precio: "",
     });
     const [categorias, setCategorias] = useState([]);
+    
+    // Estados de turnos disponibles para filtrar
+    const estadosTurnos = ['Solicitado', 'Cancelado', 'Realizado'];
     
     const fetchServicios = async () => {
         try {
@@ -59,8 +64,9 @@ const TurnosSection = () => {
                 throw new Error("Error al obtener los turnos");
             }
             const data = await response.json();
-            console.log("Turnos recibidos:", data); // Log para ver los datos recibidos
+            console.log("Turnos recibidos:", data);
             setTurnos(data);
+            setTurnosFiltrados(data); // Inicialmente, turnos filtrados = todos los turnos
         } catch (error) {
             console.error("Error al cargar los turnos:", error);
             setError("No se pudieron cargar los turnos. Intenta nuevamente.");
@@ -98,6 +104,11 @@ const TurnosSection = () => {
         fetchProfesionales();
         fetchTurnos();
     }, []);
+
+    // Función para manejar el cambio en el filtro
+    const handleFilterChange = (filteredData) => {
+        setTurnosFiltrados(filteredData);
+    };
 
     const handleAgregar = () => {
         setModo("crear");
@@ -179,23 +190,37 @@ const TurnosSection = () => {
             
             // Obtener el precio del servicio seleccionado (si existe)
             let precioServicio = "";
+            let id_servicio = formulario.servicio;
+            
             if (formulario.servicio) {
                 const servicioEncontrado = servicios.find(s => s.nombre === formulario.servicio);
                 if (servicioEncontrado) {
                     precioServicio = servicioEncontrado.precio;
+                    id_servicio = servicioEncontrado.id; // Obtener el ID del servicio
                 }
             }
+            
+            // Preparar los datos para enviar al backend
+            // Asegúrate de que los IDs sean numéricos o como los espera tu backend
+            const datosFormateados = {
+                id_cliente: typeof formulario.cliente === 'object' ? formulario.cliente.id : formulario.cliente,
+                id_servicio: typeof formulario.servicio === 'object' ? formulario.servicio.id : id_servicio,
+                id_profesional: typeof formulario.profesional === 'object' ? formulario.profesional.id : formulario.profesional,
+                fecha: formulario.fecha,
+                hora: formulario.hora,
+                estado: 'Solicitado',
+                precio: precioServicio,
+                comentarios: formulario.comentarios || ''
+            };
+            
+            console.log("Datos a enviar al backend:", datosFormateados);
             
             if (modo === "crear") {
                 // Implementación de la creación de un nuevo turno
                 const response = await fetch('http://localhost:3001/api/turnosAdmin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        ...formulario, 
-                        precio: precioServicio, 
-                        estado: 'Solicitado' 
-                    })
+                    body: JSON.stringify(datosFormateados)
                 });
                 
                 if (!response.ok) {
@@ -210,8 +235,8 @@ const TurnosSection = () => {
                 console.log(`Actualizando turno ID: ${formulario.id}`, formulario);
                 
                 const datosActualizados = {
-                    ...formulario,
-                    precio: precioServicio || formulario.precio // Usar el precio del servicio o mantener el original
+                    ...datosFormateados,
+                    id: formulario.id
                 };
                 
                 const response = await fetch(`http://localhost:3001/api/turnosAdmin/${formulario.id}`, {
@@ -276,6 +301,8 @@ const TurnosSection = () => {
                 return 'estado-solicitado';
             case 'Cancelado':
                 return 'estado-cancelado';
+            case 'Realizado':
+                return 'estado-realizado';
             default:
                 return '';
         }
@@ -287,56 +314,71 @@ const TurnosSection = () => {
             
             {error && <div className="error-message">{error}</div>}
             
-            <button className="btn-agregar" onClick={handleAgregar} disabled={isLoading}>
-                Agregar Turno
-            </button>
+            <div className="turnos-header">
+                <button className="btn-agregar" onClick={handleAgregar} disabled={isLoading}>
+                    Agregar Turno
+                </button>
+                
+                {/* Implementación del componente de filtro con filtro de estado */}
+                <FilterComponent 
+                    data={turnos} 
+                    onFilterChange={handleFilterChange} 
+                    searchField="cliente"
+                    placeholder="Buscar por cliente..."
+                    title="Filtrar turnos"
+                    showStatusFilter={true}  // Habilitamos el filtro por estado
+                    availableStatuses={estadosTurnos}  // Pasamos los estados disponibles
+                />
+            </div>
 
             {isLoading ? (
                 <p>Cargando...</p>
             ) : (
-                <table className="tabla">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Fecha</th>
-                            <th>Hora</th>
-                            <th>Profesional</th>
-                            <th>Cliente</th>
-                            <th>Servicio</th>
-                            <th>Precio</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {turnos.length === 0 ? (
+                <div className="tabla-container">
+                    <table className="tabla">
+                        <thead>
                             <tr>
-                                <td colSpan="8" style={{ textAlign: "center" }}>
-                                    No hay turnos disponibles
-                                </td>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Profesional</th>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Precio</th>
+                                <th>Estado</th>
                             </tr>
-                        ) : (
-                            turnos.map(t => (
-                                <tr
-                                    key={t.id}
-                                    onClick={() => setTurnoSeleccionado(t)}
-                                    style={{
-                                        backgroundColor: turnoSeleccionado?.id === t.id ? "#f0f0f0" : "white",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    <td>{t.id}</td>
-                                    <td>{t.fecha}</td>
-                                    <td>{t.hora}</td>
-                                    <td>{t.profesional}</td>
-                                    <td>{t.cliente}</td>
-                                    <td>{t.servicio}</td>
-                                    <td>${t.precio}</td>
-                                    <td className={getEstadoClass(t.estado)}>{t.estado}</td>
+                        </thead>
+                        <tbody>
+                            {turnosFiltrados.length === 0 ? (
+                                <tr>
+                                    <td colSpan="8" style={{ textAlign: "center" }}>
+                                        No hay turnos disponibles
+                                    </td>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                            ) : (
+                                turnosFiltrados.map(t => (
+                                    <tr
+                                        key={t.id}
+                                        onClick={() => setTurnoSeleccionado(t)}
+                                        style={{
+                                            backgroundColor: turnoSeleccionado?.id === t.id ? "#f0f0f0" : "white",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        <td>{t.id}</td>
+                                        <td>{t.fecha}</td>
+                                        <td>{t.hora}</td>
+                                        <td>{t.profesional}</td>
+                                        <td>{t.cliente}</td>
+                                        <td>{t.servicio}</td>
+                                        <td>${t.precio}</td>
+                                        <td className={getEstadoClass(t.estado)}>{t.estado}</td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             )}
 
             <div className="acciones-turno">
@@ -371,78 +413,65 @@ const TurnosSection = () => {
                 onSave={handleGuardar}
             >
                 <div className="form-group">
-                    <label htmlFor="fecha">Fecha:</label>
-                    <input
-                        id="fecha"
-                        type="date"
-                        value={formulario.fecha}
-                        onChange={e => setFormulario({ ...formulario, fecha: e.target.value })}
-                        disabled={isLoading}
-                        required
-                    />
+                <label htmlFor="fecha">Fecha:</label>
+                <input
+                    id="fecha"
+                    type="date"
+                    value={formulario.fecha}
+                    onChange={e => setFormulario({ ...formulario, fecha: e.target.value })}
+                    disabled={isLoading}
+                    required
+                />
                 </div>
-                
+
                 <div className="form-group">
-                    <label htmlFor="hora">Hora:</label>
-                    <input
-                        id="hora"
-                        type="time"
-                        value={formulario.hora}
-                        onChange={e => setFormulario({ ...formulario, hora: e.target.value })}
-                        disabled={isLoading}
-                        required
-                    />
+                <label htmlFor="hora">Hora:</label>
+                <input
+                    id="hora"
+                    type="time"
+                    value={formulario.hora}
+                    onChange={e => setFormulario({ ...formulario, hora: e.target.value })}
+                    disabled={isLoading}
+                    required
+                />
                 </div>
-                
+
                 <DropdownCategorias
-                    value={formulario.categoria}
-                    onChange={handleCategoriaChange}
+                value={formulario.categoria}
+                onChange={handleCategoriaChange}
                 />
-                
+
                 <DropdownServicios
-                    categoriaId={formulario.categoria}
-                    value={formulario.servicio}
-                    onChange={(servicio, nombreServicio) => {
-                        handleServicioChange(servicio);
-                    }}
+                categoriaId={formulario.categoria}
+                value={formulario.servicio}
+                onChange={(servicio, nombreServicio) => {
+                    handleServicioChange(servicio);
+                }}
                 />
-                
+
                 <div className="form-group">
-                    <label htmlFor="profesional">Profesional:</label>
-                    <select
-                        id="profesional"
-                        value={formulario.profesional}
-                        onChange={e => setFormulario({ ...formulario, profesional: e.target.value })}
-                        disabled={isLoading}
-                        required
-                    >
-                        <option value="">Seleccione un profesional</option>
-                            {profesionales.map(prof => (
-                                <option key={prof.id} value={prof.nombre}>
-                                    {prof.nombre}
-                                </option>
-                            ))}
-                    </select>
+                <label htmlFor="profesional">Profesional:</label>
+                <select
+                    id="profesional"
+                    value={formulario.profesional}
+                    onChange={e => setFormulario({ ...formulario, profesional: e.target.value })}
+                    disabled={isLoading}
+                    required
+                >
+                    <option value="">Seleccione un profesional</option>
+                        {profesionales.map(prof => (
+                            <option key={prof.id} value={prof.nombre}>
+                                {prof.nombre}
+                            </option>
+                        ))}
+                </select>
                 </div>
-                
+
                 <DropdownClientes
-                    value={formulario.cliente_id}
-                    onChange={handleClienteChange}
+                value={formulario.cliente_id}
+                onChange={handleClienteChange}
                 />
             </ModalForm>
-
-            <style>
-                {`
-                .estado-solicitado {
-                    color: #ff9800;
-                    font-weight: bold;
-                }
-                .estado-cancelado {
-                    color: #f44336;
-                    font-weight: bold;
-                }
-                `}
-            </style>
         </div>
     );
 };
