@@ -19,12 +19,13 @@ const Servicios = () => {
 
   const getDefaultImage = (categoryName) => {
     const name = categoryName.toLowerCase();
+    console.log("Asignando imagen a:", name);
+    if (name.includes('hidro')) return hidromasajesImg;
+    if (name.includes('yoga')) return yogaImg;
     if (name.includes('masaje')) return masagesImg;
     if (name.includes('belleza')) return bellezaImg;
     if (name.includes('facial')) return facialesImg;
     if (name.includes('corporal')) return saunaImg;
-    if (name.includes('hidro')) return hidromasajesImg;
-    if (name.includes('yoga')) return yogaImg;
     return masagesImg;
   };
 
@@ -79,9 +80,8 @@ const Servicios = () => {
 
   categorias.forEach(categoria => {
     const servicios = serviciosPorCategoria[categoria.id_categoria] || [];
-
-    const tieneServiciosGrupales = servicios.some(s => s.tipo === 'Grupal');
-    const tieneServiciosIndividuales = servicios.some(s => s.tipo === 'Individual');
+    const tieneServiciosGrupales = servicios.some(s => s.tipo?.trim().toLowerCase() === 'grupal');
+    const tieneServiciosIndividuales = servicios.some(s => s.tipo?.trim().toLowerCase() === 'individual');
 
     if (tieneServiciosIndividuales) {
       const serviciosIndividualesData = servicios.filter(s => s.tipo === 'Individual').map(s => ({
