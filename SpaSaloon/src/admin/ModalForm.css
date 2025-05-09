@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
 /* Estilos para el modal utilizando un portal React */
-.modal-overlay {
+.modalf-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(75, 44, 32, 0.7);
+  background: rgba(75, 44, 32, 0.7) !important;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -21,32 +21,31 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-.modal-content {
-  background: rgba(244, 235, 208, 0.97);
+.modalf-content {
+  background: rgba(244, 235, 208, 0.97) !important;
   padding: 2rem;
   border-radius: 12px;
   width: 100%;
   max-width: 520px;
-  color: #4B2C20;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  color: #4B2C20 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
   font-family: 'Montserrat', sans-serif;
   display: flex;
   flex-direction: column;
   max-height: 90vh;
-  /* No es necesario position: relative ni z-index adicional cuando usamos portal */
 }
 
-.modal-content h3 {
+.modalf-content h3 {
   margin-top: 0;
   margin-bottom: 1.2rem;
   font-size: 1.5rem;
   font-weight: 600;
-  border-bottom: 2px solid #D4A574;
+  border-bottom: 2px solid #D4A574 !important;
   padding-bottom: 0.5rem;
   text-align: center;
 }
 
-.modal-form-content {
+.modalf-form-content {
   flex: 1;
   overflow-y: auto;
   margin-bottom: 1.5rem;
@@ -63,38 +62,38 @@
   font-weight: 600;
   margin-bottom: 0.3rem;
   font-size: 0.95rem;
-  color: #4B2C20;
+  color: #4B2C20 !important;
 }
 
-.modal-content input,
-.modal-content textarea,
-.modal-content select {
+.modalf-content input,
+.modalf-content textarea,
+.modalf-content select {
   padding: 0.7rem;
   border-radius: 6px;
-  border: 1px solid #A16549;
-  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #A16549 !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
   font-size: 0.95rem;
   font-family: 'Montserrat', sans-serif;
-  color: #4B2C20;
+  color: #4B2C20 !important;
 }
 
-.modal-content input:focus,
-.modal-content textarea:focus,
-.modal-content select:focus {
+.modalf-content input:focus,
+.modalf-content textarea:focus,
+.modalf-content select:focus {
   outline: none;
-  border-color: #D4A574;
-  box-shadow: 0 0 0 2px rgba(212, 165, 116, 0.3);
+  border-color: #D4A574 !important;
+  box-shadow: 0 0 0 2px rgba(212, 165, 116, 0.3) !important;
 }
 
-.modal-footer {
+.modalf-footer {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  border-top: 1px solid rgba(212, 165, 116, 0.3);
+  border-top: 1px solid rgba(212, 165, 116, 0.3) !important;
   padding-top: 1rem;
   position: sticky;
   bottom: 0;
-  background-color: rgba(244, 235, 208, 0.97);
+  background-color: rgba(244, 235, 208, 0.97) !important;
 }
 
 .btn-cancelar,
@@ -106,28 +105,28 @@
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 100px;
-  box-shadow: 0 2px 4px rgba(75, 56, 50, 0.1);
+  box-shadow: 0 2px 4px rgba(75, 56, 50, 0.1) !important;
 }
 
 .btn-cancelar {
-  background-color: #eee;
-  border: 1px solid #ccc;
-  color: #4B2C20;
+  background-color: #eee !important;
+  border: 1px solid #ccc !important;
+  color: #4B2C20 !important;
 }
 
 .btn-cancelar:hover {
-  background-color: #ddd;
+  background-color: #ddd !important;
 }
 
 .btn-guardar {
-  background-color: #D4A574;
-  color: #4B2C20;
-  border: 1px solid #D4A574;
+  background-color: #D4A574 !important;
+  color: #4B2C20 !important;
+  border: 1px solid #D4A574 !important;
 }
 
 .btn-guardar:hover {
-  background-color: #c69764;
-  box-shadow: 0 4px 8px rgba(75, 56, 50, 0.15);
+  background-color: #c69764 !important;
+  box-shadow: 0 4px 8px rgba(75, 56, 50, 0.15) !important;
   transform: translateY(-1px);
 }
 

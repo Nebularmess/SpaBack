@@ -12,14 +12,14 @@ const ModalForm = ({ isOpen, onClose, title, children, onSave }) => {
   
   // Usar portal para renderizar el modal directamente en el body
   return ReactDOM.createPortal(
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="modalf-overlay" onClick={onClose}>
+      <div className="modalf-content" onClick={(e) => e.stopPropagation()}>
         <h3>{title}</h3>
         <form onSubmit={handleSubmit}>
-          <div className="modal-form-content">
+          <div className="modalf-form-content">
             {children}
           </div>
-          <div className="modal-footer">
+          <div className="modalf-footer">
             <button type="button" className="btn-cancelar" onClick={onClose}>
               Cancelar
             </button>

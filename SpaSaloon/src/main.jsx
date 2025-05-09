@@ -7,6 +7,6 @@ import AppAdmin from './admin/AppAdmin.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App/>
+    <AppAdmin/>
   </StrictMode>,
 )
