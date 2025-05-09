@@ -1,4 +1,5 @@
 const db = require('../../db');
+const bcrypt = require('bcrypt');
 
 const ClienteAdmModel = {
   getAll: async () => {
@@ -13,10 +14,18 @@ const ClienteAdmModel = {
 
   create: async (cliente) => {
     const { nombre, apellido, email, telefono, direccion, password } = cliente;
+    console.log("Password recibido:", password);
+    // Hashear la contraseña antes de guardar
+    const saltRounds = 10;
+
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    console.log("Password recibido:", hashedPassword);
+
     const [result] = await db.execute(
       'INSERT INTO cliente (nombre, apellido, email, telefono, direccion, password) VALUES (?, ?, ?, ?, ?, ?)',
-      [nombre, apellido, email, telefono, direccion, password]
+      [nombre, apellido, email, telefono, direccion, hashedPassword]
     );
+
     return result.insertId;
   },
 

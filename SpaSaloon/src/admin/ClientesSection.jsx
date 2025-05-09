@@ -272,8 +272,7 @@ const ClientesSection = () => {
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Apellido</th>
-                            <th>Direccion</th>
-                            <th>Estado</th>
+                            <th>Dirección</th>
                             <th>Email</th>
                             <th>Teléfono</th>
                         </tr>
@@ -292,7 +291,6 @@ const ClientesSection = () => {
                                 <td>{p.nombre}</td>
                                 <td>{p.apellido}</td>
                                 <td>{p.direccion}</td>
-                                <td>{p.estado}</td>
                                 <td>{p.email}</td>
                                 <td>{p.telefono}</td>
                             </tr>
@@ -334,7 +332,7 @@ const ClientesSection = () => {
                     required
                 />
                 <input 
-                    type="text"
+                    type="password"
                     placeholder="Contraseña"
                     value={formulario.password}
                     onChange={e => setFormulario({ ...formulario, password: e.target.value})}
@@ -344,13 +342,6 @@ const ClientesSection = () => {
                     placeholder="Dirección"
                     value={formulario.direccion}
                     onChange={e => setFormulario({ ...formulario, direccion: e.target.value })}
-                    required
-                />
-                <input
-                    type="text"
-                    placeholder="Estado"
-                    value={formulario.estado}
-                    onChange={e => setFormulario({ ...formulario, estado: e.target.value })}
                     required
                 />
                 <input
