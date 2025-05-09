@@ -60,7 +60,17 @@ const ClienteAdmController = {
     } catch (error) {
       res.status(500).json({ error: 'Error al dar de baja el cliente' });
     }
-  }
+  },
+  filtrarPorNombreApellido: async (req, res) => {
+    try {
+      const { nombre = '', apellido = '' } = req.query;
+      const clientes = await ClienteModel.GetByNombreApellido(nombre, apellido);
+      res.json(clientes);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error al filtrar los clientes' });
+    }
+  },
 };
 
 module.exports = ClienteAdmController;

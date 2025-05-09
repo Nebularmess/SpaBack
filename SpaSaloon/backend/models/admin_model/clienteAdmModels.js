@@ -44,7 +44,18 @@ const ClienteAdmModel = {
       [id]
     );
     return result.affectedRows;
-  }
+  },
+  GetByNombreApellido: async (nombre, apellido) => {
+  const query = `
+    SELECT id_cliente AS id, nombre, apellido, direccion, email, telefono
+    FROM cliente
+    WHERE estado = 1
+    AND nombre LIKE ?
+    AND apellido LIKE ?
+  `;
+  const [rows] = await db.execute(query, [`%${nombre}%`, `%${apellido}%`]);
+  return rows;
+},
 };
 
 module.exports = ClienteAdmModel;

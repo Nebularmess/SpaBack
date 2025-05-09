@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ModalForm from "./ModalForm.jsx";
+import ClienteFilterComponent from "./ClienteFilterComponent.jsx";
 
 
 const ClientesSection = () => {
@@ -21,8 +22,11 @@ const ClientesSection = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    // Mapa para mantener la relación entre IDs de servicios y sus nombres para mostrar en la tabla
-    
+    const [filtroTexto, setFiltroTexto] = useState("");
+    const clientesFiltrados = clientes.filter(cliente =>
+        `${cliente.nombre} ${cliente.apellido} ${cliente.email}`.toLowerCase().includes(filtroTexto.toLowerCase())
+    );
+
 
     useEffect(() => {
         const fetchClientes = async () => {
@@ -144,6 +148,14 @@ const ClientesSection = () => {
             throw error;
         }
     };
+    const handleFilterChange = ({ nombre, apellido }) => {
+        // Aplicar lógica de filtrado o actualizar estado
+        const clientesFiltrados = clientesOriginales.filter(c =>
+          c.nombre.toLowerCase().includes(nombre.toLowerCase()) &&
+          c.apellido.toLowerCase().includes(apellido.toLowerCase())
+        );
+        setClientes(clientesFiltrados);
+      };
 
     const handleAgregar = () => {
         setModo("crear");
@@ -213,7 +225,7 @@ const ClientesSection = () => {
     
                 setClientes(clientes.map(p =>
                     p.id === formulario.id ? { ...formulario, id: p.id } : p
-                ));
+                  ));
     
                 alert("Cliente actualizado correctamente");
             }
@@ -260,6 +272,10 @@ const ClientesSection = () => {
             <button className="btn-agregar" onClick={handleAgregar} disabled={loading}>
                 Agregar Cliente
             </button>
+            <ClienteFilterComponent
+                filtroTexto={filtroTexto}
+                onFiltroChange={setFiltroTexto}
+            />
 
             {error && <div className="error-message">{error}</div>}
 
