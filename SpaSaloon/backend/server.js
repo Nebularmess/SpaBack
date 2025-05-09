@@ -15,7 +15,7 @@ const clienteRoutes = require('./routes/adm_routes/clienteAdmRoutes.js');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 //usuariois
 app.use('/api/clientes', clientesRoutes);
@@ -30,7 +30,7 @@ app.use('/api/serviciosAdm', serviciosAdmRoutes); // Cambia la ruta según tu es
 app.use('/api/profesionalesAdm', profesionalesAdmRoutes); // Nueva línea
 app.use('/api/categoriasAdm', categoriaAdmRoutes);
 app.use('/api/clientesAdm', clienteRoutes);
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3306;
 app.listen(PORT, () => {
   console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
 });
