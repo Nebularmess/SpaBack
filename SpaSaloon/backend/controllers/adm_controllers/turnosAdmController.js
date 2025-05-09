@@ -103,9 +103,25 @@ const crearTurno = async (req, res) => {
         });
     }
 };
+const getTurnosPorFecha = async (req, res) => {
+    const { fecha } = req.query;
+
+    if (!fecha) {
+        return res.status(400).json({ error: 'Se requiere el parámetro "fecha" en formato YYYY-MM-DD' });
+    }
+
+    try {
+        const turnos = await turnoModel.getTurnosPorFecha(fecha);
+        res.status(200).json(turnos);
+    } catch (error) {
+        console.error('Error en el controlador al obtener turnos por fecha:', error);
+        res.status(500).json({ error: 'Error al obtener los turnos' });
+    }
+};
 
 
 module.exports = {
+    getTurnosPorFecha,
     crearTurno,
     getAdmTurnos,
     actualizarEstadoTurno,

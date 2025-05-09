@@ -8,6 +8,7 @@ const ModalForm = ({ isOpen, onClose, title, children, onSave }) => {
     e.preventDefault();
     onSave();
   };
+  
 
   return (
     <div className="modal-overlay" onClick={onClose}>

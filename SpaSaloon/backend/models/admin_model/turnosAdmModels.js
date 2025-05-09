@@ -19,12 +19,41 @@ const getTurnos = async () => {
             JOIN cliente ON turno.id_cliente = cliente.id_cliente
             JOIN servicio ON turno.id_servicio = servicio.id_servicio
             WHERE turno.estado IN ('Solicitado', 'Cancelado')
-            AND turno.fecha_hora >= NOW();
+            AND turno.fecha_hora >= NOW()
+            ORDER BY turno.fecha_hora ASC;
         `);
         console.log("Turnos obtenidos:", filas.length);
         return filas;
     } catch (error) {
         console.error('Error al obtener los turnos:', error);
+        throw error;
+    }
+};
+const getTurnosPorFecha = async (fecha) => {
+    try {
+        console.log(`Buscando turnos para la fecha: ${fecha}`);
+        const [filas] = await db.execute(`
+            SELECT 
+                turno.id_turno AS id,
+                DATE_FORMAT(turno.fecha_hora, '%Y-%m-%d') AS fecha,
+                TIME_FORMAT(turno.fecha_hora, '%H:%i') AS hora,
+                profesional.nombre AS profesional,
+                cliente.nombre AS cliente,
+                servicio.nombre AS servicio,
+                servicio.precio AS precio,
+                turno.estado AS estado
+            FROM turno
+            JOIN profesional ON turno.id_profesional = profesional.id_profesional
+            JOIN cliente ON turno.id_cliente = cliente.id_cliente
+            JOIN servicio ON turno.id_servicio = servicio.id_servicio
+            WHERE turno.estado IN ('Solicitado', 'Cancelado')
+            AND DATE(turno.fecha_hora) = ?
+            ORDER BY turno.fecha_hora ASC;
+        `, [fecha]);
+        console.log(`Turnos encontrados para ${fecha}:`, filas.length);
+        return filas;
+    } catch (error) {
+        console.error(`Error al obtener los turnos para la fecha ${fecha}:`, error);
         throw error;
     }
 };
@@ -174,6 +203,7 @@ const actualizarTurnoConIds = async (idTurno, datosTurno) => {
 };
 // Exportar la nueva función
 module.exports = {
+    getTurnosPorFecha,
     actualizarTurnoConIds,
     crearNuevoTurno,
     getTurnos,

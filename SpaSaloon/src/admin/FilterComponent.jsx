@@ -25,7 +25,12 @@ const FilterComponent = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
   const filterRef = useRef(null);
+  //filtra fecha
+  useEffect(() => {
+    filterData();
+  }, [searchTerm, selectedStatus, selectedDate, data]);
 
   // Efecto para manejar clics fuera del componente
   useEffect(() => {
@@ -48,33 +53,34 @@ const FilterComponent = ({
 
   const filterData = () => {
     if (!data || data.length === 0) return;
-    
+  
     let filteredResults = [...data];
-    
-    // Filtrar por término de búsqueda si existe
+  
+    // Filtrar por término de búsqueda
     if (searchTerm.trim()) {
       const searchTermLower = searchTerm.toLowerCase();
-      
       filteredResults = filteredResults.filter(item => {
-        // Si el campo de búsqueda no existe en el item, intenta buscar en todos los campos de texto
         if (!item[searchField]) {
           return Object.values(item).some(
-            value => 
-              typeof value === 'string' && 
+            value =>
+              typeof value === 'string' &&
               value.toLowerCase().includes(searchTermLower)
           );
         }
-        
-        // Busca en el campo específico
         return item[searchField].toLowerCase().includes(searchTermLower);
       });
     }
-    
-    // Filtrar por estado si está seleccionado
+  
+    // Filtrar por estado
     if (selectedStatus) {
       filteredResults = filteredResults.filter(item => item.estado === selectedStatus);
     }
-    
+  
+    // Filtrar por fecha
+    if (selectedDate) {
+      filteredResults = filteredResults.filter(item => item.fecha === selectedDate);
+    }
+  
     onFilterChange(filteredResults);
   };
 
@@ -89,6 +95,7 @@ const FilterComponent = ({
   const handleClearFilters = () => {
     setSearchTerm('');
     setSelectedStatus('');
+    setSelectedDate('');
     onFilterChange(data);
   };
 
@@ -145,8 +152,8 @@ const FilterComponent = ({
             <button 
               className="clear-all-button" 
               onClick={handleClearFilters}
-              disabled={!searchTerm && !selectedStatus}
-            >
+              disabled={!searchTerm && !selectedStatus && !selectedDate}
+              >
               Limpiar filtros
             </button>
           </div>
@@ -168,6 +175,25 @@ const FilterComponent = ({
                 "No hay datos"
               }
             </span>
+          </div>
+          <div className="date-filter">
+            <label htmlFor="date-input">Filtrar por fecha:</label>
+            <input
+              id="date-input"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="date-input"
+            />
+            {selectedDate && (
+              <button 
+                className="clear-button" 
+                onClick={() => setSelectedDate('')}
+                aria-label="Limpiar fecha"
+              >
+                ×
+              </button>
+            )}
           </div>
         </div>
       )}
