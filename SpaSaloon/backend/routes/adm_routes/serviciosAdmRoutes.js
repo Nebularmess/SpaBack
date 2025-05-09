@@ -12,5 +12,5 @@ router.post('/', serviciosAdmController.crearServicio);
 router.get('/', serviciosAdmController.getAdmServicios); // Obtener todos los servicios
 router.put('/:id', serviciosAdmController.actualizarServicio); // Actualizar un servicio
 router.delete('/:id', serviciosAdmController.eliminarServicio); // Eliminar un servicio
-
+router.get('/', serviciosAdmController.getServiciosPorTipo); 
 module.exports = router;

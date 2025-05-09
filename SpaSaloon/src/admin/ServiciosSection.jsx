@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import ModalForm from "./ModalForm.jsx";
-import DropdownCategorias from "./dropDownCat.jsx"; // Importamos el componente DropdownCategorias
+import DropdownCategorias from "./dropDownCat.jsx"; 
+import ServicioFilterComponent from "./ServiciosFilterComponent.jsx"; // Importamos el componente de filtro
 
 const ServiciosSection = () => {
     const [servicios, setServicios] = useState([]);
+    const [serviciosFiltrados, setServiciosFiltrados] = useState([]); // Estado para los servicios filtrados
     const [modo, setModo] = useState("crear");
     const [mostrarModal, setMostrarModal] = useState(false);
     const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
@@ -34,6 +36,7 @@ const ServiciosSection = () => {
             const data = await response.json();
             console.log("Servicios actualizados:", data);
             setServicios(data);
+            setServiciosFiltrados(data); // Inicialmente, mostramos todos los servicios
         } catch (error) {
             console.error("Error al cargar los servicios:", error);
             setError("No se pudieron cargar los servicios. Intenta nuevamente.");
@@ -61,6 +64,44 @@ const ServiciosSection = () => {
         fetchServicios();
         fetchCategorias();
     }, []);
+
+    // Función para manejar el cambio en los filtros
+    const handleFilterChange = (filters) => {
+        const { categoria, tipo, searchTerm } = filters;
+        
+        // Filtrar los servicios según los criterios
+        let resultado = [...servicios];
+        
+        // Filtrar por categoría
+        if (categoria) {
+            // Encontrar el nombre de la categoría según el ID
+            const categoriaSeleccionada = categorias.find(
+                cat => cat.id_categoria.toString() === categoria.toString()
+            );
+            
+            if (categoriaSeleccionada) {
+                resultado = resultado.filter(
+                    servicio => servicio.categoria === categoriaSeleccionada.nombre
+                );
+            }
+        }
+        
+        // Filtrar por tipo
+        if (tipo) {
+            resultado = resultado.filter(
+                servicio => servicio.tipo === tipo
+            );
+        }
+        
+        // Filtrar por término de búsqueda en el nombre
+        if (searchTerm) {
+            resultado = resultado.filter(
+                servicio => servicio.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+        
+        setServiciosFiltrados(resultado);
+    };
 
     const handleAgregar = () => {
         setModo("crear");
@@ -230,6 +271,16 @@ const ServiciosSection = () => {
     return (
         <div id="servicios">
             <h2>Servicios</h2>
+            
+            {/* Componente de filtro */}
+            <div className="filtros-container">
+                <ServicioFilterComponent 
+                    categorias={categorias}
+                    onFilterChange={handleFilterChange}
+                    title="Filtrar servicios"
+                />
+            </div>
+            
             <button className="btn-agregar" onClick={handleAgregar} disabled={cargando}>
                 Agregar Servicio
             </button>
@@ -249,7 +300,7 @@ const ServiciosSection = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {servicios.map(servicio => (
+                    {serviciosFiltrados.map(servicio => (
                         <tr
                             key={servicio.id}
                             onClick={() => setServicioSeleccionado(servicio)}
@@ -269,6 +320,10 @@ const ServiciosSection = () => {
                     ))}
                 </tbody>
             </table>
+
+            {serviciosFiltrados.length === 0 && !cargando && (
+                <div className="no-results">No se encontraron servicios que coincidan con los filtros.</div>
+            )}
 
             <div className="acciones-turno">
                 <button

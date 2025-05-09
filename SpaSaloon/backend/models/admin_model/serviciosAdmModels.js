@@ -124,8 +124,43 @@ const crearServicio = async (nuevoServicio) => {
         throw error;
     }
 };
+/**
+ * Obtener servicios filtrados por tipo ('Individual' o 'Grupal')
+ * @param {string} tipo - Tipo de servicio a filtrar (opcional)
+ * @returns {Promise<Array>} Lista de servicios filtrados
+ */
+const getServiciosPorTipo = async (tipo) => {
+    try {
+      let query = `
+        SELECT 
+          servicio.id_servicio AS id,
+          servicio.nombre,
+          categoria_servicio.nombre AS categoria,
+          servicio.tipo,
+          servicio.precio,
+          servicio.descripcion
+        FROM servicio
+        JOIN categoria_servicio ON servicio.id_categoria = categoria_servicio.id_categoria
+        WHERE servicio.activo = 1
+      `;
+  
+      const params = [];
+  
+      if (tipo && (tipo === 'Individual' || tipo === 'Grupal')) {
+        query += ` AND servicio.tipo = ?`;
+        params.push(tipo);
+      }
+  
+      const [rows] = await db.execute(query, params);
+      return rows;
+    } catch (error) {
+      console.error('Error al obtener servicios por tipo:', error);
+      throw error;
+    }
+  };
 
 module.exports = {
+    getServiciosPorTipo,
     getServicios,
     actualizarServicio,
     eliminarServicio,

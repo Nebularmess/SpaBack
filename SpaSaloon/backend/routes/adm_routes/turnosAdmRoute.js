@@ -7,7 +7,7 @@ router.post('/', turnosAdmController.crearTurno);
 // Rutas existentes
 router.get('/', turnosAdmController.getAdmTurnos);
 router.put('/estado/:id', turnosAdmController.actualizarEstadoTurno);
-router.get('/por-fecha', turnoController.getTurnosPorFecha);
+router.get('/por-fecha', turnosAdmController.getTurnosPorFecha);
 
 // Nueva ruta para actualizar un turno
 router.put('/:id', turnosAdmController.actualizarTurno);

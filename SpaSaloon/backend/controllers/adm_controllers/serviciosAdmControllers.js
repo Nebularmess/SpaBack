@@ -77,8 +77,19 @@ const eliminarServicio = async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar el servicio' });
     }
 };
+const getServiciosPorTipo = async (req, res) => {
+    const { tipo } = req.query;
+  
+    try {
+      const servicios = await servicioModel.getServiciosPorTipo(tipo);
+      res.status(200).json(servicios);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al obtener los servicios' });
+    }
+  };
 
 module.exports = {
+    getServiciosPorTipo,
     getAdmServicios,
     getServiciosPorCategoria,
     crearServicio,
