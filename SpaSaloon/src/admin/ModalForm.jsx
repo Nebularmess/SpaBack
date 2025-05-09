@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import "./ModalForm.css";
 
 const ModalForm = ({ isOpen, onClose, title, children, onSave }) => {
@@ -9,8 +10,8 @@ const ModalForm = ({ isOpen, onClose, title, children, onSave }) => {
     onSave();
   };
   
-
-  return (
+  // Usar portal para renderizar el modal directamente en el body
+  return ReactDOM.createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h3>{title}</h3>
@@ -28,7 +29,8 @@ const ModalForm = ({ isOpen, onClose, title, children, onSave }) => {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body // Renderiza directamente en el body del documento
   );
 };
 

@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import '../styles/AdminLogin.css'; 
 
 const AdminLogin = () => {
   const { login } = useAuth();
@@ -23,7 +24,7 @@ const AdminLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        login(data.administrador); // guarda los datos del admin en el contexto
+        login(data.administrador); 
         navigate('/dashboard');
       } else {
         alert(data.error || 'Error al iniciar sesión');
@@ -35,22 +36,50 @@ const AdminLogin = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login Admin</h2>
-      <input
-        type="email"
-        placeholder="Correo"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Clave"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Entrar</button>
-    </form>
+    <div className="admin-login-section">
+      <div className="admin-login-overlay"></div>
+      <div className="admin-login-container">
+        <div className="admin-login-content">
+          <div className="admin-login-header">
+            <div className="admin-login-icon">
+              <i className="fas fa-lock"></i>
+            </div>
+            <h2 className="admin-login-title">Acceso de Administrador</h2>
+            <p className="admin-login-subtitle">Ingrese sus credenciales para continuar</p>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="admin-login-form">
+            <div className="admin-form-group">
+              <input
+                type="email"
+                placeholder="Correo electrónico"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="admin-form-input"
+                style={{"--input-order": 1}}
+                required
+              />
+            </div>
+            
+            <div className="admin-form-group">
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="admin-form-input"
+                style={{"--input-order": 2}}
+                required
+              />
+            </div>
+            
+            <div className="admin-form-submit">
+              <button type="submit" className="admin-login-button">Iniciar Sesión</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 

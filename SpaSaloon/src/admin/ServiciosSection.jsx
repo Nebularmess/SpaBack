@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ModalForm from "./ModalForm.jsx";
-import DropdownCategorias from "./dropDownCat.jsx"; 
+import DropdownCategorias from "./DropdownCat.jsx"; 
 import ServicioFilterComponent from "./ServiciosFilterComponent.jsx"; // Importamos el componente de filtro
 
 const ServiciosSection = () => {
@@ -271,19 +271,20 @@ const ServiciosSection = () => {
     return (
         <div id="servicios">
             <h2>Servicios</h2>
-            
-            {/* Componente de filtro */}
-            <div className="filtros-container">
-                <ServicioFilterComponent 
-                    categorias={categorias}
-                    onFilterChange={handleFilterChange}
-                    title="Filtrar servicios"
-                />
+
+            <div className="servicios-header-flex">
+                <div className="btns-izquierda">
+                    <button className="btn-agregar" onClick={handleAgregar} disabled={cargando}>
+                        Agregar Servicio
+                    </button>
+                </div>
+                <div className="btns-derecha">
+                    <ServicioFilterComponent
+                        onFilterChange={handleFilterChange}
+                        title="Filtrar servicios"
+                    />
+                </div>
             </div>
-            
-            <button className="btn-agregar" onClick={handleAgregar} disabled={cargando}>
-                Agregar Servicio
-            </button>
 
             {error && <div className="error-message">{error}</div>}
             {cargando && <div className="loading">Cargando...</div>}

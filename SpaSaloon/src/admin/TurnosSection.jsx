@@ -34,23 +34,23 @@ const TurnosSection = () => {
     });
     const [categorias, setCategorias] = useState([]);
     const horasDisponibles = Array.from({ length: 14 }, (_, i) => `${(8 + i).toString().padStart(2, '0')}:00`);
-    
+
     // Estados de turnos disponibles para filtrar
     const estadosTurnos = ['Solicitado', 'Cancelado'];
-    
+
     const fetchServicios = async () => {
         try {
             setIsLoading(true);
             setError(null);
-            
+
             // Usamos una marca de tiempo para evitar caché
             const timestamp = new Date().getTime();
             const response = await fetch(`http://localhost:3001/api/serviciosAdm?_=${timestamp}`);
-            
+
             if (!response.ok) {
                 throw new Error("Error al obtener los servicios");
             }
-            
+
             const data = await response.json();
             console.log("Servicios actualizados:", data);
             setServicios(data);
@@ -61,7 +61,7 @@ const TurnosSection = () => {
             setIsLoading(false);
         }
     };
-    
+
 
     const fetchTurnos = async () => {
         try {
@@ -82,7 +82,7 @@ const TurnosSection = () => {
             setIsLoading(false);
         }
     };
-    
+
     const fetchCategorias = async () => {
         try {
             const response = await fetch("http://localhost:3001/api/categoriasAdm");
@@ -126,35 +126,35 @@ const TurnosSection = () => {
         setMostrarModal(true);
     };
 
-const handleEditar = () => {
-    if (turnoSeleccionado) {
-        setModo("editar");
-        console.log("Editando turno:", turnoSeleccionado);
-        
-        // Buscar el ID del servicio para el turno seleccionado
-        let servicioId = null;
-        const servicioEncontrado = servicios.find(s => s.nombre === turnoSeleccionado.servicio);
-        if (servicioEncontrado) {
-            servicioId = servicioEncontrado.id;
+    const handleEditar = () => {
+        if (turnoSeleccionado) {
+            setModo("editar");
+            console.log("Editando turno:", turnoSeleccionado);
+
+            // Buscar el ID del servicio para el turno seleccionado
+            let servicioId = null;
+            const servicioEncontrado = servicios.find(s => s.nombre === turnoSeleccionado.servicio);
+            if (servicioEncontrado) {
+                servicioId = servicioEncontrado.id;
+            }
+
+            setServicioIdSeleccionado(servicioId);
+
+            // Asegurarse de que todos los campos críticos estén como strings para el formulario
+            setFormulario({
+                ...turnoSeleccionado,
+                servicio_id: servicioId ? servicioId.toString() : "",
+                cliente_id: turnoSeleccionado.cliente_id ? turnoSeleccionado.cliente_id.toString() : "",
+                cliente_nombre: turnoSeleccionado.cliente || "",
+                profesional_id: turnoSeleccionado.profesional_id ? turnoSeleccionado.profesional_id.toString() : "",
+                profesional_nombre: turnoSeleccionado.profesional || "",
+                comentarios: turnoSeleccionado.comentarios || "",
+                precio: turnoSeleccionado.precio ? turnoSeleccionado.precio.toString() : "0"
+            });
+
+            setMostrarModal(true);
         }
-        
-        setServicioIdSeleccionado(servicioId);
-        
-        // Asegurarse de que todos los campos críticos estén como strings para el formulario
-        setFormulario({
-            ...turnoSeleccionado,
-            servicio_id: servicioId ? servicioId.toString() : "",
-            cliente_id: turnoSeleccionado.cliente_id ? turnoSeleccionado.cliente_id.toString() : "",
-            cliente_nombre: turnoSeleccionado.cliente || "",
-            profesional_id: turnoSeleccionado.profesional_id ? turnoSeleccionado.profesional_id.toString() : "",
-            profesional_nombre: turnoSeleccionado.profesional || "",
-            comentarios: turnoSeleccionado.comentarios || "",
-            precio: turnoSeleccionado.precio ? turnoSeleccionado.precio.toString() : "0"
-        });
-        
-        setMostrarModal(true);
-    }
-};
+    };
 
 
     const handleEliminar = async () => {
@@ -162,9 +162,9 @@ const handleEditar = () => {
             try {
                 setIsLoading(true);
                 setError(null);
-                
+
                 console.log(`Cancelando turno ID: ${turnoSeleccionado.id}`);
-                
+
                 const response = await fetch(
                     `http://localhost:3001/api/turnosAdmin/estado/${turnoSeleccionado.id}`,
                     {
@@ -183,10 +183,10 @@ const handleEditar = () => {
 
                 // Mostrar mensaje de éxito
                 alert("Turno cancelado correctamente");
-                
+
                 // Recargar los turnos
                 await fetchTurnos();
-                
+
                 // Limpiar la selección
                 setTurnoSeleccionado(null);
             } catch (error) {
@@ -203,7 +203,7 @@ const handleEditar = () => {
         // Validar que todos los campos estén completos
         const camposRequeridos = ['fecha', 'hora', 'servicio_id', 'profesional_id', 'cliente_id'];
         const camposFaltantes = camposRequeridos.filter(campo => !formulario[campo]);
-        
+
         if (camposFaltantes.length > 0) {
             const mensajesCampos = {
                 'fecha': 'Fecha',
@@ -212,23 +212,23 @@ const handleEditar = () => {
                 'profesional_id': 'Profesional',
                 'cliente_id': 'Cliente'
             };
-            
+
             const camposFaltantesNombres = camposFaltantes.map(campo => mensajesCampos[campo]);
             throw new Error(`Por favor complete todos los campos obligatorios: ${camposFaltantesNombres.join(', ')}`);
         }
-        
+
         // Validar formato de fecha
         const fechaRegex = /^\d{4}-\d{2}-\d{2}$/;
         if (!fechaRegex.test(formulario.fecha)) {
             throw new Error("El formato de fecha no es válido. Utilice YYYY-MM-DD");
         }
-        
+
         // Validar formato de hora
         const horaRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
         if (!horaRegex.test(formulario.hora)) {
             throw new Error("El formato de hora no es válido. Utilice HH:MM");
         }
-        
+
         return true;
     };
 
@@ -237,28 +237,28 @@ const handleEditar = () => {
         try {
             setIsLoading(true);
             setError(null);
-            
+
             // Validar el formulario
             validarFormulario();
-            
+
             // Conversión explícita y segura de IDs a enteros
             const id_servicio = parseInt(formulario.servicio_id, 10);
             const id_cliente = parseInt(formulario.cliente_id, 10);
             const id_profesional = parseInt(formulario.profesional_id, 10);
-            
+
             // Validaciones adicionales
             if (isNaN(id_servicio)) {
                 throw new Error("El servicio seleccionado no es válido. Por favor seleccione un servicio válido.");
             }
-            
+
             if (isNaN(id_cliente)) {
                 throw new Error("El ID del cliente no es válido. Por favor seleccione un cliente válido.");
             }
-            
+
             if (isNaN(id_profesional)) {
                 throw new Error("El ID del profesional no es válido. Por favor seleccione un profesional válido.");
             }
-            
+
             // Preparar los datos para enviar al backend
             const datosFormateados = {
                 id_cliente,
@@ -274,11 +274,11 @@ const handleEditar = () => {
                 cliente: formulario.cliente_nombre,
                 servicio: formulario.servicio
             };
-            
+
             console.log("Datos a enviar al backend:", datosFormateados);
-            
+
             let response;
-            
+
             if (modo === "crear") {
                 // Crear nuevo turno
                 response = await fetch('http://localhost:3001/api/turnosAdmin', {
@@ -286,12 +286,12 @@ const handleEditar = () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(datosFormateados)
                 });
-                
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || "Error al crear el turno");
                 }
-                
+
                 alert("Turno creado correctamente");
             } else {
                 // Editar turno existente
@@ -299,35 +299,35 @@ const handleEditar = () => {
                 if (isNaN(id)) {
                     throw new Error("ID de turno inválido");
                 }
-                
+
                 console.log(`Actualizando turno ID: ${id}`, datosFormateados);
-                
+
                 const datosActualizados = {
                     ...datosFormateados,
                     id
                 };
-                
+
                 response = await fetch(`http://localhost:3001/api/turnosAdmin/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(datosActualizados)
                 });
-                
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || "Error al actualizar el turno");
                 }
-                
+
                 alert("Turno actualizado correctamente");
             }
-            
+
             // Recargar los turnos
             await fetchTurnos();
-            
+
             // Cerrar el modal y limpiar la selección
             setMostrarModal(false);
             setTurnoSeleccionado(null);
-            
+
         } catch (error) {
             console.error("Error al guardar el turno:", error);
             setError(`Error al guardar el turno: ${error.message}`);
@@ -336,7 +336,7 @@ const handleEditar = () => {
             setIsLoading(false);
         }
     };
-    
+
     const handleCategoriaChange = (categoriaId) => {
         setFormulario({
             ...formulario,
@@ -348,32 +348,32 @@ const handleEditar = () => {
         });
         setServicioIdSeleccionado(null); // Resetear ID de servicio
     }
-    
+
     const handleServicioChange = (servicioId, servicioNombre) => {
         console.log("Servicio seleccionado - ID:", servicioId, "Nombre:", servicioNombre);
-        
+
         // Verificamos si el servicioId es un número o una cadena que representa un número
         let idServicio = null;
-        
+
         if (servicioId && !isNaN(parseInt(servicioId, 10))) {
             idServicio = parseInt(servicioId, 10);
-            
+
             // Encontrar el servicio completo para obtener el precio
             const servicioEncontrado = servicios.find(s => s.id == idServicio);
-            
+
             if (servicioEncontrado) {
                 setServicioIdSeleccionado(idServicio);
-                
+
                 // Actualizar el servicio y resetear profesional
-                setFormulario({ 
-                    ...formulario, 
+                setFormulario({
+                    ...formulario,
                     servicio: servicioNombre || servicioEncontrado.nombre,
                     servicio_id: idServicio.toString(),
-                    profesional_id: "", 
+                    profesional_id: "",
                     profesional_nombre: "",
                     precio: servicioEncontrado.precio // Actualizar el precio automáticamente
                 });
-                
+
                 console.log("Servicio encontrado con precio:", servicioEncontrado.precio);
                 console.log("ID de servicio seleccionado:", idServicio);
             } else {
@@ -385,16 +385,16 @@ const handleEditar = () => {
             handleServicioNotFound(servicioId, servicioNombre);
         }
     }
-    
+
     // Función auxiliar para manejar el caso cuando no se encuentra el servicio por ID
     const handleServicioNotFound = (servicioId, servicioNombre) => {
         // Intentamos buscar por nombre si tenemos el nombre
         if (servicioNombre) {
             const servicioEncontrado = servicios.find(s => s.nombre === servicioNombre);
-            
+
             if (servicioEncontrado) {
                 setServicioIdSeleccionado(parseInt(servicioEncontrado.id, 10));
-                
+
                 setFormulario({
                     ...formulario,
                     servicio: servicioNombre,
@@ -403,12 +403,12 @@ const handleEditar = () => {
                     profesional_nombre: "",
                     precio: servicioEncontrado.precio
                 });
-                
+
                 console.log("Servicio encontrado por nombre:", servicioEncontrado.id);
             } else {
                 console.log("No se encontró el servicio por nombre:", servicioNombre);
                 setServicioIdSeleccionado(null);
-                
+
                 setFormulario({
                     ...formulario,
                     servicio: servicioNombre,
@@ -422,7 +422,7 @@ const handleEditar = () => {
             // No tenemos suficiente información para identificar el servicio
             console.log("Información insuficiente para identificar el servicio");
             setServicioIdSeleccionado(null);
-            
+
             setFormulario({
                 ...formulario,
                 servicio: servicioId || "", // Usamos lo que tengamos como nombre
@@ -433,28 +433,28 @@ const handleEditar = () => {
             });
         }
     }
-    
+
     const handleClienteChange = (clienteId, nombreCompleto) => {
         // Aseguramos que el clienteId se almacena correctamente
         console.log("Cliente seleccionado - ID:", clienteId, "Nombre:", nombreCompleto);
-        
+
         setFormulario({
             ...formulario,
             cliente_id: clienteId,
             cliente_nombre: nombreCompleto
         });
     }
-    
+
     const handleProfesionalChange = (profesionalId, profesionalNombre) => {
         console.log("Profesional seleccionado - ID:", profesionalId, "Nombre:", profesionalNombre || "No disponible");
-        
+
         setFormulario({
             ...formulario,
             profesional_id: profesionalId,
             profesional_nombre: profesionalNombre || formulario.profesional_nombre
         });
     }
-    
+
     const handleGenerarReporte = () => {
         alert("Generando reporte de turnos...");
         // Implementación del reporte de turnos (pendiente)
@@ -476,25 +476,27 @@ const handleEditar = () => {
 
     return (
         <div id="turnos" className="turnos-container">
-            <h2>Gestión de Turnos</h2>
-            
+            <h2>Turnos</h2>
+
             {error && <div className="error-message">{error}</div>}
-            
-            <div className="turnos-header">
-                <button className="btn-agregar" onClick={handleAgregar} disabled={isLoading}>
-                    Agregar Turno
-                </button>
-                
-                {/* Implementación del componente de filtro con filtro de estado */}
-                <FilterComponent 
-                    data={turnos} 
-                    onFilterChange={handleFilterChange} 
-                    searchField="cliente"
-                    placeholder="Buscar por cliente..."
-                    title="Filtrar turnos"
-                    showStatusFilter={true}  // Habilitamos el filtro por estado
-                    availableStatuses={estadosTurnos}  // Pasamos los estados disponibles
-                />
+
+            <div className="turnos-header-flex">
+                <div className="btns-izquierda">
+                    <button className="btn-agregar" onClick={handleAgregar} disabled={isLoading}>
+                        Agregar Turno
+                    </button>
+                </div>
+                <div className="btns-derecha">
+                    <FilterComponent
+                        data={turnos}
+                        onFilterChange={handleFilterChange}
+                        searchField="cliente"
+                        placeholder="Buscar por cliente..."
+                        title="Filtrar turnos"
+                        showStatusFilter={true}
+                        availableStatuses={estadosTurnos}
+                    />
+                </div>
             </div>
 
             {isLoading ? (
@@ -548,33 +550,25 @@ const handleEditar = () => {
             )}
 
             <div className="acciones-turno">
-                <button 
-                    className="btn-editar" 
-                    disabled={!turnoSeleccionado || isLoading} 
+                <button
+                    className="btn-editar"
+                    disabled={!turnoSeleccionado || isLoading}
                     onClick={handleEditar}
                 >
                     Editar
                 </button>
-                <button 
-                    className="btn-eliminar" 
-                    disabled={!turnoSeleccionado || isLoading || turnoSeleccionado?.estado === 'Cancelado'} 
+                <button
+                    className="btn-eliminar"
+                    disabled={!turnoSeleccionado || isLoading || turnoSeleccionado?.estado === 'Cancelado'}
                     onClick={handleEliminar}
                 >
                     Cancelar Turno
                 </button>
-                <div className="spacer"></div>
-                <button 
-                    className="btn-reporte" 
-                    onClick={handleGenerarReporte}
-                    disabled={isLoading}
-                >
-                    Generar Reporte
-                </button>
             </div>
 
-            <ModalForm 
-                isOpen={mostrarModal} 
-                onClose={() => setMostrarModal(false)} 
+            <ModalForm
+                isOpen={mostrarModal}
+                onClose={() => setMostrarModal(false)}
                 title={`${modo === "crear" ? "Agregar" : "Editar"} Turno`}
                 onSave={handleGuardar}
             >
@@ -641,7 +635,7 @@ const handleEditar = () => {
                     value={formulario.cliente_id}
                     onChange={handleClienteChange}
                 />
-                
+
                 {/* Campo para comentarios */}
                 <div className="form-group">
                     <label htmlFor="comentarios">Comentarios:</label>
