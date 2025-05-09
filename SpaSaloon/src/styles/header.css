@@ -13,8 +13,7 @@
   transition: all 0.3s ease;
 }
 
-/* Cambiamos el estilo cuando se hace scroll para que sea más visible 
-.main-header.scrolled {
+/* .main-header.scrolled {
   background-color: rgba(10, 38, 71, 0.98); /* Cuando se hace scroll, se vuelve más sólido
   background-image: none; /* Eliminamos el degradado al hacer scroll 
   height: 70px;
@@ -39,7 +38,6 @@
   gap: 30px;
 }
 
-/* Logo styles */
 .logo {
   background-color: transparent;
   height: 100%;
@@ -82,7 +80,6 @@
   letter-spacing: 1px;
 }
 
-/* Navigation styles */
 .navigation {
   margin-right: 20px;
 }
@@ -144,12 +141,10 @@
   width: 40%;
 }
 
-/* Login button container styles */
 .login-container {
   margin-left: 10px;
 }
 
-/* Mobile menu button */
 .mobile-menu-button {
   display: none;
   flex-direction: column;
@@ -169,86 +164,81 @@
 }
 
 @media (max-width: 992px) {
-  .container {
-    padding: 0 20px;
-  }
-  
-  .nav-item a {
-    padding: 0 15px;
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 768px) {
   .mobile-menu-button {
     display: flex;
   }
   
-  .right-content {
+  .navigation {
     position: fixed;
     top: 0;
     right: -100%;
-    width: 80%;
-    max-width: 320px;
     height: 100vh;
-    background-color: rgba(10, 38, 71, 0.98);
+    width: 250px;
+    background-color: rgba(10, 38, 71, 0.95);
+    display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 100px 0 50px;
-    transition: right 0.4s ease;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
   }
   
-  .right-content.open {
+  .navigation.open {
     right: 0;
-  }
-  
-  .navigation {
-    margin-right: 0;
-    width: 100%;
-    margin-bottom: 30px;
   }
   
   .navigation ul {
     flex-direction: column;
-    width: 100%;
+    align-items: center;
+    height: auto;
   }
   
   .nav-item {
     height: auto;
     width: 100%;
-    justify-content: center;
     margin: 10px 0;
   }
   
   .nav-item a {
-    height: auto;
     width: 100%;
-    padding: 15px 20px;
+    text-align: center;
+    padding: 15px 0;
     justify-content: center;
-    font-size: 16px;
   }
   
   .nav-item a::after {
-    display: none;
+    bottom: 10px;
   }
   
-  .login-container {
-    margin-left: 0;
-    width: 80%;
+  .right-content {
+    gap: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
   }
   
-  /* Animación hamburguesa a X */
-  .open .mobile-menu-button span:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
+  .logo-main {
+    font-size: 24px;
   }
   
-  .open .mobile-menu-button span:nth-child(2) {
-    opacity: 0;
+  .logo-subtitle {
+    font-size: 12px;
   }
   
-  .open .mobile-menu-button span:nth-child(3) {
-    transform: rotate(-45deg) translate(7px, -8px);
+  .main-header {
+    height: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-main {
+    font-size: 20px;
+  }
+  
+  .logo-subtitle {
+    font-size: 10px;
   }
 }

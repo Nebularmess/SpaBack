@@ -1,7 +1,6 @@
 .galeria-section {
     width: 100%;
     height: 100vh;
-    /* Altura fija a una pantalla */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -33,7 +32,6 @@
     height: 100%;
 }
 
-/* Estructura de dos columnas */
 .galeria-two-column {
     display: flex;
     width: 100%;
@@ -50,13 +48,11 @@
 
 .galeria-main {
     flex: 0 0 65%;
-    /* La columna principal ocupa el 65% del ancho */
     padding-right: 2rem;
 }
 
 .galeria-info {
     flex: 0 0 35%;
-    /* La columna de información ocupa el 35% del ancho */
 }
 
 .galeria-text-content {
@@ -103,17 +99,14 @@
     justify-content: center;
 }
 
-/* Personalización de la galería con tamaño fijo */
 .custom-gallery {
     box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
     border-radius: 12px;
     overflow: hidden;
     width: 100%;
     height: 500px;
-    /* Altura fija para el contenedor de la galería */
 }
 
-/* Control de tamaño fijo para la galería */
 .image-gallery {
     height: 100%;
     width: 100%;
@@ -121,18 +114,15 @@
 
 .image-gallery-slide {
     height: 400px;
-    /* Altura fija para los slides */
 }
 
 .image-gallery-slide img {
     width: 100%;
     height: 400px !important;
-    /* Forzar altura fija */
     object-fit: cover !important;
     object-position: center;
 }
 
-/* Contenedor de miniaturas con altura fija */
 .image-gallery-thumbnails-wrapper {
     height: 70px;
 }
@@ -158,11 +148,9 @@
     object-fit: cover;
 }
 
-/* Estilos para los controles de la galería */
 .image-gallery-left-nav,
 .image-gallery-right-nav {
     padding: 30px 10px;
-    /* Reducido de 50px 15px */
     background-color: rgba(107, 66, 38, 0.2);
     transition: background-color 0.3s ease;
 }
@@ -172,7 +160,6 @@
     background-color: rgba(107, 66, 38, 0.6);
 }
 
-/* Estilo para el botón play/pause */
 .image-gallery-play-button,
 .image-gallery-fullscreen-button {
     bottom: auto;
@@ -185,7 +172,6 @@
     color: #F4EBD0;
 }
 
-/* Estilo para las descripciones */
 .image-gallery-description {
     background-color: rgba(107, 66, 38, 0.7);
     bottom: 0;
@@ -201,11 +187,9 @@
 
 .image-gallery-icon {
     font-size: 1.8rem;
-    /* Reducido del tamaño predeterminado */
     color: #F4EBD0;
 }
 
-/* Botones similares a los de hero */
 .galeria-buttons {
     display: flex;
     gap: 1rem;
@@ -251,7 +235,6 @@
     padding: 50px 20px;
 }
 
-/* Animaciones */
 @keyframes fadeInLeft {
     from {
         opacity: 0;
@@ -276,136 +259,97 @@
     }
 }
 
-/* Responsive para pantallas medianas */
-@media (max-width: 1200px) {
-    .galeria-two-column {
-        max-height: 90vh;
-    }
-
-    .galeria-main {
-        flex: 0 0 60%;
-    }
-
-    .galeria-info {
-        flex: 0 0 40%;
-    }
-
-    .galeria-section .section-title {
-        font-size: 2.4rem;
-    }
-
-    .custom-gallery {
-        height: 450px;
-    }
-
-    .image-gallery-slide,
-    .image-gallery-slide img {
-        height: 350px !important;
-    }
+.galeria-section .section-title,
+.galeria-description,
+.galeria-additional-text {
+    margin-left: 0;
+    padding-left: 0;
+    padding-bottom: 0%;
+    text-align: left;
+    border-bottom: none;
 }
 
-/* Responsive para tablets */
 @media (max-width: 992px) {
-    .galeria-two-column {
-        flex-direction: column;
-        max-height: none;
-        height: auto;
-        padding: 3rem 0;
-    }
-
-    .galeria-main,
-    .galeria-info {
-        flex: 0 0 100%;
-        width: 100%;
-        padding: 0;
-    }
-
-    .galeria-main {
-        margin-bottom: 2rem;
-    }
-
-    .galeria-text-content {
-        padding: 1.5rem;
-    }
-
-    .galeria-section .section-title {
-        font-size: 2.2rem;
-        text-align: center;
-    }
-
-    .galeria-description,
-    .galeria-additional-text {
-        text-align: center;
-    }
-
-    .galeria-buttons {
-        justify-content: center;
-    }
-
-    .custom-gallery {
-        height: 400px;
-    }
-
-    .image-gallery-slide,
-    .image-gallery-slide img {
-        height: 300px !important;
-    }
+  .galeria-two-column {
+    flex-direction: column;
+    max-height: none;
+  }
+  
+  .galeria-main {
+    flex: 1;
+    padding-right: 0;
+    padding-bottom: 2rem;
+    order: 2;
+  }
+  
+  .galeria-info {
+    flex: 1;
+    order: 1;
+    margin-bottom: 2rem;
+  }
+  
+  .galeria-text-content {
+    padding: 1rem;
+  }
+  
+  .galeria-section {
+    height: auto;
+    min-height: 100vh;
+    padding: 80px 0;
+  }
+  
+  .custom-gallery {
+    height: 400px;
+  }
 }
 
-/* Responsive para móviles */
 @media (max-width: 768px) {
-    .galeria-section {
-        min-height: 100vh;
-        height: auto;
-        padding: 80px 0;
-    }
-
-    .galeria-container {
-        padding: 0 1rem;
-    }
-
-    .galeria-section .section-title {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-
-    .custom-gallery {
-        height: 350px;
-    }
-
-    .image-gallery-slide,
-    .image-gallery-slide img {
-        height: 250px !important;
-    }
-
-    .image-gallery-thumbnails-wrapper {
-        height: 60px;
-    }
-
-    .image-gallery-thumbnail {
-        height: 50px;
-    }
-
-    .image-gallery-thumbnail-image {
-        height: 44px !important;
-    }
+  .galeria-section .section-title {
+    font-size: 2.2rem;
+    text-align: center;
+  }
+  
+  .galeria-description,
+  .galeria-additional-text {
+    text-align: center;
+  }
+  
+  .galeria-buttons {
+    justify-content: center;
+  }
+  
+  .custom-gallery {
+    height: 350px;
+  }
+  
+  .image-gallery-slide {
+    height: 300px;
+  }
+  
+  .image-gallery-slide img {
+    height: 300px !important;
+  }
 }
 
-@media (max-width: 576px) {
-    .custom-gallery {
-        height: 300px;
-    }
-
-    .image-gallery-slide,
-    .image-gallery-slide img {
-        height: 200px !important;
-    }
-
-    .galeria-description {
-        font-size: 1rem;
-    }
-
-    .galeria-additional-text {
-        font-size: 0.9rem;
-    }
+@media (max-width: 480px) {
+  .galeria-section .section-title {
+    font-size: 1.8rem;
+  }
+  
+  .custom-gallery {
+    height: 300px;
+  }
+  
+  .image-gallery-slide {
+    height: 250px;
+  }
+  
+  .image-gallery-slide img {
+    height: 250px !important;
+  }
+  
+  .galeria-buttons .hero-button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
 }

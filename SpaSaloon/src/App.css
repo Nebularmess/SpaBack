@@ -3,25 +3,23 @@
   margin: 0 auto;
   padding: 0;
   text-align: center;
-  min-height: 100vh; /* Changed from height: 100% to ensure full viewport height */
-  display: grid;     /* Using grid for layout */
-  grid-template-rows: auto 1fr auto; /* Header, main content, footer if needed */
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto; 
   grid-template-areas: 
     "header"
     "main"
     "footer";
 }
 
-/* Background only for the hero section instead of entire root */
 .hero-section {
   background-image: url("/images/fondohero.jpg");
   background-size: cover;
   background-position: center;
   width: 100%;
-  height: 100vh; /* Full viewport height for hero */
+  height: 100vh;
 }
 
-/* Main content container for all sections */
 .main-content {
   grid-area: main;
   display: grid;
@@ -29,18 +27,16 @@
   width: 100%;
 }
 
-/* Individual section styling */
 .section {
   width: 100%;
-  min-height: 100vh; /* Each section at least viewport height */
+  min-height: 100vh; 
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  scroll-snap-align: start; /* Optional: for smooth scrolling */
+  scroll-snap-align: start;
 }
 
-/* You can add specific styling for different sections */
 .section-masajes {
   background-color: #f8f8f8;
 }
@@ -53,7 +49,6 @@
   background-color: #f0f0f0;
 }
 
-/* Keep your existing logo styles */
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -80,12 +75,6 @@
   }
   to {
     transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
   }
 }
 
