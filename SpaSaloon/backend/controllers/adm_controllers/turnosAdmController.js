@@ -42,13 +42,13 @@ const actualizarTurno = async (req, res) => {
         
         console.log(`Actualizando turno ID: ${id} con datos:`, datosTurno);
         
-        // Validar los datos necesarios
-        if (!datosTurno.fecha || !datosTurno.hora || !datosTurno.profesional || 
-            !datosTurno.cliente || !datosTurno.servicio) {
+        // Validar los datos necesarios con estructura acorde al frontend
+        if (!datosTurno.fecha || !datosTurno.hora || !datosTurno.id_profesional || 
+            !datosTurno.id_cliente || !datosTurno.id_servicio) {
             return res.status(400).json({ error: 'Faltan datos requeridos para actualizar el turno' });
         }
         
-        const resultado = await turnosAdmModel.actualizarTurno(id, datosTurno);
+        const resultado = await turnosAdmModel.actualizarTurnoConIds(id, datosTurno);
         
         res.status(200).json({ 
             mensaje: 'Turno actualizado correctamente',

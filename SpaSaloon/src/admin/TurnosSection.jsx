@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import ModalForm from "./ModalForm.jsx"; 
+import ModalForm from "./ModalForm.jsx";
 import DropdownCategorias from "./DropdownCat.jsx";
 import DropdownServicios from "./DropdownServicios.jsx";
 import DropdownClientes from "./DropdownClientes.jsx";
+import DropdownProfesionalesPorServicio from "./DropdownProfesionalesPorServicio.jsx";
 import FilterComponent from "./FilterComponent.jsx";
 
 const TurnosSection = () => {
@@ -11,10 +12,9 @@ const TurnosSection = () => {
     const [modo, setModo] = useState("crear");
     const [mostrarModal, setMostrarModal] = useState(false);
     const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
-    const [profesionales, setProfesionales] = useState([]);
-    const [profesionalesFiltrados, setProfesionalesFiltrados] = useState([]);
     const [servicios, setServicios] = useState([]);
     const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
+    const [servicioIdSeleccionado, setServicioIdSeleccionado] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [formulario, setFormulario] = useState({
@@ -22,11 +22,13 @@ const TurnosSection = () => {
         hora: "",
         categoria: "",
         servicio: "",
-        profesional_id: "", 
-        profesional_nombre: "", 
-        cliente_id: "", 
-        cliente_nombre: "", 
+        servicio_id: "", // Añadido para mantener el ID separado del nombre
+        profesional_id: "",
+        profesional_nombre: "",
+        cliente_id: "",
+        cliente_nombre: "",
         precio: "",
+        comentarios: "",
     });
     const [categorias, setCategorias] = useState([]);
     
@@ -77,25 +79,6 @@ const TurnosSection = () => {
         }
     };
     
-    const fetchProfesionales = async () => {
-        try {
-            const res = await fetch("http://localhost:3001/api/profesionalesAdm");
-            if (!res.ok) throw new Error("Error al obtener profesionales");
-            const data = await res.json();
-            
-            // Mostramos la estructura completa para analizar
-            console.log("Profesionales cargados:", data);
-            console.log("Estructura detallada de profesionales:");
-            data.forEach(prof => {
-                console.log(`ID: ${prof.id}, Nombre: ${prof.nombre}, ID Servicio: ${prof.id_servicio} (${typeof prof.id_servicio})`);
-            });
-            
-            setProfesionales(data);
-        } catch (err) {
-            console.error("Error cargando profesionales:", err);
-        }
-    };
-    
     const fetchCategorias = async () => {
         try {
             const response = await fetch("http://localhost:3001/api/categoriasAdm");
@@ -111,62 +94,8 @@ const TurnosSection = () => {
     useEffect(() => {
         fetchCategorias();
         fetchServicios();
-        fetchProfesionales();
         fetchTurnos();
     }, []);
-
-    // Función para filtrar profesionales según el servicio seleccionado
-    useEffect(() => {
-        if (formulario.servicio) {
-            // Primero identificamos el ID del servicio seleccionado
-            const servicioEncontrado = servicios.find(s => s.nombre === formulario.servicio);
-            
-            if (servicioEncontrado) {
-                // Debug para ver el servicio encontrado y su ID
-                console.log("Servicio encontrado:", servicioEncontrado);
-                
-                // Convertimos a números para comparación segura
-                const servicioId = parseInt(servicioEncontrado.id, 10);
-                
-                // Filtramos los profesionales que brindan este servicio
-                // Aseguramos que ambos son números o strings para comparación
-                const profsFiltrados = profesionales.filter(p => {
-                    const profServicioId = parseInt(p.id_servicio, 10);
-                    const match = profServicioId === servicioId;
-                    console.log(`Profesional ${p.nombre} (ID: ${p.id}) tiene id_servicio=${p.id_servicio} (${typeof p.id_servicio}), comparando con servicioId=${servicioId} (${typeof servicioId}): ${match}`);
-                    return match;
-                });
-                
-                console.log(`Profesionales filtrados para servicio ${servicioEncontrado.nombre} (ID: ${servicioId}):`, profsFiltrados);
-                setProfesionalesFiltrados(profsFiltrados);
-                
-                // Si hay un profesional seleccionado pero no está en la lista filtrada, lo limpiamos
-                if (formulario.profesional_id && !profsFiltrados.some(p => parseInt(p.id, 10) === parseInt(formulario.profesional_id, 10))) {
-                    setFormulario({
-                        ...formulario,
-                        profesional_id: "",
-                        profesional_nombre: ""
-                    });
-                }
-            } else {
-                console.log("No se encontró el servicio:", formulario.servicio);
-                setProfesionalesFiltrados([]);
-            }
-        } else {
-            // Si no hay servicio seleccionado, limpiamos la lista de profesionales
-            console.log("No hay servicio seleccionado, limpiando profesionales filtrados");
-            setProfesionalesFiltrados([]);
-            
-            // También limpiamos el profesional seleccionado
-            if (formulario.profesional_id) {
-                setFormulario({
-                    ...formulario,
-                    profesional_id: "",
-                    profesional_nombre: ""
-                });
-            }
-        }
-    }, [formulario.servicio, servicios, profesionales]);
 
     // Función para manejar el cambio en el filtro
     const handleFilterChange = (filteredData) => {
@@ -175,64 +104,53 @@ const TurnosSection = () => {
 
     const handleAgregar = () => {
         setModo("crear");
+        const fechaHoy = new Date().toISOString().substring(0, 10); // Formato YYYY-MM-DD
         setFormulario({
-            fecha: "",
+            fecha: fechaHoy,
             hora: "",
             categoria: "",
             servicio: "",
+            servicio_id: "", // Añadido para mantener el ID separado
             profesional_id: "",
             profesional_nombre: "",
             cliente_id: "",
             cliente_nombre: "",
             precio: "",
+            comentarios: "",
         });
-        setProfesionalesFiltrados([]); // Limpiamos los profesionales filtrados
+        setServicioIdSeleccionado(null); // Limpiar ID de servicio seleccionado
         setMostrarModal(true);
     };
 
-    const handleEditar = () => {
-        if (turnoSeleccionado) {
-            setModo("editar");
-            console.log("Editando turno:", turnoSeleccionado);
-            
-            // Aquí aseguramos que cliente_id, cliente_nombre, profesional_id y profesional_nombre se establezcan correctamente
-            setFormulario({
-                ...turnoSeleccionado,
-                cliente_id: turnoSeleccionado.cliente_id || "",
-                cliente_nombre: turnoSeleccionado.cliente || "",
-                profesional_id: turnoSeleccionado.profesional_id || "",
-                profesional_nombre: turnoSeleccionado.profesional || ""
-            });
-            
-            // Filtrar profesionales según el servicio del turno seleccionado
-            if (turnoSeleccionado.servicio) {
-                console.log("Buscando servicio para filtrar profesionales:", turnoSeleccionado.servicio);
-                const servicioEncontrado = servicios.find(s => s.nombre === turnoSeleccionado.servicio);
-                
-                if (servicioEncontrado) {
-                    console.log("Servicio encontrado para filtrar:", servicioEncontrado);
-                    const servicioId = parseInt(servicioEncontrado.id, 10);
-                    
-                    // Filtrar profesionales con conversión explícita de tipos
-                    const profsFiltrados = profesionales.filter(p => {
-                        const profServicioId = parseInt(p.id_servicio, 10);
-                        return profServicioId === servicioId;
-                    });
-                    
-                    console.log("Profesionales filtrados para edición:", profsFiltrados);
-                    setProfesionalesFiltrados(profsFiltrados);
-                } else {
-                    console.log("No se encontró el servicio para el turno seleccionado");
-                    setProfesionalesFiltrados([]);
-                }
-            } else {
-                console.log("El turno no tiene servicio asociado");
-                setProfesionalesFiltrados([]);
-            }
-            
-            setMostrarModal(true);
+const handleEditar = () => {
+    if (turnoSeleccionado) {
+        setModo("editar");
+        console.log("Editando turno:", turnoSeleccionado);
+        
+        // Buscar el ID del servicio para el turno seleccionado
+        let servicioId = null;
+        const servicioEncontrado = servicios.find(s => s.nombre === turnoSeleccionado.servicio);
+        if (servicioEncontrado) {
+            servicioId = servicioEncontrado.id;
         }
-    };
+        
+        setServicioIdSeleccionado(servicioId);
+        
+        // Asegurarse de que todos los campos críticos estén como strings para el formulario
+        setFormulario({
+            ...turnoSeleccionado,
+            servicio_id: servicioId ? servicioId.toString() : "",
+            cliente_id: turnoSeleccionado.cliente_id ? turnoSeleccionado.cliente_id.toString() : "",
+            cliente_nombre: turnoSeleccionado.cliente || "",
+            profesional_id: turnoSeleccionado.profesional_id ? turnoSeleccionado.profesional_id.toString() : "",
+            profesional_nombre: turnoSeleccionado.profesional || "",
+            comentarios: turnoSeleccionado.comentarios || "",
+            precio: turnoSeleccionado.precio ? turnoSeleccionado.precio.toString() : "0"
+        });
+        
+        setMostrarModal(true);
+    }
+};
 
     const handleEliminar = async () => {
         if (turnoSeleccionado && window.confirm("¿Está seguro que desea cancelar este turno?")) {
@@ -276,40 +194,61 @@ const TurnosSection = () => {
         }
     };
 
+    const validarFormulario = () => {
+        // Validar que todos los campos estén completos
+        const camposRequeridos = ['fecha', 'hora', 'servicio_id', 'profesional_id', 'cliente_id'];
+        const camposFaltantes = camposRequeridos.filter(campo => !formulario[campo]);
+        
+        if (camposFaltantes.length > 0) {
+            const mensajesCampos = {
+                'fecha': 'Fecha',
+                'hora': 'Hora',
+                'servicio_id': 'Servicio',
+                'profesional_id': 'Profesional',
+                'cliente_id': 'Cliente'
+            };
+            
+            const camposFaltantesNombres = camposFaltantes.map(campo => mensajesCampos[campo]);
+            throw new Error(`Por favor complete todos los campos obligatorios: ${camposFaltantesNombres.join(', ')}`);
+        }
+        
+        // Validar formato de fecha
+        const fechaRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!fechaRegex.test(formulario.fecha)) {
+            throw new Error("El formato de fecha no es válido. Utilice YYYY-MM-DD");
+        }
+        
+        // Validar formato de hora
+        const horaRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+        if (!horaRegex.test(formulario.hora)) {
+            throw new Error("El formato de hora no es válido. Utilice HH:MM");
+        }
+        
+        return true;
+    };
+
+    // Reemplazar la función handleGuardar con esta versión corregida
     const handleGuardar = async () => {
         try {
             setIsLoading(true);
             setError(null);
             
-            // Validar que todos los campos estén completos
-            const camposRequeridos = ['fecha', 'hora', 'profesional_id', 'cliente_id', 'servicio'];
-            const faltanCampos = camposRequeridos.filter(campo => !formulario[campo]);
+            // Validar el formulario
+            validarFormulario();
             
-            if (faltanCampos.length > 0) {
-                throw new Error(`Por favor complete todos los campos obligatorios: ${faltanCampos.join(', ')}`);
-            }
-            
-            // Obtener el precio del servicio seleccionado (si existe)
-            let precioServicio = "";
-            let id_servicio = formulario.servicio;
-            
-            if (formulario.servicio) {
-                const servicioEncontrado = servicios.find(s => s.nombre === formulario.servicio);
-                if (servicioEncontrado) {
-                    precioServicio = servicioEncontrado.precio;
-                    id_servicio = servicioEncontrado.id; // Obtener el ID del servicio
-                }
-            }
-            
-            // Asegurarnos de que id_cliente sea un número
+            // Conversión explícita y segura de IDs a enteros
+            const id_servicio = parseInt(formulario.servicio_id, 10);
             const id_cliente = parseInt(formulario.cliente_id, 10);
+            const id_profesional = parseInt(formulario.profesional_id, 10);
+            
+            // Validaciones adicionales
+            if (isNaN(id_servicio)) {
+                throw new Error("El servicio seleccionado no es válido. Por favor seleccione un servicio válido.");
+            }
             
             if (isNaN(id_cliente)) {
                 throw new Error("El ID del cliente no es válido. Por favor seleccione un cliente válido.");
             }
-            
-            // Asegurarnos de que id_profesional sea un número
-            const id_profesional = parseInt(formulario.profesional_id, 10);
             
             if (isNaN(id_profesional)) {
                 throw new Error("El ID del profesional no es válido. Por favor seleccione un profesional válido.");
@@ -317,21 +256,27 @@ const TurnosSection = () => {
             
             // Preparar los datos para enviar al backend
             const datosFormateados = {
-                id_cliente: id_cliente, // Aseguramos que es un número
-                id_servicio: typeof id_servicio === 'object' ? id_servicio.id : id_servicio,
-                id_profesional: id_profesional, // Aseguramos que es un número
+                id_cliente,
+                id_servicio,
+                id_profesional,
                 fecha: formulario.fecha,
                 hora: formulario.hora,
-                estado: 'Solicitado',
-                precio: precioServicio,
-                comentarios: formulario.comentarios || ''
+                estado: formulario.estado || 'Solicitado',
+                precio: parseFloat(formulario.precio) || 0,
+                comentarios: formulario.comentarios || '',
+                // Añadimos también los nombres para compatibilidad con el backend original
+                profesional: formulario.profesional_nombre,
+                cliente: formulario.cliente_nombre,
+                servicio: formulario.servicio
             };
             
             console.log("Datos a enviar al backend:", datosFormateados);
             
+            let response;
+            
             if (modo === "crear") {
-                // Implementación de la creación de un nuevo turno
-                const response = await fetch('http://localhost:3001/api/turnosAdmin', {
+                // Crear nuevo turno
+                response = await fetch('http://localhost:3001/api/turnosAdmin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(datosFormateados)
@@ -343,17 +288,21 @@ const TurnosSection = () => {
                 }
                 
                 alert("Turno creado correctamente");
-                await fetchTurnos();
             } else {
                 // Editar turno existente
-                console.log(`Actualizando turno ID: ${formulario.id}`, formulario);
+                const id = parseInt(formulario.id, 10);
+                if (isNaN(id)) {
+                    throw new Error("ID de turno inválido");
+                }
+                
+                console.log(`Actualizando turno ID: ${id}`, datosFormateados);
                 
                 const datosActualizados = {
                     ...datosFormateados,
-                    id: formulario.id
+                    id
                 };
                 
-                const response = await fetch(`http://localhost:3001/api/turnosAdmin/${formulario.id}`, {
+                response = await fetch(`http://localhost:3001/api/turnosAdmin/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(datosActualizados)
@@ -365,9 +314,12 @@ const TurnosSection = () => {
                 }
                 
                 alert("Turno actualizado correctamente");
-                await fetchTurnos();
             }
             
+            // Recargar los turnos
+            await fetchTurnos();
+            
+            // Cerrar el modal y limpiar la selección
             setMostrarModal(false);
             setTurnoSeleccionado(null);
             
@@ -381,42 +333,99 @@ const TurnosSection = () => {
     };
     
     const handleCategoriaChange = (categoriaId) => {
-        setFormulario({ ...formulario, categoria: categoriaId });
-    }
-    
-    const handleServicioChange = (servicio) => {
-        console.log("Servicio seleccionado:", servicio);
-        
-        // Actualizar el servicio y resetear profesional
-        setFormulario({ 
-            ...formulario, 
-            servicio,
-            profesional_id: "", 
+        setFormulario({
+            ...formulario,
+            categoria: categoriaId,
+            servicio: "", // Resetear servicio al cambiar categoría
+            servicio_id: "", // Resetear ID del servicio
+            profesional_id: "", // Resetear profesional al cambiar categoría
             profesional_nombre: ""
         });
-        setServicioSeleccionado(servicio);
+        setServicioIdSeleccionado(null); // Resetear ID de servicio
+    }
+    
+    const handleServicioChange = (servicioId, servicioNombre) => {
+        console.log("Servicio seleccionado - ID:", servicioId, "Nombre:", servicioNombre);
         
-        // Actualizar el precio automáticamente al seleccionar el servicio
-        const servicioEncontrado = servicios.find(s => s.nombre === servicio);
-        if (servicioEncontrado) {
-            console.log("Servicio encontrado con precio:", servicioEncontrado.precio);
-            setFormulario(prev => ({ 
-                ...prev, 
-                precio: servicioEncontrado.precio,
-                profesional_id: "",
-                profesional_nombre: ""
-            }));
+        // Verificamos si el servicioId es un número o una cadena que representa un número
+        let idServicio = null;
+        
+        if (servicioId && !isNaN(parseInt(servicioId, 10))) {
+            idServicio = parseInt(servicioId, 10);
             
-            // Filtrar profesionales directamente aquí para asegurar respuesta inmediata
-            const servicioId = parseInt(servicioEncontrado.id, 10);
-            const profesionalesPorServicio = profesionales.filter(p => 
-                parseInt(p.id_servicio, 10) === servicioId
-            );
-            console.log("Profesionales filtrados por servicio inmediatamente:", profesionalesPorServicio);
-            setProfesionalesFiltrados(profesionalesPorServicio);
+            // Encontrar el servicio completo para obtener el precio
+            const servicioEncontrado = servicios.find(s => s.id == idServicio);
+            
+            if (servicioEncontrado) {
+                setServicioIdSeleccionado(idServicio);
+                
+                // Actualizar el servicio y resetear profesional
+                setFormulario({ 
+                    ...formulario, 
+                    servicio: servicioNombre || servicioEncontrado.nombre,
+                    servicio_id: idServicio.toString(),
+                    profesional_id: "", 
+                    profesional_nombre: "",
+                    precio: servicioEncontrado.precio // Actualizar el precio automáticamente
+                });
+                
+                console.log("Servicio encontrado con precio:", servicioEncontrado.precio);
+                console.log("ID de servicio seleccionado:", idServicio);
+            } else {
+                console.log("No se encontró el servicio con ID", idServicio, "en la lista");
+                handleServicioNotFound(servicioId, servicioNombre);
+            }
         } else {
-            console.log("No se encontró el servicio en la lista");
-            setProfesionalesFiltrados([]);
+            // Si servicioId no es un número, asumimos que es el nombre del servicio
+            handleServicioNotFound(servicioId, servicioNombre);
+        }
+    }
+    
+    // Función auxiliar para manejar el caso cuando no se encuentra el servicio por ID
+    const handleServicioNotFound = (servicioId, servicioNombre) => {
+        // Intentamos buscar por nombre si tenemos el nombre
+        if (servicioNombre) {
+            const servicioEncontrado = servicios.find(s => s.nombre === servicioNombre);
+            
+            if (servicioEncontrado) {
+                setServicioIdSeleccionado(parseInt(servicioEncontrado.id, 10));
+                
+                setFormulario({
+                    ...formulario,
+                    servicio: servicioNombre,
+                    servicio_id: servicioEncontrado.id.toString(),
+                    profesional_id: "",
+                    profesional_nombre: "",
+                    precio: servicioEncontrado.precio
+                });
+                
+                console.log("Servicio encontrado por nombre:", servicioEncontrado.id);
+            } else {
+                console.log("No se encontró el servicio por nombre:", servicioNombre);
+                setServicioIdSeleccionado(null);
+                
+                setFormulario({
+                    ...formulario,
+                    servicio: servicioNombre,
+                    servicio_id: "",
+                    profesional_id: "",
+                    profesional_nombre: "",
+                    precio: ""
+                });
+            }
+        } else {
+            // No tenemos suficiente información para identificar el servicio
+            console.log("Información insuficiente para identificar el servicio");
+            setServicioIdSeleccionado(null);
+            
+            setFormulario({
+                ...formulario,
+                servicio: servicioId || "", // Usamos lo que tengamos como nombre
+                servicio_id: "",
+                profesional_id: "",
+                profesional_nombre: "",
+                precio: ""
+            });
         }
     }
     
@@ -431,14 +440,13 @@ const TurnosSection = () => {
         });
     }
     
-    // Esta función se utilizará para actualizar el profesional cuando se integre el componente de dropdown de profesionales
-    const handleProfesionalChange = (profesionalId, nombreProfesional) => {
-        console.log("Profesional seleccionado - ID:", profesionalId, "Nombre:", nombreProfesional);
+    const handleProfesionalChange = (profesionalId, profesionalNombre) => {
+        console.log("Profesional seleccionado - ID:", profesionalId, "Nombre:", profesionalNombre || "No disponible");
         
         setFormulario({
             ...formulario,
             profesional_id: profesionalId,
-            profesional_nombre: nombreProfesional
+            profesional_nombre: profesionalNombre || formulario.profesional_nombre
         });
     }
     
@@ -463,7 +471,7 @@ const TurnosSection = () => {
 
     return (
         <div id="turnos" className="turnos-container">
-            <h2>Turnos</h2>
+            <h2>Gestión de Turnos</h2>
             
             {error && <div className="error-message">{error}</div>}
             
@@ -544,7 +552,7 @@ const TurnosSection = () => {
                 </button>
                 <button 
                     className="btn-eliminar" 
-                    disabled={!turnoSeleccionado || isLoading} 
+                    disabled={!turnoSeleccionado || isLoading || turnoSeleccionado?.estado === 'Cancelado'} 
                     onClick={handleEliminar}
                 >
                     Cancelar Turno
@@ -566,72 +574,76 @@ const TurnosSection = () => {
                 onSave={handleGuardar}
             >
                 <div className="form-group">
-                <label htmlFor="fecha">Fecha:</label>
-                <input
-                    id="fecha"
-                    type="date"
-                    value={formulario.fecha}
-                    onChange={e => setFormulario({ ...formulario, fecha: e.target.value })}
-                    disabled={isLoading}
-                    required
-                />
+                    <label htmlFor="fecha">Fecha:</label>
+                    <input
+                        id="fecha"
+                        type="date"
+                        value={formulario.fecha}
+                        onChange={e => setFormulario({ ...formulario, fecha: e.target.value })}
+                        disabled={isLoading}
+                        required
+                    />
                 </div>
 
                 <div className="form-group">
-                <label htmlFor="hora">Hora:</label>
-                <input
-                    id="hora"
-                    type="time"
-                    value={formulario.hora}
-                    onChange={e => setFormulario({ ...formulario, hora: e.target.value })}
-                    disabled={isLoading}
-                    required
-                />
+                    <label htmlFor="hora">Hora:</label>
+                    <input
+                        id="hora"
+                        type="time"
+                        value={formulario.hora}
+                        onChange={e => setFormulario({ ...formulario, hora: e.target.value })}
+                        disabled={isLoading}
+                        required
+                    />
                 </div>
 
                 <DropdownCategorias
-                value={formulario.categoria}
-                onChange={handleCategoriaChange}
+                    value={formulario.categoria}
+                    onChange={handleCategoriaChange}
                 />
 
                 <DropdownServicios
-                categoriaId={formulario.categoria}
-                value={formulario.servicio}
-                onChange={(servicio, nombreServicio) => {
-                    handleServicioChange(servicio);
-                }}
+                    categoriaId={formulario.categoria}
+                    value={formulario.servicio}
+                    onChange={(servicioId, servicioNombre) => handleServicioChange(servicioId, servicioNombre)}
                 />
 
-                {/* Aquí irá el componente DropdownProfesionales en el futuro */}
-                {/* <DropdownProfesionales 
-                    servicioId={formulario.servicio ? servicioEncontrado?.id : null}
-                    value={formulario.profesional_id}
-                    onChange={handleProfesionalChange}
-                    profesionales={profesionalesFiltrados}
-                /> */}
-                
-                {/* Mostrar el nombre del profesional seleccionado */}
-                {formulario.profesional_nombre && (
-                    <div className="form-group">
-                    <span className="profesional-seleccionado">
-                        Profesional seleccionado: {formulario.profesional_nombre}
-                    </span>
-                    </div>
+                {/* Implementación del DropdownProfesionalesPorServicio con debug */}
+                {formulario.servicio_id ? (
+                    <>
+                        <DropdownProfesionalesPorServicio
+                            idServicio={formulario.servicio_id}
+                            value={formulario.profesional_id}
+                            onChange={(profesionalId, profesionalNombre) => {
+                                handleProfesionalChange(profesionalId, profesionalNombre);
+                            }}
+                        />
+                    </>
+                ) : (
+                    formulario.servicio && (
+                        <div className="form-group">
+                            <label>Profesional:</label>
+                            <p className="error-text">Por favor seleccione un servicio válido primero</p>
+                        </div>
+                    )
                 )}
 
                 <DropdownClientes
-                value={formulario.cliente_id}
-                onChange={handleClienteChange}
+                    value={formulario.cliente_id}
+                    onChange={handleClienteChange}
                 />
-
-                {/* Mostrar el nombre del cliente seleccionado */}
-                {formulario.cliente_nombre && (
-                    <div className="form-group">
-                    <span className="cliente-seleccionado">
-                        Cliente seleccionado: {formulario.cliente_nombre}
-                    </span>
-                    </div>
-                )}
+                
+                {/* Campo para comentarios */}
+                <div className="form-group">
+                    <label htmlFor="comentarios">Comentarios:</label>
+                    <textarea
+                        id="comentarios"
+                        value={formulario.comentarios || ''}
+                        onChange={e => setFormulario({ ...formulario, comentarios: e.target.value })}
+                        placeholder="Agregar comentarios (opcional)"
+                        rows="3"
+                    />
+                </div>
             </ModalForm>
         </div>
     );

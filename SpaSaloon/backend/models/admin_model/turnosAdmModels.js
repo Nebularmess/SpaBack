@@ -137,8 +137,44 @@ const actualizarTurno = async (idTurno, datosTurno) => {
     }
 };
 
+// Nueva función que acepta directamente los IDs enviados por el frontend
+const actualizarTurnoConIds = async (idTurno, datosTurno) => {
+    try {
+        console.log(`Actualizando turno ID: ${idTurno} en la BD con IDs directos`);
+        
+        // Validar que tenemos los IDs necesarios
+        const idProfesional = datosTurno.id_profesional;
+        const idCliente = datosTurno.id_cliente;
+        const idServicio = datosTurno.id_servicio;
+        
+        // Crear la fecha-hora combinada
+        const fechaHora = `${datosTurno.fecha} ${datosTurno.hora}:00`;
+        
+        // Actualizar el turno
+        const [resultado] = await db.execute(
+            `UPDATE turno 
+             SET id_profesional = ?, 
+                 id_cliente = ?, 
+                 id_servicio = ?, 
+                 fecha_hora = ?,
+                 comentarios = ?
+             WHERE id_turno = ?`,
+            [idProfesional, idCliente, idServicio, fechaHora, datosTurno.comentarios || '', idTurno]
+        );
+        
+        if (resultado.affectedRows === 0) {
+            throw new Error(`No se encontró el turno con id ${idTurno}`);
+        }
+        
+        return resultado;
+    } catch (error) {
+        console.error('Error al actualizar el turno con IDs en la BD:', error);
+        throw error;
+    }
+};
 // Exportar la nueva función
 module.exports = {
+    actualizarTurnoConIds,
     crearNuevoTurno,
     getTurnos,
     actualizarEstadoTurno,
