@@ -37,6 +37,11 @@ const AppAdmin = () => {
               Profesionales
             </a>
           </li>
+          <li className={activeSection === "clientes" ? "active" : ""}>
+            <a href="#clientes" onClick={() => scrollToSection("clientes")}>
+              Clientes
+            </a>
+          </li>
         </ul>
       </header>
 

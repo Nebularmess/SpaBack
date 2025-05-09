@@ -241,7 +241,7 @@ const handleSubmit = async e => {
         console.error("Error del servidor:", err.response.data);
         console.error("Estado HTTP:", err.response.status);
         setError(
-          `Error del servidor: ${err.response.data?.error || err.response.status}`
+          `${err.response.data?.error || err.response.status}`
         );
       } else if (err.request) {
         // La solicitud fue hecha pero no se recibió respuesta
