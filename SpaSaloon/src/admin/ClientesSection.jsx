@@ -8,6 +8,7 @@ const ClientesSection = () => {
     const [modo, setModo] = useState("crear");
     const [mostrarModal, setMostrarModal] = useState(false);
 
+    const [clientesOriginales, setClientesOriginales] = useState([]);
     const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
     const [formulario, setFormulario] = useState({
         id:"",
@@ -23,40 +24,38 @@ const ClientesSection = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [filtroTexto, setFiltroTexto] = useState("");
+    
     const clientesFiltrados = clientes.filter(cliente =>
         `${cliente.nombre} ${cliente.apellido} ${cliente.email}`.toLowerCase().includes(filtroTexto.toLowerCase())
     );
 
 
     useEffect(() => {
-        const fetchClientes = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const response = await fetch("http://localhost:3001/api/clientesAdm");
-                if (!response.ok) {
-                    throw new Error("Error al obtener los clientes");
-                }
-                const data = await response.json();
-                // Asegurarte que todos los clientes tengan un campo id
-                const clientesConId = data.map(cliente => ({
-                    ...cliente,
-                    id: cliente.id || cliente.id_cliente
-                }));
-                setClientes(clientesConId);
-            } catch (error) {
-                console.error("Error al cargar los clientes:", error);
-                setError("No se pudieron cargar los clientes. Intenta nuevamente.");
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchClientes = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch("http://localhost:3001/api/clientesAdm");
+            if (!response.ok) throw new Error("Error al obtener los clientes");
+            
+            const data = await response.json();
+            const clientesConId = data.map(cliente => ({
+                ...cliente,
+                id: cliente.id || cliente.id_cliente
+            }));
 
-       
+            // Guardar tanto los originales como los actuales
+            setClientes(clientesConId);
+            setClientesOriginales(clientesConId);
+        } catch (error) {
+            console.error("Error al cargar los clientes:", error);
+            setError("No se pudieron cargar los clientes. Intenta nuevamente.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
         fetchClientes();
     }, []);
-
     const actualizarClientes = async (clientesEditado) => {
         try {
             
@@ -148,14 +147,11 @@ const ClientesSection = () => {
             throw error;
         }
     };
-    const handleFilterChange = ({ nombre, apellido }) => {
-        // Aplicar lógica de filtrado o actualizar estado
-        const clientesFiltrados = clientesOriginales.filter(c =>
-          c.nombre.toLowerCase().includes(nombre.toLowerCase()) &&
-          c.apellido.toLowerCase().includes(apellido.toLowerCase())
-        );
+    const handleFilterChange = (filtroTexto) => {
+    const clientesFiltrados = clientesOriginales.filter(c =>
+        `${c.nombre} ${c.apellido} ${c.email}`.toLowerCase().includes(filtroTexto.toLowerCase()));
         setClientes(clientesFiltrados);
-      };
+    };  
 
     const handleAgregar = () => {
         setModo("crear");
@@ -272,11 +268,6 @@ const ClientesSection = () => {
             <button className="btn-agregar" onClick={handleAgregar} disabled={loading}>
                 Agregar Cliente
             </button>
-            <ClienteFilterComponent
-                filtroTexto={filtroTexto}
-                onFiltroChange={setFiltroTexto}
-            />
-
             {error && <div className="error-message">{error}</div>}
 
             {loading ? (

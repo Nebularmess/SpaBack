@@ -6,6 +6,8 @@ import DropdownClientes from "./DropdownClientes.jsx";
 import DropdownProfesionalesPorServicio from "./DropdownProfesionalesPorServicio.jsx";
 import FilterComponent from "./FilterComponent.jsx";
 
+
+
 const TurnosSection = () => {
     const [turnos, setTurnos] = useState([]);
     const [turnosFiltrados, setTurnosFiltrados] = useState([]);
@@ -31,9 +33,10 @@ const TurnosSection = () => {
         comentarios: "",
     });
     const [categorias, setCategorias] = useState([]);
+    const horasDisponibles = Array.from({ length: 14 }, (_, i) => `${(8 + i).toString().padStart(2, '0')}:00`);
     
     // Estados de turnos disponibles para filtrar
-    const estadosTurnos = ['Solicitado', 'Cancelado', 'Realizado'];
+    const estadosTurnos = ['Solicitado', 'Cancelado'];
     
     const fetchServicios = async () => {
         try {
@@ -58,6 +61,7 @@ const TurnosSection = () => {
             setIsLoading(false);
         }
     };
+    
 
     const fetchTurnos = async () => {
         try {
@@ -151,6 +155,7 @@ const handleEditar = () => {
         setMostrarModal(true);
     }
 };
+
 
     const handleEliminar = async () => {
         if (turnoSeleccionado && window.confirm("¿Está seguro que desea cancelar este turno?")) {
@@ -587,14 +592,18 @@ const handleEditar = () => {
 
                 <div className="form-group">
                     <label htmlFor="hora">Hora:</label>
-                    <input
+                    <select
                         id="hora"
-                        type="time"
                         value={formulario.hora}
-                        onChange={e => setFormulario({ ...formulario, hora: e.target.value })}
+                        onChange={(e) => setFormulario({ ...formulario, hora: e.target.value })}
                         disabled={isLoading}
                         required
-                    />
+                        className="border p-2 rounded w-full mb-4">
+                        <option value="">Seleccione una hora</option>
+                        {horasDisponibles.map((hora) => (
+                            <option key={hora} value={hora}>{hora}</option>
+                        ))}
+                    </select>
                 </div>
 
                 <DropdownCategorias
