@@ -48,6 +48,7 @@ const AppAdmin = () => {
         <TurnosSection />
         <ServiciosSection />
         <ProfesionalesSection />
+        <ClientesSection />
       </div>
     </div>
   );

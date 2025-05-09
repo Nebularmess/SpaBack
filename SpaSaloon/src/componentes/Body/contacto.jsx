@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send, Facebook, Instagram, Twitter } from 'lucide-react';
 import Input from '../Formularios/input.jsx';
 import '../../styles/contacto.css';
 
@@ -25,19 +25,19 @@ const Contacto = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setEnviando(true);
-    
+
     // Simulando un envío de formulario con retardo
     try {
       // Aquí iría la lógica real de envío al backend
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       console.log('Formulario enviado:', formData);
       setFormData({ nombre: '', email: '', telefono: '', mensaje: '' });
       setMensaje({
         tipo: 'exito',
         texto: '¡Gracias por tu mensaje! Nos pondremos en contacto contigo pronto.'
       });
-      
+
       // Limpiar el mensaje después de 5 segundos
       setTimeout(() => setMensaje(null), 5000);
     } catch (error) {
@@ -82,21 +82,21 @@ const Contacto = () => {
 
               <div className="contacto-detail-item">
                 <span className="contact-icon">
-                  <MapPin size={22} />
-                </span>
-                <div className="contact-text-group">
-                  <span className="contacto-label">dirección</span>
-                  <span className="contacto-value">Calle French 400, Resistencia, Chaco</span>
-                </div>
-              </div>
-
-              <div className="contacto-detail-item">
-                <span className="contact-icon">
                   <Clock size={22} />
                 </span>
                 <div className="contact-text-group">
                   <span className="contacto-label">horarios</span>
                   <span className="contacto-value">Lunes a Sábados: 9:00 - 20:00</span>
+                </div>
+              </div>
+              
+              <div className="contacto-detail-item">
+                <span className="contact-icon">
+                  <MapPin size={22} />
+                </span>
+                <div className="contact-text-group">
+                  <span className="contacto-label">dirección</span>
+                  <span className="contacto-value">Calle French 400, Resistencia, Chaco</span>
                 </div>
               </div>
             </div>
@@ -114,6 +114,18 @@ const Contacto = () => {
 
             <div className="contacto-footer">
               <p className="contacto-horarios">SPA "Sentirse Bien" © 2025</p>
+              <div className="redes-sociales">
+                <a href="https://facebook.com/spa-ficticio" target="_blank" rel="noopener noreferrer" className="icono-red">
+                  <Facebook size={24} />
+                </a>
+                <a href="https://instagram.com/spa-ficticio" target="_blank" rel="noopener noreferrer" className="icono-red">
+                  <Instagram size={24} />
+                </a>
+                <a href="https://twitter.com/spa-ficticio" target="_blank" rel="noopener noreferrer" className="icono-red">
+                  <Twitter size={24} />
+                </a>
+              </div>
+
             </div>
           </div>
 
@@ -180,8 +192,8 @@ const Contacto = () => {
               )}
 
               <div className="form-submit">
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="hero-button"
                   disabled={enviando}
                 >
