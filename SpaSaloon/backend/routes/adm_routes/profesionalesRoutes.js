@@ -8,5 +8,6 @@ router.get('/', profesionalesAdmController.getAdmProfesionales);
 router.put('/:id', profesionalesAdmController.actualizarProfesional);
 router.delete('/:id', profesionalesAdmController.eliminarProfesional);
 router.post('/', profesionalesAdmController.crearProfesional);
+router.get('/profesionales', profesionalesAdmController.buscarProfesionales);
 
 module.exports = router;

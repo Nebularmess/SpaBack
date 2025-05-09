@@ -143,9 +143,19 @@ const getProfesionalesPorServicio = async (id_servicio) => {
         throw error;
     }
 };
-
+const buscarProfesionalesPorNombreApellido = (nombre, apellido, callback) => {
+    const query = `
+      SELECT id_profesional, nombre, apellido, id_servicio, email, telefono
+      FROM profesional
+      WHERE nombre LIKE ? AND apellido LIKE ? AND activo = 1
+    `;
+    const values = [`%${nombre}%`, `%${apellido}%`];
+    db.query(query, values, callback);
+  };
+  
 
 module.exports = {
+    buscarProfesionalesPorNombreApellido,
     getProfesionalesPorServicio,
     getProfesionales,
     actualizarProfesional,

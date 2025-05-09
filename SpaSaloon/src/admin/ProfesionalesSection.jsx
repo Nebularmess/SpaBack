@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import ModalForm from "./ModalForm.jsx";
 import DropdownCategorias from "./dropDownCat";
 import DropdownServicios from "./dropDownServicios.jsx";
+import ProfesionalFilterComponent from "./ProfesionalFilterComponent";
 
 const ProfesionalesSection = () => {
     const [profesionales, setProfesionales] = useState([]);
+    const [profesionalesFiltrados, setProfesionalesFiltrados] = useState([]);
     const [modo, setModo] = useState("crear");
     const [mostrarModal, setMostrarModal] = useState(false);
     const [serviciosActuales, setServiciosActuales] = useState([]);
@@ -23,6 +25,11 @@ const ProfesionalesSection = () => {
     const [error, setError] = useState(null);
     // Mapa para mantener la relación entre IDs de servicios y sus nombres para mostrar en la tabla
     const [nombresServicios, setNombresServicios] = useState({});
+    // Estado para los filtros aplicados
+    const [filtros, setFiltros] = useState({
+        nombre: "",
+        apellido: ""
+    });
 
     useEffect(() => {
         const fetchProfesionales = async () => {
@@ -35,6 +42,7 @@ const ProfesionalesSection = () => {
                 }
                 const data = await response.json();
                 setProfesionales(data);
+                setProfesionalesFiltrados(data); // Inicialmente mostramos todos los profesionales
             } catch (error) {
                 console.error("Error al cargar los profesionales:", error);
                 setError("No se pudieron cargar los profesionales. Intenta nuevamente.");
@@ -66,6 +74,30 @@ const ProfesionalesSection = () => {
         fetchProfesionales();
         fetchAllServicios();
     }, []);
+
+    // Efecto para aplicar filtros cuando cambian
+    useEffect(() => {
+        aplicarFiltros();
+    }, [filtros, profesionales]);
+
+    // Función para aplicar los filtros a la lista de profesionales
+    const aplicarFiltros = () => {
+        const { nombre, apellido } = filtros;
+        
+        const profesionalesFiltrados = profesionales.filter(profesional => {
+            const nombreCoincide = !nombre || profesional.nombre.toLowerCase().includes(nombre.toLowerCase());
+            const apellidoCoincide = !apellido || profesional.apellido.toLowerCase().includes(apellido.toLowerCase());
+            
+            return nombreCoincide && apellidoCoincide;
+        });
+        
+        setProfesionalesFiltrados(profesionalesFiltrados);
+    };
+
+    // Manejador para el cambio de filtros desde el componente ProfesionalFilterComponent
+    const handleFilterChange = (nuevosFiltros) => {
+        setFiltros(nuevosFiltros);
+    };
 
     const actualizarProfesional = async (profesionalEditado) => {
         try {
@@ -340,9 +372,18 @@ const ProfesionalesSection = () => {
     return (
         <div id="profesionales">
             <h2>Profesionales</h2>
-            <button className="btn-agregar" onClick={handleAgregar} disabled={loading}>
-                Agregar Profesional
-            </button>
+            
+            <div className="profesionales-header">
+                <button className="btn-agregar" onClick={handleAgregar} disabled={loading}>
+                    Agregar Profesional
+                </button>
+                
+                {/* Integración del componente de filtro */}
+                <ProfesionalFilterComponent 
+                    onFilterChange={handleFilterChange} 
+                    title="Filtrar profesionales"
+                />
+            </div>
 
             {error && <div className="error-message">{error}</div>}
 
@@ -361,23 +402,29 @@ const ProfesionalesSection = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {profesionales.map(p => (
-                            <tr
-                                key={p.id}
-                                onClick={() => setProfesionalSeleccionado(p)}
-                                style={{
-                                    backgroundColor: profesionalSeleccionado?.id === p.id ? "#f0f0f0" : "white",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                <td>{p.id}</td>
-                                <td>{p.nombre}</td>
-                                <td>{p.apellido}</td>
-                                <td>{p.servicio}</td>
-                                <td>{p.email}</td>
-                                <td>{p.telefono}</td>
+                        {profesionalesFiltrados.length > 0 ? (
+                            profesionalesFiltrados.map(p => (
+                                <tr
+                                    key={p.id}
+                                    onClick={() => setProfesionalSeleccionado(p)}
+                                    style={{
+                                        backgroundColor: profesionalSeleccionado?.id === p.id ? "#f0f0f0" : "white",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <td>{p.id}</td>
+                                    <td>{p.nombre}</td>
+                                    <td>{p.apellido}</td>
+                                    <td>{p.servicio}</td>
+                                    <td>{p.email}</td>
+                                    <td>{p.telefono}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="6" className="no-resultados">No se encontraron profesionales con los filtros aplicados</td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
             )}

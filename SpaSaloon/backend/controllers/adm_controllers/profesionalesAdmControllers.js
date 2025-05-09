@@ -69,9 +69,21 @@ const getProfesionalesPorServicio = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los profesionales por servicio' });
     }
 };
+const buscarProfesionales = (req, res) => {
+    const { nombre = '', apellido = '' } = req.query;
+  
+    Profesional.buscarProfesionalesPorNombreApellido(nombre, apellido, (err, results) => {
+      if (err) {
+        console.error('Error al buscar profesionales:', err);
+        return res.status(500).json({ error: 'Error en el servidor' });
+      }
+      res.json(results);
+    });
+  };
 
 
 module.exports = {
+    buscarProfesionales,
     getProfesionalesPorServicio,
     getAdmProfesionales,
     actualizarProfesional,
