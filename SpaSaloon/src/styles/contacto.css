@@ -333,3 +333,74 @@
   color: #032547;
   transform: translateY(-3px);
 }
+
+@media (max-width: 992px) {
+  .contacto-content {
+    flex-direction: column;
+    height: auto;
+    overflow-y: auto;
+  }
+  
+  .contacto-info, 
+  .contacto-form-container {
+    width: 100%;
+    border-radius: 20px;
+  }
+  
+  .contacto-container {
+    height: auto;
+    padding: 2rem;
+  }
+  
+  .contacto-section {
+    height: auto;
+    min-height: 100vh;
+    padding: 80px 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .contacto-title,
+  .contacto-form-title {
+    font-size: 2rem;
+  }
+  
+  .contacto-info, 
+  .contacto-form-container {
+    padding: 1.5rem;
+  }
+  
+  .contacto-map-container {
+    height: 300px;
+  }
+  
+  .form-custom-input.textarea {
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contacto-detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .contacto-title,
+  .contacto-form-title {
+    font-size: 1.8rem;
+  }
+  
+  .contacto-form-header,
+  .contacto-header {
+    text-align: center;
+  }
+  
+  .form-submit {
+    justify-content: center;
+  }
+  
+  .redes-sociales {
+    justify-content: center;
+  }
+}

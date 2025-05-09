@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import Input from './input';
 import Boton from './boton.jsx';
 import '../../styles/formularioRegistro.css';

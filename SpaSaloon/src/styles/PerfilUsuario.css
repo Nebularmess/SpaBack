@@ -451,3 +451,134 @@
   50% { opacity: 1; }
   100% { opacity: 0.6; }
 }
+
+@media screen and (max-width: 1200px) {
+  .perfil-seccion {
+    margin: 50px;
+    margin-top: 80px;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .perfil-container {
+    flex-direction: column;
+  }
+  
+  .perfil-seccion {
+    margin: 30px;
+    margin-top: 50px;
+    max-width: 100%;
+  }
+  
+  .turnos-seccion, .datos-seccion {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+  }
+  
+  .datos-seccion {
+    height: 600px;
+  }
+  
+  .turnos-calendario {
+    padding: 4px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .perfil-seccion {
+    margin: 15px;
+    margin-top: 30px;
+  }
+  
+  .datos-visualizacion {
+    gap: 8px;
+  }
+  
+  .dato-item {
+    padding: 10px;
+  }
+  
+  .dato-item span {
+    font-size: 15px;
+    padding: 3px 6px;
+  }
+  
+  .modal-contenido {
+    max-width: 90%;
+    padding: 20px;
+  }
+  
+  .lista-turnos {
+    max-height: 250px;
+  }
+  
+  .item-turno {
+    padding: 12px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .perfil-container {
+    padding: 10px;
+    padding-top: 40px;
+  }
+  
+  .perfil-seccion {
+    margin: 10px;
+    margin-top: 20px;
+  }
+  
+  .seccion-titulo {
+    padding: 10px !important;
+    font-size: 1rem;
+  }
+  
+  .turnos-contenido, .datos-contenido {
+    padding: 12px 8px;
+  }
+  
+  .dato-grupo input {
+    padding: 10px;
+    font-size: 14px;
+  }
+  
+  .dato-grupo label {
+    font-size: 13px;
+  }
+  
+  .modal-turno {
+    padding-top: 40px;
+  }
+  
+  .modal-contenido {
+    padding: 16px;
+  }
+  
+  .modal-contenido h3 {
+    font-size: 1.3rem;
+    padding-bottom: 10px;
+  }
+  
+  .modal-contenido p {
+    font-size: 14px;
+  }
+  
+  .item-turno {
+    padding: 10px;
+  }
+  
+  .boton-cerrar {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+  
+  .modal-botones {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .modal-botones button {
+    width: 100%;
+  }
+}

@@ -219,3 +219,46 @@
   box-shadow: none !important;
   margin-bottom: 0 !important;
 }
+
+@media (max-width: 992px) {
+  .servicios-columns-wrapper {
+    flex-direction: column;
+    gap: 3rem;
+  }
+  
+  .servicios-cards-grid {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2.5rem;
+  }
+  
+  .servicios-description {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .servicios-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 2rem;
+  }
+  
+  .servicios-category-title {
+    font-size: 1.4rem;
+  }
+  
+  .servicios-container {
+    padding: 0 1rem;
+  }
+}

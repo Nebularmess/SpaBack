@@ -15,6 +15,18 @@ const Modal = ({ servicio, onClose }) => {
     console.log("Servicio recibido en Modal:", servicio);
   }, [servicio]);
 
+  useEffect(() => {
+  if (servicio) {
+    document.body.classList.add('modal-open');
+  } else {
+    document.body.classList.remove('modal-open');
+  }
+
+  return () => {
+    document.body.classList.remove('modal-open');
+  };
+}, [servicio]);
+
   if (!servicio) return null;
 
   const handleSeleccion = (opcion) => {

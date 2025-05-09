@@ -162,3 +162,83 @@
   background-color: white;
   transition: all 0.3s ease;
 }
+
+@media (max-width: 992px) {
+  .mobile-menu-button {
+    display: flex;
+  }
+  
+  .navigation {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 250px;
+    background-color: rgba(10, 38, 71, 0.95);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+  }
+  
+  .navigation.open {
+    right: 0;
+  }
+  
+  .navigation ul {
+    flex-direction: column;
+    align-items: center;
+    height: auto;
+  }
+  
+  .nav-item {
+    height: auto;
+    width: 100%;
+    margin: 10px 0;
+  }
+  
+  .nav-item a {
+    width: 100%;
+    text-align: center;
+    padding: 15px 0;
+    justify-content: center;
+  }
+  
+  .nav-item a::after {
+    bottom: 10px;
+  }
+  
+  .right-content {
+    gap: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+  
+  .logo-main {
+    font-size: 24px;
+  }
+  
+  .logo-subtitle {
+    font-size: 12px;
+  }
+  
+  .main-header {
+    height: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-main {
+    font-size: 20px;
+  }
+  
+  .logo-subtitle {
+    font-size: 10px;
+  }
+}

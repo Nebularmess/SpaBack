@@ -96,7 +96,7 @@ const Contacto = () => {
                 </span>
                 <div className="contact-text-group">
                   <span className="contacto-label">dirección</span>
-                  <span className="contacto-value">Calle French 400, Resistencia, Chaco</span>
+                  <span className="contacto-value">Av. Castelli 150, Resistencia, Chaco</span>
                 </div>
               </div>
             </div>

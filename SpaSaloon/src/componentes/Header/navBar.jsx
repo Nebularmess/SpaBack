@@ -14,7 +14,11 @@ const Navigation = () => {
     <nav className="navigation">
       <ul>
         {menuItems.map((item, index) => (
-          <NavItem key={index} text={item.text} href={item.href} />
+          <NavItem 
+            key={index} 
+            text={item.text} 
+            href={item.href} 
+          />
         ))}
       </ul>
     </nav>

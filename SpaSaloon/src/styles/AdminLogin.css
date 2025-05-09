@@ -149,7 +149,6 @@
   height: auto;
 }
 
-/* Animación adicional para inputs */
 .admin-form-input {
   animation: fadeInUp 0.5s ease-out forwards;
   animation-delay: calc(var(--input-order) * 0.1s);
