@@ -68,7 +68,7 @@
   font-weight: bold;
   margin: 0;
   letter-spacing: 2px;
-  background: linear-gradient(45deg, #fff, #FADADD);
+  background: #CFCDE0;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -76,7 +76,7 @@
 .logo-subtitle {
   font-size: 14px;
   margin: 0;
-  color: #FADADD;
+  color: #CFCDE0;
   letter-spacing: 1px;
 }
 

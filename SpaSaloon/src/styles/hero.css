@@ -42,7 +42,13 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(110deg, rgba(75, 56, 50, 0.9) 0%, rgba(75, 56, 50, 0.7) 40%, rgba(75, 56, 50, 0.4) 60%, rgba(75, 56, 50, 0) 100%);
+  background: linear-gradient(
+  110deg,
+  rgba(169, 190, 175, 0.9) 0%,   /* Verde suave con opacidad alta */
+  rgba(169, 190, 175, 0.7) 40%,  /* Más transparente */
+  rgba(169, 190, 175, 0.4) 60%,  /* Aún más ligero */
+  rgba(169, 190, 175, 0) 100%    /* Totalmente transparente */
+);
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -51,13 +57,14 @@
 
 .hero-content {
   text-align: left;
-  color: white;
+  color: #5D7B5F;
   padding: 2rem;
   max-width: 650px;
   z-index: 3;
   animation: fadeIn 1.5s ease-out;
-  margin-left: 10%;
+  margin-left: 7.5%;
 }
+
 
 @keyframes fadeIn {
   from {
@@ -93,19 +100,9 @@
 }
 
 .hero-title .highlight {
-  color: #D4A574; 
+  color: #5D7B5F; 
   position: relative;
   display: inline-block;
-}
-
-.hero-title .highlight::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #6B4226;
 }
 
 .hero-subtitle {
@@ -116,6 +113,7 @@
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
   opacity: 0.9;
   line-height: 1.6;
+  color: white !important;
 }
 
 .hero-buttons {
@@ -139,12 +137,12 @@
 }
 
 .hero-button.primary {
-  background-color: #6b4226;
+  background-color: #5D7B5F;
   color: white;
 }
 
 .hero-button.primary:hover {
-  background-color: #8C5D35;
+  background-color: #5D7B5F;
   transform: translateY(-3px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }

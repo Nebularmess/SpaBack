@@ -6,7 +6,8 @@
   align-items: center;
   position: relative;
   overflow: hidden;
-  background-image: linear-gradient(135deg, #0A2647 0%, #032547 100%);
+  background-color: #A8C1A3;
+  background-image: linear-gradient(135deg, #A8C1A3 0%, #E8D8C3 100%);
   padding: 0;
 }
 
@@ -16,7 +17,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, rgba(107, 66, 38, 0.3) 0%, rgba(107, 66, 38, 0.6) 50%, rgba(107, 66, 38, 0.9) 100%);
+  background: linear-gradient(45deg, rgba(192, 152, 138, 0.5) 0%, rgba(232, 216, 195, 0.3) 50%, rgba(255, 255, 255, 0.1) 100%);
   z-index: 1;
 }
 
@@ -97,11 +98,12 @@
 .contacto-title {
   font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
   font-size: 2.5rem;
-  color: #F4EBD0;
+  color: #5D7B5F;
   margin-bottom: 0.5rem;
   position: relative;
   font-weight: 750;
   text-align: left;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1) !important
 }
 
 .contacto-details {
@@ -129,9 +131,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: #F4EBD0;
+  color: #5D7B5F;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background-color: rgba(212, 165, 116, 0.2);
+  background-color: rgba(255, 255, 255, 0.5);
 }
 
 .contact-text-group {
@@ -147,37 +149,38 @@
   font-weight: 500;
   margin-bottom: 0.25rem;
   opacity: 0.9;
-  color: rgba(255, 255, 255, 0.8);
+  color: #5D7B5F;
   letter-spacing: 1px;
 }
 
 .contacto-value {
   font-family: var(--font-body, 'Montserrat', sans-serif);
   font-weight: 500;
-  color: #F4EBD0;
+  color: #333;
 }
 
 .contacto-form-header {
   margin-bottom: 1.5rem;
   border-bottom: 2px solid rgba(212, 165, 116, 0.3);
   padding-bottom: 1rem;
-  text-align: right; 
+  text-align: right;
 }
 
 .contacto-form-title {
   font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: #F4EBD0;
+  color: #5D7B5F;
   font-size: 2.2rem;
-  text-align: right; 
+  text-align: right;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1) !important
 }
 
 .contacto-form-subtitle {
   font-family: var(--font-body, 'Montserrat', sans-serif);
   font-weight: 400;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.9);
+  color: #333;
   text-align: right;
 }
 
@@ -186,7 +189,7 @@
   flex-direction: column;
   gap: 1.2rem;
   height: auto;
-  padding-bottom: 1rem; 
+  padding-bottom: 1rem;
 }
 
 .form-group {
@@ -198,15 +201,15 @@
   width: 100%;
   padding: 14px 18px;
   border-radius: 12px;
-  border: 2px solid rgba(212, 165, 116, 0.4);
-  background: #4B3832 !important;
-  color: white !important;
+  border: 2px solid #7D8F8B !important;
+  background: #7D8F8B !important;
+  color: #7D8F8B !important;
   font-family: var(--font-body, 'Montserrat', sans-serif);
   transition: all 0.3s ease;
 }
 
 .form-custom-input:focus {
-  border-color: #D4A574 !important;
+  border-color: #7D8F8B !important;
   box-shadow: 0 0 0 2px rgba(212, 165, 116, 0.2) !important;
 }
 
@@ -228,28 +231,11 @@
 .form-submit {
   display: flex;
   justify-content: flex-end;
-  margin-top: 1.5rem; 
+  margin-top: 1.5rem;
 }
 
-.hero-button {
-  display: inline-block;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 12px 28px;
-  border-radius: 50px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background-color: #D4A574;
-  color: #032547;
-  border: none;
-  cursor: pointer;
-}
-
-.hero-button:hover {
-  background-color: #F4EBD0;
+.contacto-button:hover {
+  background-color: #5D7B5F;
   transform: translateY(-3px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
@@ -271,11 +257,26 @@
 }
 
 .contacto-horarios {
-  color: rgba(255, 255, 255, 0.8);
+  color: #333;
   font-family: var(--font-body, 'Montserrat', sans-serif);
   font-size: 0.9rem;
   text-align: center;
   margin-top: 1rem;
+}
+
+.contacto-button {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 14px 32px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #5D7B5F;
+  color: #fff;
 }
 
 @keyframes fadeInLeft {
@@ -315,8 +316,8 @@
 }
 
 .icono-red {
-  color: #F4EBD0;
-  background-color: rgba(212, 165, 116, 0.2);
+  color: #5D7B5F;
+  background-color: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   width: 42px;
   height: 42px;
@@ -329,8 +330,8 @@
 }
 
 .icono-red:hover {
-  background-color: #D4A574;
-  color: #032547;
+  background-color: #5D7B5F;
+  color: rgba(255, 255, 255, 0.5);
   transform: translateY(-3px);
 }
 
@@ -340,18 +341,18 @@
     height: auto;
     overflow-y: auto;
   }
-  
-  .contacto-info, 
+
+  .contacto-info,
   .contacto-form-container {
     width: 100%;
     border-radius: 20px;
   }
-  
+
   .contacto-container {
     height: auto;
     padding: 2rem;
   }
-  
+
   .contacto-section {
     height: auto;
     min-height: 100vh;
@@ -360,20 +361,21 @@
 }
 
 @media (max-width: 768px) {
+
   .contacto-title,
   .contacto-form-title {
     font-size: 2rem;
   }
-  
-  .contacto-info, 
+
+  .contacto-info,
   .contacto-form-container {
     padding: 1.5rem;
   }
-  
+
   .contacto-map-container {
     height: 300px;
   }
-  
+
   .form-custom-input.textarea {
     min-height: 100px;
   }
@@ -385,21 +387,21 @@
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .contacto-title,
   .contacto-form-title {
     font-size: 1.8rem;
   }
-  
+
   .contacto-form-header,
   .contacto-header {
     text-align: center;
   }
-  
+
   .form-submit {
     justify-content: center;
   }
-  
+
   .redes-sociales {
     justify-content: center;
   }

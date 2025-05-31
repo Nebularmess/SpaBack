@@ -6,8 +6,8 @@
     align-items: center;
     position: relative;
     overflow: hidden;
-    background-color: #032547;
-    background-image: linear-gradient(135deg, #0A2647 0%, #032547 100%);
+    background-color: #A8C1A3;
+  background-image: linear-gradient(135deg, #A8C1A3 0%, #E8D8C3 100%);
 }
 
 .galeria-overlay {
@@ -16,7 +16,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(107, 66, 38, 0.9) 0%, rgba(107, 66, 38, 0.6) 50%, rgba(107, 66, 38, 0.3) 100%);
+    background: linear-gradient(45deg,rgba(192, 152, 138, 0.5) 0%, rgba(232, 216, 195, 0.3) 50%, rgba(255, 255, 255, 0.1) 100%);
     z-index: 1;
 }
 
@@ -65,7 +65,7 @@
 .galeria-section .section-title {
     font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
     font-size: 2.8rem;
-    color: #F4EBD0;
+    color: #5D7B5F;
     margin-bottom: 1.5rem;
     position: relative;
     font-weight: 750;
@@ -75,7 +75,7 @@
 .galeria-description {
     font-family: var(--font-body, 'Montserrat', sans-serif);
     font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: #333;
     text-align: left;
     margin-bottom: 1rem;
     line-height: 1.6;
@@ -84,7 +84,7 @@
 .galeria-additional-text {
     font-family: var(--font-body, 'Montserrat', sans-serif);
     font-size: 1rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: #333;
     text-align: left;
     margin-bottom: 2rem;
     line-height: 1.6;
@@ -210,12 +210,12 @@
 }
 
 .galeria-buttons .hero-button.primary {
-    background-color: #6b4226;
+    background-color: #5D7B5F;
     color: white;
 }
 
 .galeria-buttons .hero-button.primary:hover {
-    background-color: #8C5D35;
+    background-color: #5D7B5F;
     transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }

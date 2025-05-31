@@ -194,7 +194,7 @@ const Contacto = () => {
               <div className="form-submit">
                 <button
                   type="submit"
-                  className="hero-button"
+                  className="contacto-button"
                   disabled={enviando}
                 >
                   {enviando ? 'Enviando...' : (

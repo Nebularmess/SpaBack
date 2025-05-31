@@ -53,8 +53,8 @@ const SobreNosotros = () => {
             </div>
 
             <div className="sobre-nosotros-buttons">
-              <a href="#servicios" className="hero-button primary">Nuestros servicios</a>
-              <a href="#contacto" className="hero-button outline">Contactanos</a>
+              <a href="#servicios" className="sobre-nosotros-button primary">Nuestros servicios</a>
+              <a href="#contacto" className="sobre-nosotros-button outline">Contactanos</a>
             </div>
           </div>
 

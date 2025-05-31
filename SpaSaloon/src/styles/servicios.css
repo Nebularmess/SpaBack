@@ -6,8 +6,8 @@
   align-items: center;
   position: relative;
   overflow: hidden;
-  background-color: #032547;
-  background-image: linear-gradient(135deg, #0A2647 0%, #032547 100%);
+  background-color: #A8C1A3;
+  background-image: linear-gradient(135deg, #A8C1A3 0%, #E8D8C3 100%);
 }
 
 .servicios-overlay {
@@ -16,7 +16,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, rgba(107, 66, 38, 0.3) 0%, rgba(107, 66, 38, 0.6) 50%, rgba(107, 66, 38, 0.9) 100%);
+  background: linear-gradient(45deg,rgba(192, 152, 138, 0.5) 0%, rgba(232, 216, 195, 0.3) 50%, rgba(255, 255, 255, 0.1) 100%);
   z-index: 1;
 }
 
@@ -34,19 +34,20 @@
 .section-title {
   font-family: var(--font-heading, 'Montserrat', sans-serif);
   font-size: 3rem;
-  color: #F4EBD0;
+  color: #5D7B5F !important;
   margin-bottom: 1.5rem;
   position: relative;
   font-weight: 750;
   text-align: center;
   border-bottom: none !important;
   padding: 0%;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
 .servicios-description {
   font-family: var(--font-body, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: #333 !important;
   text-align: center;
   max-width: 700px;
   margin-bottom: 3rem;
@@ -73,7 +74,7 @@
 .servicios-category-title {
   font-family: var(--font-heading, 'Montserrat', sans-serif);
   font-size: 1.6rem;
-  color: #D4A574;
+  color: #5D7B5F;
   position: relative;
   margin-bottom: 1.2rem;
   letter-spacing: 0.5px;
@@ -82,10 +83,11 @@
   border-radius: 4px;
   display: inline-block;
   align-self: center;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
 .servicios-category-title .highlight {
-  color: #D4A574;
+  color: #5D7B5F;
   position: relative;
 }
 
