@@ -1,4 +1,4 @@
-const db = require('../../db');
+import db from '../../db.js';
 
 // Obtener todos los profesionales
 const getAllProfesionales = (req, res) => {
@@ -84,7 +84,7 @@ const getHorariosProfesional = (req, res) => {
   });
 };
 
-module.exports = {
+export {
   getAllProfesionales,
   getProfesionalesPorServicio,
   getHorariosProfesional
