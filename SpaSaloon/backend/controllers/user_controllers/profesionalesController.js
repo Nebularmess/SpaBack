@@ -1,3 +1,4 @@
+/* eslint-env node */
 const db = require('../../db');
 
 // Obtener todos los profesionales
