@@ -18,7 +18,7 @@ const emailSender = async (to, subject, text) => {
 
   // Set up email options
   let mailOptions = {
-    from: `${gmail}`,
+    from: gmail,
     to: to,
     subject: subject,
     text: text,
@@ -39,7 +39,7 @@ const emailReciverSimulation =async (from, subject, text) => {
     
     let mailOptions ={
         from: from,
-        to: `${gmail}`,
+        to: gmail,
         subject: subject,
         text: text
     }
