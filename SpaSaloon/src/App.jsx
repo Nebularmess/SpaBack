@@ -13,6 +13,7 @@ import Header from './componentes/Header/header.jsx';
 import Galeria from './componentes/Body/galeria.jsx';
 import PerfilUsuario from './componentes/PerfilUsuario/PerfilUsuario.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
+import { AdminAuthProvider } from './context/AdminAuthContext.jsx';
 
 const Home = () => {
   return (
@@ -39,21 +40,22 @@ const Home = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/perfil" element={<PerfilUsuario />} />
-          </Route>
+      <AdminAuthProvider>
+        <Router>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/perfil" element={<PerfilUsuario />} />
+            </Route>
 
-          {/* Rutas sin Header */}
-          <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/dashboard" element={<AdminPrivateRoute />} />
-        </Routes>
-      </Router>
+            {/* Rutas sin Header */}
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/dashboard" element={<AdminPrivateRoute />} />
+          </Routes>
+        </Router>
+      </AdminAuthProvider>
     </AuthProvider>
   );
 }
 
 export default App;
-

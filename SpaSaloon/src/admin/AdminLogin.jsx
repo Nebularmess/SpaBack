@@ -1,37 +1,32 @@
-import { useAuth } from '../context/AuthContext';
+import { useAdminAuth } from '../context/AdminAuthContext'; // Cambio aquí
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import '../styles/AdminLogin.css'; 
 
 const AdminLogin = () => {
-  const { login } = useAuth();
+  const { login } = useAdminAuth(); // Usar useAdminAuth en lugar de useAuth
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        login(data.administrador); 
+      const result = await login(email, password);
+      
+      if (result.success) {
         navigate('/dashboard');
       } else {
-        alert(data.error || 'Error al iniciar sesión');
+        alert(result.error);
       }
     } catch (error) {
-      console.error('Error al loguear admin:', error);
-      alert('Error al conectar con el servidor');
+      console.error('Error inesperado:', error);
+      alert('Error inesperado al iniciar sesión');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,6 +52,7 @@ const AdminLogin = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="admin-form-input"
                 style={{"--input-order": 1}}
+                disabled={isLoading}
                 required
               />
             </div>
@@ -69,12 +65,19 @@ const AdminLogin = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="admin-form-input"
                 style={{"--input-order": 2}}
+                disabled={isLoading}
                 required
               />
             </div>
             
             <div className="admin-form-submit">
-              <button type="submit" className="admin-login-button">Iniciar Sesión</button>
+              <button 
+                type="submit" 
+                className="admin-login-button"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Iniciando...' : 'Iniciar Sesión'}
+              </button>
             </div>
           </form>
         </div>
