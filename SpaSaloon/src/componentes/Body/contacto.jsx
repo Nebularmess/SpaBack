@@ -133,10 +133,10 @@ const Contacto = () => {
                   <Input
                     type="tel"
                     name="telefono"
-                    placeholder="Tu teléfono (opcional)"
+                    placeholder="Tu teléfono"
                     value={formData.telefono}
                     onChange={handleChange}
-                    required={false}
+                    required={true}
                     className="form-custom-input" />
                 </div>
 

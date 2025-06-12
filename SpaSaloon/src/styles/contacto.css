@@ -67,6 +67,8 @@
   height: 100%;
   gap: 1rem; 
   justify-content: center;
+  position: relative;
+  top: 1.5rem;
 }
 
 .contacto-header {
