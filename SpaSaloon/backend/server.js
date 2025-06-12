@@ -11,6 +11,7 @@ const serviciosAdmRoutes = require('./routes/adm_routes/serviciosAdmRoutes.js');
 const profesionalesAdmRoutes = require('./routes/adm_routes/profesionalesRoutes.js'); // Nueva línea
 const categoriaAdmRoutes = require('./routes/adm_routes/categoriaAdmRoutes.js');
 const clienteRoutes = require('./routes/adm_routes/clienteAdmRoutes.js');
+const emailRoutes = require('./routes/email/emailRoutes.js')//ruta de email
 
 require('dotenv').config();
 
@@ -30,6 +31,10 @@ app.use('/api/serviciosAdm', serviciosAdmRoutes); // Cambia la ruta según tu es
 app.use('/api/profesionalesAdm', profesionalesAdmRoutes); // Nueva línea
 app.use('/api/categoriasAdm', categoriaAdmRoutes);
 app.use('/api/clientesAdm', clienteRoutes);
+
+//email
+app.use('/api/email', emailRoutes);
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
