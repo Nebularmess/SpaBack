@@ -118,14 +118,14 @@ const Servicios = () => {
     <section className="servicios-section" id="servicios">
       <div className="servicios-overlay"></div>
       <div className="servicios-container">
-        <h2 className="section-title">Servicios</h2>
+        <h2 className="section-title">servicios</h2>
         <p className="servicios-description">
-          Descubre nuestra amplia variedad de tratamientos diseñados para renovar tu cuerpo y calmar tu mente. Para más detalles, seleccioná una categoría.
+          Descubre nuestra amplia variedad de tratamientos diseñados para renovar tu cuerpo y calmar tu mente. <br />Para hacer una reserva o conocer más información, seleccioná alguna de las siguientes categorías:
         </p>
 
         <div className="servicios-columns-wrapper">
           <div className="servicios-column">
-            <h3 className="servicios-category-title">Servicios Individuales</h3>
+            <h3 className="servicios-category-title">INDIVIDUALES</h3>
             <div className="servicios-cards-grid">
               {serviciosIndividuales.map((servicio) => (
                 <div
@@ -143,7 +143,7 @@ const Servicios = () => {
           </div>
 
           <div className="servicios-column">
-            <h3 className="servicios-category-title">Servicios Grupales</h3>
+            <h3 className="servicios-category-title">GRUPALES</h3>
             <div className="servicios-cards-grid servicios-grid-grupales">
               {serviciosGrupales.map((servicio) => (
                 <div

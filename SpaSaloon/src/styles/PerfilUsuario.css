@@ -3,7 +3,7 @@
   flex-direction: row;
   gap: 24px;
   padding: 20px;
-  background: linear-gradient(135deg, rgba(107, 66, 38, 0.9) 0%, rgba(75, 44, 32, 0.8) 100%);
+  background: #fff;
   padding-top: 50px;
   color: #F4EBD0;
   box-sizing: border-box;
@@ -44,10 +44,9 @@
   font-family: 'Montserrat', sans-serif !important;
   width: 100%;
   padding: 12px !important;
-  background: linear-gradient(to right, #6B4226, #A16549) !important;
+  background: #4A3D3D !important;
   text-align: center;
   margin-bottom: 0;
-  letter-spacing: 1.5px !important;
   text-transform: uppercase;
   flex-shrink: 0;
   position: relative;
@@ -61,7 +60,7 @@
   transform: translateX(-50%);
   width: 60px;
   height: 3px;
-  background-color: #D4A574;
+  background-color: #4A3D3D;
   border-radius: 3px;
 }
 
