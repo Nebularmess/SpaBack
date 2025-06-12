@@ -159,6 +159,7 @@ html,
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   margin-bottom: 2rem;
+  border: 1px solid rgba(212, 165, 116, 0.3);
   backdrop-filter: blur(5px);
 }
 
