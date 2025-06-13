@@ -142,6 +142,34 @@ const ModalReserva = ({
     }
   };
 
+  // Nueva función para verificar si existe carrito
+  const verificarCarritoExistente = async (clienteId, fecha) => {
+    try {
+      console.log(`Verificando carrito para cliente ${clienteId} en fecha ${fecha}`);
+      
+      const response = await axios.get(
+        "http://localhost:3001/api/carritos/buscar",
+        {
+          params: {
+            id_cliente: clienteId,
+            fecha: fecha
+          }
+        }
+      );
+
+      console.log("Carrito encontrado:", response.data);
+      return { existeCarrito: true, carrito: response.data };
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        console.log("No se encontró carrito para esta fecha");
+        return { existeCarrito: false, carrito: null };
+      } else {
+        console.error("Error al verificar carrito:", err);
+        throw err;
+      }
+    }
+  };
+
   const handleFechaHoraSeleccionada = (nuevaFecha, nuevaHora) => {
     if (nuevaFecha) {
       const fechaStr = nuevaFecha.toISOString().split("T")[0];
@@ -182,6 +210,12 @@ const ModalReserva = ({
 
       try {
         setLoading(true);
+
+        // VERIFICAR CARRITO ANTES DE CREAR EL TURNO
+        console.log("=== VERIFICANDO CARRITO EXISTENTE ===");
+        const resultadoCarrito = await verificarCarritoExistente(clienteId, fecha);
+        
+        
         const response = await axios.post(
           "http://localhost:3001/api/turnos",
           datosTurno,

@@ -269,3 +269,61 @@ exports.actualizarCarrito = async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor al actualizar carrito' });
   }
 };
+exports.obtenerCarritoPorClienteYFecha = async (req, res) => {
+  const { id_cliente, fecha } = req.query;
+
+  console.log('=== DEBUG obtenerCarritoPorClienteYFecha ===');
+  console.log('Parámetros recibidos:', { id_cliente, fecha });
+
+  if (!id_cliente || !fecha) {
+    return res.status(400).json({ mensaje: 'id_cliente y fecha son requeridos' });
+  }
+
+  try {
+    const [resultados] = await pool.query(
+      'SELECT * FROM carritos WHERE id_cliente = ? AND DATE(fecha) = ?',
+      [id_cliente, fecha]
+    );
+
+    console.log('✅ Resultados:', resultados);
+
+    if (resultados.length === 0) {
+      return res.status(404).json({ mensaje: 'No se encontró ningún carrito' });
+    }
+
+    return res.json(resultados);
+  } catch (err) {
+    console.error('❌ Error en la consulta:', err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+exports.crearCarritoPorIdCliente = async (req, res) => {
+  const { id_cliente } = req.body;
+
+  console.log('== CREAR CARRITO ==');
+  console.log('ID Cliente recibido:', id_cliente);
+
+  if (!id_cliente) {
+    return res.status(400).json({ mensaje: 'id_cliente es requerido' });
+  }
+
+  try {
+    const [resultado] = await pool.query(
+      'INSERT INTO carritos (id_cliente) VALUES (?)',
+      [id_cliente]
+    );
+
+    console.log('✅ Carrito creado con ID:', resultado.insertId);
+
+    return res.status(201).json({
+      mensaje: 'Carrito creado exitosamente',
+      id_carrito: resultado.insertId,
+    });
+  } catch (err) {
+    console.error('❌ Error al crear carrito:', err);
+    return res.status(500).json({
+      mensaje: 'Error del servidor',
+      error: err.message,
+    });
+  }
+};
