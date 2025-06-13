@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const carritoController = require('../../controllers/user_controllers/carritoController');
+router.get('/:id_carrito/turnos', carritoController.getTurnosByCarritoId);
 
 // Obtener todos los carritos por ID de cliente
 router.get('/cliente/:id_cliente', carritoController.getCarritosByClienteId);

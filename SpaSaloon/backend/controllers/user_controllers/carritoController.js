@@ -1,4 +1,53 @@
 const pool = require('../../db');
+exports.getTurnosByCarritoId = async (req, res) => {
+  const id_carrito = parseInt(req.params.id_carrito, 10);
+
+  console.log(`Buscando turnos asociados al carrito con ID: ${id_carrito}`);
+
+  if (isNaN(id_carrito)) {
+    return res.status(400).json({ error: 'ID de carrito no válido' });
+  }
+
+  try {
+    // Verificamos si el carrito existe
+    const [carrito] = await pool.query('SELECT id FROM carritos WHERE id = ?', [id_carrito]);
+    if (carrito.length === 0) {
+      return res.status(404).json({ error: 'Carrito no encontrado' });
+    }
+
+    // Traemos los turnos relacionados
+    const [turnos] = await pool.query(`
+      SELECT 
+        t.id_turno,
+        t.id_cliente,
+        t.id_servicio,
+        t.id_profesional,
+        t.id_carrito,
+        t.fecha_hora,
+        t.duracion_minutos,
+        t.estado,
+        t.fecha_solicitud,
+        t.comentarios,
+        s.nombre AS servicio_nombre,
+        p.nombre AS profesional_nombre
+      FROM turno t
+      JOIN servicio s ON t.id_servicio = s.id_servicio
+      JOIN profesional p ON t.id_profesional = p.id_profesional
+      WHERE t.id_carrito = ?
+      ORDER BY t.fecha_hora ASC
+    `, [id_carrito]);
+
+    if (turnos.length === 0) {
+      return res.status(404).json({ message: 'No se encontraron turnos para este carrito' });
+    }
+
+    console.log(`Se encontraron ${turnos.length} turno(s) asociados`);
+    res.json(turnos);
+  } catch (error) {
+    console.error('Error al obtener turnos del carrito:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
 
 // Obtener todos los carritos por ID de cliente
 exports.getCarritosByClienteId = async (req, res) => {

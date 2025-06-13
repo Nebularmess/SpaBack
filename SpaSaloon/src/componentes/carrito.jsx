@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ArrowLeft } from 'lucide-react';
+import FechaSelector from './fechaselector.jsx';
 import '../styles/carrito.css';
 
-const CarritoCompleto = ({ isOpen, onClose }) => {
-    const [fechaSeleccionada, setFechaSeleccionada] = useState("2024-01-15");
-    const [vistaActual, setVistaActual] = useState('carrito'); // 'carrito' o 'tarjeta'
+const CarritoCompleto = ({ isOpen, onClose, idCliente }) => {
+    const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
+    const [vistaActual, setVistaActual] = useState('carrito');
     
+    // Estados para datos del backend
+    const [servicios, setServicios] = useState([]);
+    const [carritoSeleccionado, setCarritoSeleccionado] = useState(null);
+    const [carritosPorFecha, setCarritosPorFecha] = useState(new Map());
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
     // Estados para el formulario de tarjeta
     const [formData, setFormData] = useState({
         cardholderName: '',
@@ -14,35 +22,157 @@ const CarritoCompleto = ({ isOpen, onClose }) => {
         cvv: ''
     });
 
-    const fechasDisponibles = [
-        { valor: "2024-01-15", texto: "15/01/2024" },
-        { valor: "2024-02-20", texto: "20/02/2024" },
-        { valor: "2024-03-10", texto: "10/03/2024" },
-    ];
+    // Función para obtener carritos del cliente y organizarlos por fecha
+    const obtenerCarritosPorFecha = async () => {
+        if (!idCliente) return;
 
-    const servicios = [
-        {
-            id: 1,
-            tipo: 'MASAJE ANTI-STRESS',
-            fecha: '2025/08/02',
-            hora: '11:00',
-            profesional: 'Dra. Valeria Herrera',
-            precio: 3000
-        },
-        {
-            id: 2,
-            tipo: 'FACIAL LIMPIEZA PROFUNDA',
-            fecha: '2025/08/02',
-            hora: '12:00',
-            profesional: 'Dra. Ana Felicidad',
-            precio: 2500
-        },
-    ];
+        try {
+            const response = await fetch(`http://localhost:3001/api/carritos/cliente/${idCliente}`);
+            
+            if (!response.ok) {
+                if (response.status === 404) {
+                    setCarritosPorFecha(new Map());
+                    return;
+                }
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
+            const carritos = await response.json();
+            
+            // Filtrar carritos pendientes y organizarlos por fecha
+            const carritosPendientes = carritos.filter(carrito => 
+                carrito.estado === 'Pendiente'
+            );
+
+            // Crear un Map con fecha como key y array de carritos como value
+            const carritosPorFechaMap = new Map();
+            carritosPendientes.forEach(carrito => {
+                const fecha = carrito.fecha;
+                if (!carritosPorFechaMap.has(fecha)) {
+                    carritosPorFechaMap.set(fecha, []);
+                }
+                carritosPorFechaMap.get(fecha).push(carrito);
+            });
+
+            setCarritosPorFecha(carritosPorFechaMap);
+
+        } catch (error) {
+            console.error('Error al obtener carritos por fecha:', error);
+            setError('Error al cargar carritos');
+        }
+    };
+
+    // Función para obtener turnos de un carrito específico
+    const obtenerTurnosCarrito = async (idCarrito) => {
+        if (!idCarrito) return;
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const response = await fetch(`http://localhost:3001/api/carritos/${idCarrito}/turnos`);
+            
+            if (!response.ok) {
+                if (response.status === 404) {
+                    setServicios([]);
+                    return;
+                }
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
+            const turnos = await response.json();
+            
+            // Transformar los datos del backend al formato esperado por el frontend
+            const serviciosFormateados = turnos.map(turno => ({
+                id: turno.id_turno,
+                tipo: turno.servicio_nombre,
+                fecha: formatearFecha(turno.fecha_hora),
+                hora: formatearHora(turno.fecha_hora),
+                profesional: turno.profesional_nombre,
+                precio: turno.precio || 0, // Si el precio viene del turno
+                duracion: turno.duracion_minutos,
+                estado: turno.estado,
+                comentarios: turno.comentarios
+            }));
+
+            setServicios(serviciosFormateados);
+
+        } catch (error) {
+            console.error('Error al obtener turnos del carrito:', error);
+            setError('Error al cargar los servicios del carrito');
+            setServicios([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Función para manejar cambio de fecha
+    const handleFechaChange = (nuevaFecha) => {
+        setFechaSeleccionada(nuevaFecha);
+        console.log('Fecha seleccionada:', nuevaFecha);
+
+        // Obtener carritos de esa fecha
+        const carritosDeEsteFecha = carritosPorFecha.get(nuevaFecha) || [];
+        
+        if (carritosDeEsteFecha.length > 0) {
+            // Por ahora tomamos el primer carrito de la fecha
+            // Podrías implementar lógica para manejar múltiples carritos por fecha
+            const primerCarrito = carritosDeEsteFecha[0];
+            setCarritoSeleccionado(primerCarrito);
+            obtenerTurnosCarrito(primerCarrito.id);
+        } else {
+            setCarritoSeleccionado(null);
+            setServicios([]);
+        }
+    };
+
+    // Función para formatear fecha desde timestamp a string
+    const formatearFecha = (fechaHora) => {
+        const fecha = new Date(fechaHora);
+        const año = fecha.getFullYear();
+        const mes = (fecha.getMonth() + 1).toString().padStart(2, '0');
+        const dia = fecha.getDate().toString().padStart(2, '0');
+        return `${año}/${mes}/${dia}`;
+    };
+
+    // Función para formatear hora desde timestamp
+    const formatearHora = (fechaHora) => {
+        const fecha = new Date(fechaHora);
+        const horas = fecha.getHours().toString().padStart(2, '0');
+        const minutos = fecha.getMinutes().toString().padStart(2, '0');
+        return `${horas}:${minutos}`;
+    };
+
+    // Cargar carritos cuando se abre el modal o cambia el cliente
+    useEffect(() => {
+        if (isOpen && idCliente) {
+            obtenerCarritosPorFecha();
+        }
+    }, [isOpen, idCliente]);
+
+    // Limpiar estados cuando se cierra el modal
+    useEffect(() => {
+        if (!isOpen) {
+            setFechaSeleccionada(null);
+            setCarritoSeleccionado(null);
+            setServicios([]);
+            setVistaActual('carrito');
+            setError(null);
+        }
+    }, [isOpen]);
 
     const calcularTotal = () => {
-        const subtotal = servicios.reduce((sum, servicio) => sum + servicio.precio, 0);
+        if (!carritoSeleccionado || !carritoSeleccionado.subtotal) {
+            return 0;
+        }
+        
+        const subtotal = carritoSeleccionado.subtotal;
         const descuento = subtotal * 0.15; // 15% descuento
         return subtotal - descuento;
+    };
+
+    const obtenerSubtotal = () => {
+        return carritoSeleccionado?.subtotal || 0;
     };
 
     const formatearPrecio = (precio) => {
@@ -104,6 +234,8 @@ const CarritoCompleto = ({ isOpen, onClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Procesando pago...', formData);
+        console.log('Carrito seleccionado:', carritoSeleccionado);
+        console.log('Fecha seleccionada para el pago:', fechaSeleccionada);
         // Aquí puedes agregar la lógica de procesamiento de pago
     };
 
@@ -123,39 +255,83 @@ const CarritoCompleto = ({ isOpen, onClose }) => {
                             </button>
                         </div>
 
-                        {/* Fecha Selector */}
-                        <div className="fecha-selector">
-                            <span className="fecha-label">Servicios reservados para:</span>
-                            <div className="fecha-input-container">
-                                <select
-                                    value={fechaSeleccionada}
-                                    onChange={(e) => setFechaSeleccionada(e.target.value)}
-                                    className="fecha-input"
-                                >
-                                    {fechasDisponibles.map((fecha) => (
-                                        <option key={fecha.valor} value={fecha.valor}>
-                                            {fecha.texto}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
+                        {/* Selector de Fecha */}
+                        <FechaSelector
+                            idCliente={idCliente}
+                            fechaSeleccionada={fechaSeleccionada}
+                            onFechaChange={handleFechaChange}
+                        />
 
                         {/* Lista de Servicios */}
                         <div className="servicios-lista">
-                            {servicios.map((servicio, index) => (
-                                <div key={servicio.id} className="servicio-item">
-                                    <div className="servicio-numero">{index + 1}.</div>
-                                    <div className="servicio-content">
-                                        <div className="servicio-tipo">{servicio.tipo}</div>
-                                        <div className="servicio-detalles">
-                                            <div>Fecha: {servicio.fecha} - Hora: {servicio.hora}</div>
-                                            <div>Profesional: {servicio.profesional}</div>
-                                            <div className="servicio-precio">Precio: {formatearPrecio(servicio.precio)}</div>
+                            {error && (
+                                <div style={{
+                                    padding: '20px',
+                                    textAlign: 'center',
+                                    color: '#e74c3c',
+                                    backgroundColor: '#ffeaea',
+                                    border: '1px solid #f5c6cb',
+                                    borderRadius: '4px',
+                                    margin: '10px'
+                                }}>
+                                    {error}
+                                </div>
+                            )}
+
+                            {loading && (
+                                <div style={{
+                                    padding: '20px',
+                                    textAlign: 'center',
+                                    color: '#666',
+                                    fontStyle: 'italic'
+                                }}>
+                                    Cargando servicios...
+                                </div>
+                            )}
+
+                            {!loading && !error && fechaSeleccionada && servicios.length > 0 ? (
+                                servicios.map((servicio, index) => (
+                                    <div key={servicio.id} className="servicio-item">
+                                        <div className="servicio-numero">{index + 1}.</div>
+                                        <div className="servicio-content">
+                                            <div className="servicio-tipo">{servicio.tipo}</div>
+                                            <div className="servicio-detalles">
+                                                <div>Fecha: {servicio.fecha} - Hora: {servicio.hora}</div>
+                                                <div>Profesional: {servicio.profesional}</div>
+                                                {servicio.duracion && (
+                                                    <div>Duración: {servicio.duracion} minutos</div>
+                                                )}
+                                                <div className="servicio-precio">
+                                                    Precio: {formatearPrecio(servicio.precio)}
+                                                </div>
+                                                {servicio.comentarios && (
+                                                    <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                                                        Comentarios: {servicio.comentarios}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
+                                ))
+                            ) : !loading && !error && fechaSeleccionada && servicios.length === 0 ? (
+                                <div style={{
+                                    padding: '20px',
+                                    textAlign: 'center',
+                                    color: '#666',
+                                    fontStyle: 'italic'
+                                }}>
+                                    No se encontraron servicios para esta fecha
                                 </div>
-                            ))}
+                            ) : !loading && !error && !fechaSeleccionada ? (
+                                <div style={{
+                                    padding: '20px',
+                                    textAlign: 'center',
+                                    color: '#666',
+                                    fontStyle: 'italic'
+                                }}>
+                                    Selecciona una fecha para ver los servicios
+                                </div>
+                            ) : null}
                         </div>
                         
                         <div className="separador"></div>
@@ -164,13 +340,29 @@ const CarritoCompleto = ({ isOpen, onClose }) => {
                         <div className="footer-section">
                             <div className="total-section">
                                 <div className="total-text">
-                                    SUBTOTAL: <span className="total-precio">{formatearPrecio(calcularTotal())}</span>
+                                    SUBTOTAL: <span className="total-precio">
+                                        {carritoSeleccionado ? formatearPrecio(obtenerSubtotal()) : '$0'}
+                                    </span>
                                 </div>
+                                {carritoSeleccionado && obtenerSubtotal() > 0 && (
+                                    <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
+                                        Total con descuento (15%): <span style={{ fontWeight: 'bold', color: '#4A3D3D' }}>
+                                            {formatearPrecio(calcularTotal())}
+                                        </span>
+                                    </div>
+                                )}
                                 <div className='buttons-container'>
-                                    <button className="pago-efectivo-button">
+                                    <button 
+                                        className="pago-efectivo-button"
+                                        disabled={!carritoSeleccionado || obtenerSubtotal() === 0 || loading}
+                                    >
                                         PAGO EN EFECTIVO
                                     </button>
-                                    <button className="pagar-button" onClick={irAPagoTarjeta}>
+                                    <button 
+                                        className="pagar-button" 
+                                        onClick={irAPagoTarjeta}
+                                        disabled={!carritoSeleccionado || obtenerSubtotal() === 0 || loading}
+                                    >
                                         IR A PAGAR CON TARJETA
                                     </button>
                                 </div>
@@ -272,7 +464,7 @@ const CarritoCompleto = ({ isOpen, onClose }) => {
                                 {/* Total y botón de pago */}
                                 <div style={{marginTop: 'auto', paddingTop: '20px'}}>
                                     <div style={{fontWeight: 600, fontSize: '16px', lineHeight: '24px', textAlign: 'center', color: '#4A3D3D', marginBottom: '20px'}}>
-                                        TOTAL: {formatearPrecio(calcularTotal())}
+                                        TOTAL: {carritoSeleccionado ? formatearPrecio(calcularTotal()) : '$0'}
                                     </div>
 
                                     <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '20px'}}>
@@ -289,26 +481,6 @@ const CarritoCompleto = ({ isOpen, onClose }) => {
                     </>
                 )}
             </div>
-        </div>
-    );
-};
-
-// Componente App para testing
-const App = () => {
-    const [modalOpen, setModalOpen] = useState(true);
-
-    return (
-        <div style={{ padding: '20px', backgroundColor: '#f0f0f0', minHeight: '100vh' }}>
-            <button
-                onClick={() => setModalOpen(true)}
-                style={{ padding: '10px 20px', fontSize: '16px', marginBottom: '20px' }}
-            >
-                Abrir Carrito
-            </button>
-            <CarritoCompleto
-                isOpen={modalOpen}
-                onClose={() => setModalOpen(false)}
-            />
         </div>
     );
 };

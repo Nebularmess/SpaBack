@@ -11,7 +11,7 @@ const LoginButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [carritoOpen, setCarritoOpen] = useState(false); 
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
@@ -28,7 +28,7 @@ const LoginButton = () => {
     setIsOpen(false);
   };
 
-  return (
+return (
     <div className="login-container">
       {!isAuthenticated() ? (
         <>
@@ -73,6 +73,7 @@ const LoginButton = () => {
       <CarritoModal
         isOpen={carritoOpen}
         onClose={() => setCarritoOpen(false)}
+        idCliente={user?.id_cliente} // Agregar esta línea
       />
     </div>
   );
