@@ -124,10 +124,63 @@ const putProfesionalesPassword = async (req, res) =>{
 
   
 }
+const loginProfesionales = async (req, res) => {
+  const { email, passwd } = req.body;
+
+  // Función para comparar contraseñas
+  function matchPasswd(passLogin, passActual) {
+    return passLogin === passActual;
+  }
+  
+  // Validar que lleguen las credenciales
+  if (!email || !passwd) {
+    return res.status(400).json({ error: "Faltan credenciales" });
+  }
+
+  try {
+    // Buscar profesional por email y obtener todos los datos necesarios
+    const queryFindProfesional = `
+      SELECT id_profesional, nombre, email, password 
+      FROM profesional 
+      WHERE email = ?
+    `;
+    
+    const [resultProfesional] = await db.query(queryFindProfesional, [email]);
+
+    // Verificar si el profesional existe
+    if (resultProfesional.length === 0) {
+      return res.status(404).json({ error: 'Profesional no encontrado' });
+    }
+
+    const profesional = resultProfesional[0];
+
+    // Verificar contraseña
+    const matching = matchPasswd(passwd, profesional.password);
+
+    if (!matching) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+
+    // Login exitoso
+    return res.json({
+      message: "Login exitoso",
+      profesional: {
+        id_profesional: profesional.id_profesional,
+        nombre: profesional.nombre,
+        email: profesional.email
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al validar credenciales:', error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
 
 module.exports = {
   getAllProfesionales,
   getProfesionalesPorServicio,
   getHorariosProfesional,
-  putProfesionalesPassword
+  putProfesionalesPassword,
+  loginProfesionales
 };

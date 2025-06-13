@@ -35,10 +35,10 @@ exports.registerCliente = async (req, res) => {
 };
 
 exports.loginCliente = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, passwd } = req.body;
 
   // Validación básica
-  if (!email || !password) {
+  if (!email || !passwd) {
     return res.status(400).json({ error: 'Email y contraseña son requeridos' });
   }
 
@@ -54,7 +54,7 @@ exports.loginCliente = async (req, res) => {
     const cliente = results[0];
     
     // Comparar la contraseña
-    const match = await bcrypt.compare(password, cliente.password);
+    const match = await bcrypt.compare(passwd, cliente.password);
     
     if (!match) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
