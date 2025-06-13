@@ -165,7 +165,7 @@ const loginProfesionales = async (req, res) => {
     return res.json({
       message: "Login exitoso",
       profesional: {
-        id_profesional: profesional.id,
+        id_profesional: profesional.id_profesional,
         nombre: profesional.nombre,
         email: profesional.email
       }

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useEffect } from 'react';
 import Input from './input';
 import Boton from './boton.jsx';
 import '../../styles/formularioRegistro.css';
@@ -7,7 +6,7 @@ import { X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 const Formulario = ({ onClose }) => {
-  const { login } = useAuth(); 
+  const { loginCliente, loginProfesional } = useAuth(); // Usar las funciones correctas del contexto
   const [formMode, setFormMode] = useState('login'); 
   const [formData, setFormData] = useState({
     email: '',
@@ -49,7 +48,6 @@ const Formulario = ({ onClose }) => {
     setError('');
   
     try {
-      // Parte modificada de la función handleSubmit para el login
       if (formMode === 'login') {
         // Validación básica
         if (!formData.email || !formData.password) {
@@ -58,53 +56,58 @@ const Formulario = ({ onClose }) => {
           return;
         }
         
+        console.log('Intentando login automático con email:', formData.email);
+        
+        let result = null;
+        let loginType = null;
+        let loginSuccessful = false;
+        
+        // Primero intentar como cliente
         try {
-          console.log('Intentando login con:', { email: formData.email });
+          console.log('Intentando login como cliente...');
+          result = await loginCliente(formData.email, formData.password);
           
-          const response = await fetch('http://localhost:3001/api/clientes/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              email: formData.email,
-              password: formData.password
-            })
-          });
-      
-          // Log para depuración
-          console.log('Status de respuesta:', response.status);
-          
-          const data = await response.json();
-          console.log('Datos recibidos del servidor:', data);
-      
-          if (!response.ok) {
-            setError(data.error || 'Error al iniciar sesión');
-            setLoading(false);
-            return;
+          if (result && result.success) {
+            loginType = 'cliente';
+            loginSuccessful = true;
+            console.log('Login como cliente exitoso');
           }
-      
-          // Verificar que la estructura de la respuesta sea la esperada
-          if (!data.cliente || !data.cliente.id_cliente) {
-            console.error('Error: La respuesta del servidor no contiene los datos esperados', data);
-            setError('Error de formato en la respuesta. Contacte al administrador.');
-            setLoading(false);
-            return;
-          }
-      
-          // Usar la función login del contexto
-          login(data.cliente);
-          
-          console.log('Cliente logueado:', data.cliente);
-          alert(`¡Bienvenido, ${data.cliente.nombre}!`);
-      
-          // Cerrar el modal o redirigir a otra vista
-          onClose();
-        } catch (err) {
-          console.error('Error completo durante el login:', err);
-          setError('Error de conexión con el servidor. Verifique su conexión a internet o contacte al administrador.');
-          setLoading(false);
+        } catch (clientError) {
+          console.log('Login como cliente falló:', clientError.message);
         }
+        
+        // Si no fue exitoso como cliente, intentar como profesional
+        if (!loginSuccessful) {
+          try {
+            console.log('Intentando login como profesional...');
+            result = await loginProfesional(formData.email, formData.password);
+            
+            if (result && result.success) {
+              loginType = 'profesional';
+              loginSuccessful = true;
+              console.log('Login como profesional exitoso');
+            }
+          } catch (professionalError) {
+            console.log('Login como profesional falló:', professionalError.message);
+          }
+        }
+        
+        // Verificar si algún login fue exitoso
+        if (!loginSuccessful || !result || !result.success) {
+          setError('Credenciales incorrectas o usuario no encontrado');
+          setLoading(false);
+          return;
+        }
+        
+        console.log('Resultado del login:', result, 'Tipo:', loginType);
+        
+        // Login exitoso
+        const userName = result.user?.nombre || 'Usuario';
+        const userTypeText = loginType === 'cliente' ? 'Cliente' : 'Profesional';
+        alert(`¡Bienvenido, ${userName}! (${userTypeText})`);
+        
+        // Cerrar el modal
+        onClose();
       }
       else if (formMode === 'register') {
         // Validaciones
@@ -136,7 +139,10 @@ const Formulario = ({ onClose }) => {
           return;
         }
         
-        const response = await fetch('http://localhost:3001/api/clientes/register', {
+        // Determinar el endpoint - por defecto registrar como cliente
+        const endpoint = 'http://localhost:3001/api/clientes/register';
+        
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -159,7 +165,7 @@ const Formulario = ({ onClose }) => {
           return;
         }
     
-        alert('¡Registro exitoso! Ahora puede iniciar sesión.');
+        alert(`¡Registro exitoso como cliente! Ahora puede iniciar sesión.`);
         // Redirigir al login después de un registro exitoso
         setFormMode('login');
         resetForm();
@@ -191,19 +197,45 @@ const Formulario = ({ onClose }) => {
         }
         
         try {
-          // Corregido para coincidir con la ruta del backend y los nombres de parámetros esperados
-          const response = await fetch('http://localhost:3001/api/clientes/cambiar-password', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              email: formData.email,
-              passwordActual: formData.currentPassword,
-              passwordNueva: formData.newPassword,
-              confirmacionPasswordNueva: formData.confirmNewPassword
-            })
-          });
+          // Intentar primero como cliente, luego como profesional
+          let response;
+          let success = false;
+          
+          try {
+            response = await fetch('http://localhost:3001/api/clientes/cambiar-password', {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                email: formData.email,
+                passwordActual: formData.currentPassword,
+                passwordNueva: formData.newPassword,
+                confirmacionPasswordNueva: formData.confirmNewPassword
+              })
+            });
+            
+            if (response.ok) {
+              success = true;
+            }
+          } catch  {
+            console.log('Intento como cliente falló, probando como profesional...');
+          }
+          
+          if (!success) {
+            response = await fetch('http://localhost:3001/api/profesionales/cambiar-password', {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                email: formData.email,
+                passwordActual: formData.currentPassword,
+                passwordNueva: formData.newPassword,
+                confirmacionPasswordNueva: formData.confirmNewPassword
+              })
+            });
+          }
 
           const data = await response.json();
 

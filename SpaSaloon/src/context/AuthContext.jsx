@@ -3,26 +3,34 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 // Crear el contexto
 const AuthContext = createContext(null);
 
+// URLs de los endpoints
+const API_BASE_URL = 'http://localhost:3001/api';
+const ENDPOINTS = {
+  cliente: `${API_BASE_URL}/clientes/login`,
+  profesional: `${API_BASE_URL}/profesionales/login`
+};
+
 // Proveedor del contexto
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userType, setUserType] = useState(null); // 'cliente' | 'profesional'
 
   // Verificar si el usuario ya está autenticado (al cargar la aplicación)
   useEffect(() => {
     try {
-      const clienteId = localStorage.getItem('clienteId');
-      const clienteNombre = localStorage.getItem('clienteNombre');
+      const userId = localStorage.getItem('userId');
+      const userName = localStorage.getItem('userName');
+      const storedUserType = localStorage.getItem('userType');
       
-      // Verificación de datos obtenidos del localStorage
-      console.log('clienteId desde localStorage:', clienteId);
-      console.log('clienteNombre desde localStorage:', clienteNombre);
+      console.log('Datos desde localStorage:', { userId, userName, userType: storedUserType });
 
-      if (clienteId && clienteNombre) {
+      if (userId && userName && storedUserType) {
         setUser({
-          id_cliente: clienteId,
-          nombre: clienteNombre
+          id: userId,
+          nombre: userName
         });
+        setUserType(storedUserType);
       }
     } catch (error) {
       console.error('Error al recuperar datos de la sesión:', error);
@@ -31,68 +39,154 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Función de login mejorada con validación
-  const login = (userData) => {
+  // Función genérica para hacer login
+  const makeLoginRequest = async (endpoint, credentials) => {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  };
+
+  // Login para clientes
+  const loginCliente = async (email, passwd) => {
     try {
-      if (!userData) {
-        console.error('Error en login: No se recibieron datos de usuario');
-        return;
-      }
+      setLoading(true);
       
-      // Depuración de datos recibidos
-      console.log('Datos recibidos en login:', userData);
+      const response = await makeLoginRequest(ENDPOINTS.cliente, { email, passwd });
       
-      // si el objeto trae .id_cliente lo usamos, si no usamos .id
-      const id = userData.id_cliente ?? userData.id;
-      const nombre = userData.nombre;
-      
-      if (!id) {
-        console.error('Error en login: ID de cliente no presente en los datos');
-        return;
-      }
-      
-      if (!nombre) {
-        console.error('Error en login: Nombre no presente en los datos');
-        return;
+      console.log('Respuesta login cliente:', response);
+
+      // Extraer datos del cliente de la respuesta
+      const clienteData = response.cliente;
+      if (!clienteData) {
+        throw new Error('Datos del cliente no encontrados en la respuesta');
       }
 
-      // Almacenar en localStorage
-      localStorage.setItem('clienteId', id.toString());
-      localStorage.setItem('clienteNombre', nombre);
+      const userId = clienteData.id_cliente || clienteData.id;
+      const userName = clienteData.nombre;
 
-      // Actualizar el estado
-      setUser({ id_cliente: id, nombre });
-      
-      console.log('Usuario autenticado correctamente:', { id_cliente: id, nombre });
+      if (!userId || !userName) {
+        throw new Error('Datos incompletos del cliente');
+      }
+
+      // Guardar en localStorage
+      localStorage.setItem('userId', userId.toString());
+      localStorage.setItem('userName', userName);
+      localStorage.setItem('userType', 'cliente');
+
+      // Actualizar estado
+      setUser({ id: userId, nombre: userName });
+      setUserType('cliente');
+
+      console.log('Cliente autenticado correctamente:', { id: userId, nombre: userName });
+      return { success: true, userType: 'cliente', user: { id: userId, nombre: userName } };
+
     } catch (error) {
-      console.error('Error en el proceso de login:', error);
+      console.error('Error en login cliente:', error);
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Login para profesionales
+  const loginProfesional = async (email, passwd) => {
+    try {
+      setLoading(true);
+      
+      const response = await makeLoginRequest(ENDPOINTS.profesional, { email, passwd });
+      
+      console.log('Respuesta login profesional:', response);
+
+      // Extraer datos del profesional de la respuesta
+      const profesionalData = response.profesional;
+      if (!profesionalData) {
+        throw new Error('Datos del profesional no encontrados en la respuesta');
+      }
+
+      const userId = profesionalData.id_profesional || profesionalData.id;
+      const userName = profesionalData.nombre;
+
+      if (!userId || !userName) {
+        throw new Error('Datos incompletos del profesional');
+      }
+
+      // Guardar en localStorage
+      localStorage.setItem('userId', userId.toString());
+      localStorage.setItem('userName', userName);
+      localStorage.setItem('userType', 'profesional');
+
+      // Actualizar estado
+      setUser({ id: userId, nombre: userName });
+      setUserType('profesional');
+
+      console.log('Profesional autenticado correctamente:', { id: userId, nombre: userName });
+      return { success: true, userType: 'profesional', user: { id: userId, nombre: userName } };
+
+    } catch (error) {
+      console.error('Error en login profesional:', error);
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
     }
   };
 
   // Función de logout
   const logout = () => {
     try {
-      localStorage.removeItem('clienteId');
-      localStorage.removeItem('clienteNombre');
+      // Limpiar localStorage
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('userType');
+      
+      // Limpiar estado
       setUser(null);
+      setUserType(null);
+      
       console.log('Sesión cerrada correctamente');
+      return { success: true };
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
+      return { success: false, error: error.message };
     }
   };
 
   // Verificar si el usuario está autenticado
   const isAuthenticated = () => {
-    return !!user;
+    return !!user && !!userType;
+  };
+
+  // Verificar si es cliente
+  const isCliente = () => {
+    return userType === 'cliente';
+  };
+
+  // Verificar si es profesional
+  const isProfesional = () => {
+    return userType === 'profesional';
   };
 
   // Valores que expondremos a través del contexto
   const value = {
     user,
+    userType,
     loading,
-    login,
+    loginCliente,
+    loginProfesional,
     logout,
-    isAuthenticated
+    isAuthenticated,
+    isCliente,
+    isProfesional
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
