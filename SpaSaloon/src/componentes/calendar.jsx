@@ -42,9 +42,9 @@ export default function CalendarioCustom() {
 
   return (
     <div className="calendario-custom">
-      <b className="titulo-seleccion">
+      <h4 className="titulo-seleccion">
         Seleccioná fecha y hora de tu servicio
-      </b>
+      </h4>
       <br />
       <div className="encabezado">
         <button onClick={() => cambiarMes(-1)}>←</button>

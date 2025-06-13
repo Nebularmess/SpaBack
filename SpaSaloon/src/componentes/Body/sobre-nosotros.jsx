@@ -1,8 +1,6 @@
 import React from 'react';
 import '../../styles/sobre-nosotros.css';
 import { Heart, Award, Users } from 'lucide-react';
-import img from '../../assets/imagen1.jpg';
-import img2 from '../../assets/imagen3.jpg';
 
 const SobreNosotros = () => {
   return (
@@ -13,7 +11,7 @@ const SobreNosotros = () => {
         <div className="sobre-nosotros-content-wrapper">
           {/* Columna izquierda con texto */}
           <div className="sobre-nosotros-text">
-            <h2 className="section-title">sobre nosotros</h2>
+            <h2 className="section-title">Sobre nosotros</h2>
 
             <p className="section-description">
               En nuestro spa, nos dedicamos a proporcionar una experiencia de relajación
@@ -28,7 +26,7 @@ const SobreNosotros = () => {
                   <Heart size={24} />
                 </div>
                 <div className="feature-text">
-                  <h3>CUIDADO A MEDIDA</h3>
+                  <h3>Cuidado a medida</h3>
                   <p>Tratamientos diseñados exclusivamente para tus necesidades</p>
                 </div>
               </div>
@@ -38,7 +36,7 @@ const SobreNosotros = () => {
                   <Award size={24} />
                 </div>
                 <div className="feature-text">
-                  <h3>PROFESIONALES CERTIFICADOS</h3>
+                  <h3>Profesionales certificados</h3>
                   <p>Expertos con años de experiencia y formación continua</p>
                 </div>
               </div>
@@ -48,15 +46,15 @@ const SobreNosotros = () => {
                   <Users size={24} />
                 </div>
                 <div className="feature-text">
-                  <h3>ATENCIÓN PERSONALIZADA</h3>
+                  <h3>Atención personalizada</h3>
                   <p>Servicio exclusivo con atención a los detalles</p>
                 </div>
               </div>
             </div>
 
             <div className="sobre-nosotros-buttons">
-              <a href="#servicios" className="sobre-nosotros-button primary">RESERVÁ TU CITA</a>
-              <a href="#contacto" className="sobre-nosotros-button outline">¡CONTACTANOS!</a>
+              <a href="#servicios" className="sobre-nosotros-button primary">Nuestros servicios</a>
+              <a href="#contacto" className="sobre-nosotros-button outline">Contactanos</a>
             </div>
           </div>
 
@@ -64,7 +62,7 @@ const SobreNosotros = () => {
           <div className="sobre-nosotros-gallery">
             <div className="gallery-main">
               <img
-                src={img}
+                src="https://www.massalagros.com/wp-content/uploads/2023/03/tratamientos-spa2_optimized-2500x1669.jpg"
                 className="gallery-image main-image"
               />
             </div>
@@ -74,7 +72,7 @@ const SobreNosotros = () => {
                 className="gallery-image secondary-image"
               />
               <img
-                src={img2}
+                src="https://13c691c772dde5725438-38060db131919a164441ab7fe86cefe0.ssl.cf1.rackcdn.com/u/new-folder-1/delight-with-our-extensive-spa-treatments.jpg"
                 className="gallery-image secondary-image"
               />
             </div>

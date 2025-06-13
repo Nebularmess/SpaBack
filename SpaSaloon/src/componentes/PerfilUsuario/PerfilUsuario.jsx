@@ -44,14 +44,14 @@ const PerfilUsuario = () => {
       return setErrorTurnos('Por favor, inicia sesión para ver tus turnos');
     }
     
-    if (!user.id_cliente) {
+    if (!user.id) {
       console.log("Usuario sin ID de cliente:", user);
       setFechasConTurno([]);
       return setErrorTurnos('No se encontró ID de cliente');
     }
   
     // Hay usuario con ID: traemos sus turnos
-    console.log("Cargando turnos para el cliente ID:", user.id_cliente);
+    console.log("Cargando turnos para el cliente ID:", user.id);
     cargarTurnos();
     // Y cargamos sus datos completos
     cargarDatosUsuario();
@@ -59,12 +59,12 @@ const PerfilUsuario = () => {
 
   // Función para cargar los turnos del usuario
   const cargarTurnos = () => {
-    if (!user || !user.id_cliente) return;
+    if (!user || !user.id) return;
     
     setLoadingTurnos(true);
     setErrorTurnos(null);
   
-    const endpoint = `http://localhost:3001/api/turnos/${user.id_cliente}`;
+    const endpoint = `http://localhost:3001/api/turnos/${user.id}`;
     console.log("Consultando turnos en:", endpoint);
   
     axios.get(endpoint)
@@ -117,12 +117,12 @@ const PerfilUsuario = () => {
 
   // Nueva función para cargar los datos completos del usuario
   const cargarDatosUsuario = () => {
-    if (!user || !user.id_cliente) return;
+    if (!user || !user.id) return;
     
     setLoadingUserData(true);
     setErrorUserData(null);
   
-    const endpoint = `http://localhost:3001/api/clientes/${user.id_cliente}`;
+    const endpoint = `http://localhost:3001/api/clientes/${user.id}`;
     console.log("Consultando API en:", endpoint);
   
     axios.get(endpoint)
@@ -311,12 +311,12 @@ const PerfilUsuario = () => {
   
   // Actualizar el manejador para guardar los datos del usuario
   const handleGuardar = () => {
-    if (!user || !user.id_cliente) return;
+    if (!user || !user.id) return;
     
     // Deshabilitar la edición mientras guardamos
     setEditando(false);
     
-    axios.put(`http://localhost:3001/api/clientes/actualizar/${user.id_cliente}`, datosUsuario)
+    axios.put(`http://localhost:3001/api/clientes/actualizar/${user.id}`, datosUsuario)
       .then(response => {
         console.log('Datos actualizados:', response.data);
         alert('Datos actualizados correctamente');
