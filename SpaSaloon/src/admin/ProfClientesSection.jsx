@@ -64,7 +64,7 @@ const ProfClientesSection = () => {
     const fetchHistorialCliente = async (clienteId) => {
         try {
             setLoadingHistorial(true);
-            const response = await fetch(`http://localhost:3001/api/turnosCliente/${clienteId}`);
+            const response = await fetch(`http://localhost:3001/api/turnos/${clienteId}`);
             if (!response.ok) throw new Error("Error al obtener el historial");
 
             const data = await response.json();
