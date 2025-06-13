@@ -53,6 +53,7 @@ const ServiciosSection = () => {
                 throw new Error('Error al cargar las categorías');
             }
             const data = await response.json();
+            console.log('Categorías cargadas:', data); // Debug para verificar
             setCategorias(data);
         } catch (error) {
             console.error("Error al cargar las categorías:", error);
@@ -280,6 +281,7 @@ const ServiciosSection = () => {
                 </div>
                 <div className="btns-derecha">
                     <ServicioFilterComponent
+                        categorias={categorias}
                         onFilterChange={handleFilterChange}
                         title="Filtrar servicios"
                     />
@@ -316,7 +318,7 @@ const ServiciosSection = () => {
                             <td>{servicio.categoria}</td>
                             <td>{servicio.tipo}</td>
                             <td>${servicio.precio}</td>
-                            <td>{servicio.descripcion}</td>
+                            <td>{servicio.descripción}</td>
                         </tr>
                     ))}
                 </tbody>
