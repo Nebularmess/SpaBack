@@ -3,7 +3,7 @@ import "./ProfPanel.css";
 import ProfTurnosSection from "./ProfTurnosSection.jsx";
 import ProfClientesSection from "./ProfClientesSection.jsx";
 
-const AppAdmin = () => {
+const ProfPanel = () => {
   const [activeSection, setActiveSection] = useState("turnos");
 
   const scrollToSection = (sectionId) => {
@@ -46,4 +46,4 @@ const AppAdmin = () => {
   );
 };
 
-export default AppAdmin;
+export default ProfPanel;

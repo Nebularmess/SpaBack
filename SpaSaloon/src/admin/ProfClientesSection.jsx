@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ModalForm from "./ModalForm.jsx";
 import ClienteFilterComponent from "./ClienteFilterComponent.jsx";
 
-const ClientesSection = () => {
+const ProfClientesSection = () => {
     const [clientes, setClientes] = useState([]);
     const [modo, setModo] = useState("crear");
     const [mostrarModal, setMostrarModal] = useState(false);
@@ -388,4 +388,4 @@ const ClientesSection = () => {
     );
 };
 
-export default ClientesSection;
+export default ProfClientesSection;

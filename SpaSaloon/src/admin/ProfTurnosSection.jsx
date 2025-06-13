@@ -6,7 +6,7 @@ import DropdownClientes from "./DropdownClientes.jsx";
 import DropdownProfesionalesPorServicio from "./DropdownProfesionalesPorServicio.jsx";
 import FilterComponent from "./FilterComponent.jsx";
 
-const TurnosSection = () => {
+const ProfTurnosSection = () => {
     const [turnos, setTurnos] = useState([]);
     const [turnosFiltrados, setTurnosFiltrados] = useState([]);
     const [modo, setModo] = useState("crear");
@@ -329,4 +329,4 @@ const TurnosSection = () => {
     );
 };
 
-export default TurnosSection;
+export default ProfTurnosSection;
