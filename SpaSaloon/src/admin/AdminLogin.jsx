@@ -1,11 +1,15 @@
-import { useAdminAuth } from '../context/AdminAuthContext'; // Cambio aquí
+import { useAdminAuth } from '../context/AdminAuthContext';
+import { useProfAuth } from '../context/ProfAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import '../styles/AdminLogin.css'; 
+import '../styles/AdminLogin.css';
 
 const AdminLogin = () => {
-  const { login } = useAdminAuth(); // Usar useAdminAuth en lugar de useAuth
+  const { login: adminLogin } = useAdminAuth();
+  const { login: profLogin } = useProfAuth();
   const navigate = useNavigate();
+  
+  const [userType, setUserType] = useState('admin'); // 'admin' o 'profesional'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -15,11 +19,21 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      const result = await login(email, password);
+      let result;
       
-      if (result.success) {
-        navigate('/dashboard');
+      if (userType === 'admin') {
+        result = await adminLogin(email, password);
+        if (result.success) {
+          navigate('/dashboard');
+        }
       } else {
+        result = await profLogin(email, password);
+        if (result.success) {
+          navigate('/prof-panel');
+        }
+      }
+      
+      if (!result.success) {
         alert(result.error);
       }
     } catch (error) {
@@ -39,11 +53,26 @@ const AdminLogin = () => {
             <div className="admin-login-icon">
               <i className="fas fa-lock"></i>
             </div>
-            <h2 className="admin-login-title">Acceso de Administrador</h2>
+            <h2 className="admin-login-title">
+              Acceso de {userType === 'admin' ? 'Administrador' : 'Profesional'}
+            </h2>
             <p className="admin-login-subtitle">Ingrese sus credenciales para continuar</p>
           </div>
           
           <form onSubmit={handleSubmit} className="admin-login-form">
+            <div className="admin-form-group">
+              <select
+                value={userType}
+                onChange={(e) => setUserType(e.target.value)}
+                className="admin-form-input"
+                style={{"--input-order": 0}}
+                disabled={isLoading}
+              >
+                <option value="admin">Administrador</option>
+                <option value="profesional">Profesional</option>
+              </select>
+            </div>
+
             <div className="admin-form-group">
               <input
                 type="email"
