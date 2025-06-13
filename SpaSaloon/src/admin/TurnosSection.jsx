@@ -6,8 +6,6 @@ import DropdownClientes from "./DropdownClientes.jsx";
 import DropdownProfesionalesPorServicio from "./DropdownProfesionalesPorServicio.jsx";
 import FilterComponent from "./FilterComponent.jsx";
 
-
-
 const TurnosSection = () => {
     const [turnos, setTurnos] = useState([]);
     const [turnosFiltrados, setTurnosFiltrados] = useState([]);
@@ -62,7 +60,6 @@ const TurnosSection = () => {
         }
     };
 
-
     const fetchTurnos = async () => {
         try {
             setIsLoading(true);
@@ -101,8 +98,9 @@ const TurnosSection = () => {
         fetchTurnos();
     }, []);
 
-    // Función para manejar el cambio en el filtro
+    // Función para manejar el cambio en el filtro - ACTUALIZADA
     const handleFilterChange = (filteredData) => {
+        console.log("Datos filtrados recibidos:", filteredData);
         setTurnosFiltrados(filteredData);
     };
 
@@ -155,7 +153,6 @@ const TurnosSection = () => {
             setMostrarModal(true);
         }
     };
-
 
     const handleEliminar = async () => {
         if (turnoSeleccionado && window.confirm("¿Está seguro que desea cancelar este turno?")) {
@@ -232,7 +229,6 @@ const TurnosSection = () => {
         return true;
     };
 
-    // Reemplazar la función handleGuardar con esta versión corregida
     const handleGuardar = async () => {
         try {
             setIsLoading(true);
@@ -494,9 +490,16 @@ const TurnosSection = () => {
                         placeholder="Buscar por cliente..."
                         title="Filtrar turnos"
                         showStatusFilter={true}
+                        showServiceFilter={true} 
                         availableStatuses={estadosTurnos}
+                        apiUrl="http://localhost:3001/api/serviciosAdm"
                     />
                 </div>
+            </div>
+
+            {/* AGREGADO: Mostrar información de filtros activos */}
+            <div className="filtros-info">
+                <p>Mostrando {turnosFiltrados.length} de {turnos.length} turnos</p>
             </div>
 
             {isLoading ? (
@@ -520,7 +523,7 @@ const TurnosSection = () => {
                             {turnosFiltrados.length === 0 ? (
                                 <tr>
                                     <td colSpan="8" style={{ textAlign: "center" }}>
-                                        No hay turnos disponibles
+                                        {turnos.length === 0 ? "No hay turnos disponibles" : "No hay turnos que coincidan con los filtros aplicados"}
                                     </td>
                                 </tr>
                             ) : (

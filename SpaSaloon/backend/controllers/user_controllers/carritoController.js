@@ -17,24 +17,25 @@ exports.getTurnosByCarritoId = async (req, res) => {
 
     // Traemos los turnos relacionados
     const [turnos] = await pool.query(`
-      SELECT 
-        t.id_turno,
-        t.id_cliente,
-        t.id_servicio,
-        t.id_profesional,
-        t.id_carrito,
-        t.fecha_hora,
-        t.duracion_minutos,
-        t.estado,
-        t.fecha_solicitud,
-        t.comentarios,
-        s.nombre AS servicio_nombre,
-        p.nombre AS profesional_nombre
-      FROM turno t
-      JOIN servicio s ON t.id_servicio = s.id_servicio
-      JOIN profesional p ON t.id_profesional = p.id_profesional
-      WHERE t.id_carrito = ?
-      ORDER BY t.fecha_hora ASC
+SELECT 
+    t.id_turno,
+    t.id_cliente,
+    t.id_servicio,
+    t.id_profesional,
+    t.id_carrito,
+    t.fecha_hora,
+    t.duracion_minutos,
+    t.estado,
+    t.fecha_solicitud,
+    t.comentarios,
+    s.nombre AS servicio_nombre,
+    s.precio AS servicio_precio,
+    p.nombre AS profesional_nombre
+  FROM turno t
+  JOIN servicio s ON t.id_servicio = s.id_servicio
+  JOIN profesional p ON t.id_profesional = p.id_profesional
+  WHERE t.id_carrito = ?
+  ORDER BY t.fecha_hora ASC
     `, [id_carrito]);
 
     if (turnos.length === 0) {
@@ -133,9 +134,9 @@ exports.actualizarEstadoCarrito = async (req, res) => {
   }
 
   // Validar que el estado sea válido
-  const estadosValidos = ['Pendiente', 'Completado', 'Cancelado'];
+  const estadosValidos = ['Pendiente', 'Pagado'];
   if (!estadosValidos.includes(estado)) {
-    return res.status(400).json({ error: 'Estado no válido. Debe ser: Pendiente, Completado o Cancelado' });
+    return res.status(400).json({ error: 'Estado no válido. Debe ser: Pendiente o Pagado' });
   }
 
   try {

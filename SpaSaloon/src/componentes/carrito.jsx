@@ -21,7 +21,28 @@ const CarritoCompleto = ({ isOpen, onClose, idCliente }) => {
         expiryDate: '',
         cvv: ''
     });
+    //boton pagar actualiza estado de carrito
+    const actualizarEstadoCarrito = async (idCarrito, nuevoEstado) => {
+    try {
+        const response = await fetch(`http://localhost:3001/api/carritos/estado/${idCarrito}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ estado: nuevoEstado })
+        });
 
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Error al actualizar estado del carrito:', error);
+        throw error;
+    }
+};
     // Función para obtener carritos del cliente y organizarlos por fecha
     const obtenerCarritosPorFecha = async () => {
         if (!idCliente) return;
@@ -89,7 +110,7 @@ const CarritoCompleto = ({ isOpen, onClose, idCliente }) => {
                 fecha: formatearFecha(turno.fecha_hora),
                 hora: formatearHora(turno.fecha_hora),
                 profesional: turno.profesional_nombre,
-                precio: turno.precio || 0, // Si el precio viene del turno
+                precio: turno.servicio_precio || 0, // ✅ Cambiado aquí
                 duracion: turno.duracion_minutos,
                 estado: turno.estado,
                 comentarios: turno.comentarios
@@ -231,13 +252,39 @@ const CarritoCompleto = ({ isOpen, onClose, idCliente }) => {
         handleInputChange('expiryDate', formatted);
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
         console.log('Procesando pago...', formData);
         console.log('Carrito seleccionado:', carritoSeleccionado);
         console.log('Fecha seleccionada para el pago:', fechaSeleccionada);
-        // Aquí puedes agregar la lógica de procesamiento de pago
-    };
+        
+        // Aquí simularías el procesamiento del pago
+        // Por ahora, asumimos que el pago fue exitoso
+        
+        // Actualizar el estado del carrito a "Pagado"
+        if (carritoSeleccionado && carritoSeleccionado.id) {
+            await actualizarEstadoCarrito(carritoSeleccionado.id, 'Pagado');
+            console.log('Estado del carrito actualizado a "Pagado"');
+            
+            // Mostrar mensaje de éxito
+            alert('¡Pago procesado exitosamente!');
+            
+            // Cerrar el modal
+            onClose();
+            
+            // Opcional: Recargar los carritos para actualizar la vista
+            // obtenerCarritosPorFecha();
+        } else {
+            throw new Error('No se pudo identificar el carrito para actualizar');
+        }
+        
+    } catch (error) {
+        console.error('Error al procesar el pago:', error);
+        alert('Error al procesar el pago. Por favor, intenta nuevamente.');
+    }
+};
 
     if (!isOpen) return null;
 
