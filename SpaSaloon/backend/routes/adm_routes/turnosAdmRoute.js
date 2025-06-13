@@ -1,5 +1,6 @@
 // En turnosAdmRoute.js
 const express = require('express');
+const db = require('../../db');
 const router = express.Router();
 const turnosAdmController = require('../../controllers/adm_controllers/turnosAdmController');
 

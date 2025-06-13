@@ -9,6 +9,7 @@ const getAdmProfesionales = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los profesionales' });
     }
 }
+
 const actualizarProfesional = async (req, res) => {
     try {
         const { id } = req.params;
@@ -19,6 +20,7 @@ const actualizarProfesional = async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar el profesional' });
     }
 };
+
 const eliminarProfesional = async (req, res) => {
     try {
         const { id } = req.params;
@@ -29,12 +31,13 @@ const eliminarProfesional = async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar el profesional' });
     }
 };
+
 const crearProfesional = async (req, res) => {
     try {
-        const { nombre, apellido, id_servicio, email, telefono } = req.body;
+        const { nombre, apellido, id_servicio, email, telefono, password } = req.body;
 
-        // Validación simple
-        if (!nombre || !apellido || !id_servicio || !email || !telefono) {
+        // Validación simple - ahora incluye password
+        if (!nombre || !apellido || !id_servicio || !email || !telefono || !password) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
         }
 
@@ -43,7 +46,8 @@ const crearProfesional = async (req, res) => {
             apellido,
             id_servicio,
             email,
-            telefono
+            telefono,
+            password // Agregado el campo password
         });
 
         res.status(201).json({
@@ -59,6 +63,7 @@ const crearProfesional = async (req, res) => {
         }
     }
 };
+
 const getProfesionalesPorServicio = async (req, res) => {
     try {
         const { id_servicio } = req.params;
@@ -69,6 +74,7 @@ const getProfesionalesPorServicio = async (req, res) => {
         res.status(500).json({ error: 'Error al obtener los profesionales por servicio' });
     }
 };
+
 const buscarProfesionales = (req, res) => {
     const { nombre = '', apellido = '' } = req.query;
   
@@ -79,8 +85,7 @@ const buscarProfesionales = (req, res) => {
       }
       res.json(results);
     });
-  };
-
+};
 
 module.exports = {
     buscarProfesionales,

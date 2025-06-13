@@ -1,4 +1,5 @@
 const db = require('../../db');
+
 const getProfesionales = async () => {
     try {
         const [filas] = await db.execute(`
@@ -33,9 +34,10 @@ const getProfesionales = async () => {
         throw error;
     }
 };
+
 const actualizarProfesional = async (id, datos) => {
     try {
-        const { nombre, apellido, servicio, activo, email, telefono } = datos;
+        const { nombre, apellido, servicio, activo, email, telefono, password } = datos;
         
         // Primero obtener el id_servicio basado en el nombre del servicio
         const [servicioRows] = await db.execute(
@@ -49,13 +51,24 @@ const actualizarProfesional = async (id, datos) => {
         
         const id_servicio = servicioRows[0].id_servicio;
         
-        // Ahora actualizar el profesional
-        const [result] = await db.execute(
-            `UPDATE profesional 
-             SET nombre = ?, apellido = ?, id_servicio = ?, activo = ?, email = ?, telefono = ?
-             WHERE id_profesional = ?`,
-            [nombre, apellido, id_servicio, activo, email, telefono, id]
-        );
+        // Preparar la consulta SQL dependiendo de si se actualiza la contraseña
+        let query, params;
+        
+        if (password && password.trim() !== '') {
+            // Si se proporciona una nueva contraseña, incluirla en la actualización
+            query = `UPDATE profesional 
+                     SET nombre = ?, apellido = ?, id_servicio = ?, activo = ?, email = ?, telefono = ?, password = ?
+                     WHERE id_profesional = ?`;
+            params = [nombre, apellido, id_servicio, activo, email, telefono, password, id];
+        } else {
+            // Si no se proporciona contraseña, no actualizarla
+            query = `UPDATE profesional 
+                     SET nombre = ?, apellido = ?, id_servicio = ?, activo = ?, email = ?, telefono = ?
+                     WHERE id_profesional = ?`;
+            params = [nombre, apellido, id_servicio, activo, email, telefono, id];
+        }
+        
+        const [result] = await db.execute(query, params);
         
         if (result.affectedRows === 0) {
             throw new Error('Profesional no encontrado');
@@ -95,22 +108,28 @@ const eliminarProfesional = async (id) => {
         throw error;
     }
 };
-const crearProfesional = async ({ nombre, apellido, id_servicio, email, telefono }) => {
-    const query = `
-        INSERT INTO profesional (nombre, apellido, id_servicio, email, telefono)
-        VALUES (?, ?, ?, ?, ?)
-    `;
-    const [result] = await db.execute(query, [nombre, apellido, id_servicio, email, telefono]);
 
-    return {
-        id_profesional: result.insertId,
-        nombre,
-        apellido,
-        id_servicio,
-        email,
-        telefono,
-        activo: 1
-    };
+const crearProfesional = async ({ nombre, apellido, id_servicio, email, telefono, password }) => {
+    try {
+        const query = `
+            INSERT INTO profesional (nombre, apellido, id_servicio, email, telefono, password)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        const [result] = await db.execute(query, [nombre, apellido, id_servicio, email, telefono, password]);
+
+        return {
+            id_profesional: result.insertId,
+            nombre,
+            apellido,
+            id_servicio,
+            email,
+            telefono,
+            activo: 1
+        };
+    } catch (error) {
+        console.error('Error al crear el profesional:', error);
+        throw error;
+    }
 };
 
 const getProfesionalesPorServicio = async (id_servicio) => {
@@ -143,6 +162,7 @@ const getProfesionalesPorServicio = async (id_servicio) => {
         throw error;
     }
 };
+
 const buscarProfesionalesPorNombreApellido = (nombre, apellido, callback) => {
     const query = `
       SELECT id_profesional, nombre, apellido, id_servicio, email, telefono
@@ -151,8 +171,7 @@ const buscarProfesionalesPorNombreApellido = (nombre, apellido, callback) => {
     `;
     const values = [`%${nombre}%`, `%${apellido}%`];
     db.query(query, values, callback);
-  };
-  
+};
 
 module.exports = {
     buscarProfesionalesPorNombreApellido,

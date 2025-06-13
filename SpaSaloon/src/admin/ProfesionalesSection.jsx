@@ -20,6 +20,7 @@ const ProfesionalesSection = () => {
         activo: "1",
         email: "",
         telefono: "",
+        password: "", // Campo para la contraseña
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -129,6 +130,11 @@ const ProfesionalesSection = () => {
                 telefono: profesionalEditado.telefono
             };
 
+            // Solo agregar la contraseña si se proporcionó una nueva
+            if (profesionalEditado.password && profesionalEditado.password.trim() !== "") {
+                dataToSend.password = profesionalEditado.password;
+            }
+
             console.log("Datos para actualizar profesional:", dataToSend);
 
             const response = await fetch(`http://localhost:3001/api/profesionalesAdm/${profesionalEditado.id}`, {
@@ -167,7 +173,8 @@ const ProfesionalesSection = () => {
                 apellido: nuevoProfesional.apellido,
                 id_servicio: nuevoProfesional.servicio, // Este ya es el ID del servicio
                 email: nuevoProfesional.email,
-                telefono: nuevoProfesional.telefono
+                telefono: nuevoProfesional.telefono,
+                password: nuevoProfesional.password // Agregar la contraseña
             };
 
             console.log("Datos a enviar para crear profesional:", dataToSend);
@@ -217,9 +224,11 @@ const ProfesionalesSection = () => {
             apellido: "",
             categoria: "",
             servicio: "",
+            nombreServicio: "",
             activo: "1",
             email: "",
             telefono: "",
+            password: "",
         });
         setMostrarModal(true);
     };
@@ -227,7 +236,10 @@ const ProfesionalesSection = () => {
     const handleEditar = () => {
         if (profesionalSeleccionado) {
             setModo("editar");
-            setFormulario({ ...profesionalSeleccionado });
+            setFormulario({ 
+                ...profesionalSeleccionado,
+                password: "" // Limpiar el campo de contraseña al editar
+            });
             setMostrarModal(true);
         }
     };
@@ -240,6 +252,13 @@ const ProfesionalesSection = () => {
             // Validación básica
             if (!formulario.nombre || !formulario.apellido || !formulario.servicio || !formulario.email || !formulario.telefono) {
                 setError("Todos los campos son obligatorios");
+                setLoading(false);
+                return;
+            }
+
+            // Validar contraseña solo al crear, al editar es opcional
+            if (modo === "crear" && (!formulario.password || formulario.password.trim() === "")) {
+                setError("La contraseña es obligatoria al crear un profesional");
                 setLoading(false);
                 return;
             }
@@ -494,6 +513,18 @@ const ProfesionalesSection = () => {
                     onChange={e => setFormulario({ ...formulario, telefono: e.target.value })}
                     required
                 />
+                <input
+                    type="password"
+                    placeholder={modo === "crear" ? "Contraseña" : "Nueva contraseña (opcional)"}
+                    value={formulario.password}
+                    onChange={e => setFormulario({ ...formulario, password: e.target.value })}
+                    required={modo === "crear"}
+                />
+                {modo === "editar" && (
+                    <small style={{ color: "#666", fontSize: "12px", marginTop: "-10px", display: "block" }}>
+                        Deja en blanco si no quieres cambiar la contraseña
+                    </small>
+                )}
             </ModalForm>
         </div>
     );
