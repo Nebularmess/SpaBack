@@ -1,7 +1,7 @@
-const pool = require('../../db');
-const bcrypt = require('bcrypt');
+import pool from '../../db.js';
+import bcrypt from 'bcrypt';
 
-exports.getAllClientes = async (req, res) => {
+export const getAllClientes = async (req, res) => {
   try {
     const [results] = await pool.query('SELECT id_cliente, nombre, apellido, email FROM CLIENTE WHERE estado = 1');
     res.json(results);
@@ -10,7 +10,7 @@ exports.getAllClientes = async (req, res) => {
   }
 };
 
-exports.registerCliente = async (req, res) => {
+export const registerCliente = async (req, res) => {
   const { nombre, apellido, email, telefono, direccion, password } = req.body;
 
   try {
@@ -34,7 +34,7 @@ exports.registerCliente = async (req, res) => {
   }
 };
 
-exports.loginCliente = async (req, res) => {
+export const loginCliente = async (req, res) => {
   const { email, password } = req.body;
 
   // Validación básica
@@ -75,7 +75,7 @@ exports.loginCliente = async (req, res) => {
 };
 
 // Nueva función: cambiar contraseña
-exports.cambiarPasswordCliente = async (req, res) => {
+export const cambiarPasswordCliente = async (req, res) => {
   const { email, passwordActual, passwordNueva, confirmacionPasswordNueva } = req.body;
 
   if (!email || !passwordActual || !passwordNueva || !confirmacionPasswordNueva) {
@@ -111,7 +111,7 @@ exports.cambiarPasswordCliente = async (req, res) => {
 };
 
 // Obtener cliente por ID
-exports.getClienteById = async (req, res) => {
+export const getClienteById = async (req, res) => {
   const id_cliente = req.params.id;
   
   console.log(`Intentando obtener cliente con ID: ${id_cliente}`);
@@ -145,7 +145,7 @@ exports.getClienteById = async (req, res) => {
 };
 
 // Actualizar cliente
-exports.actualizarCliente = async (req, res) => {
+export const actualizarCliente = async (req, res) => {
   const id_cliente = req.params.id;
   const { nombre, apellido, email, telefono, direccion } = req.body;
 

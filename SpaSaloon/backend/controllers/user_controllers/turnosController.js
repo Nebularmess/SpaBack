@@ -1,4 +1,4 @@
-const db = require('../../db');
+import db from '../../db.js';
 
 // Obtener todos los turnos de un cliente
 const getTurnosPorCliente = async (req, res) => {
@@ -160,7 +160,7 @@ const reprogramarTurno = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getTurnosPorCliente,
   crearTurno,
   cancelarTurno,

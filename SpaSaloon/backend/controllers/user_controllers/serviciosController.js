@@ -1,5 +1,5 @@
 // controllers/user_controllers/serviciosController.js
-const db = require('../../db');
+import db from '../../db.js';
 
 // Obtener todas las categorías de servicios
 const getCategorias = async (req, res) => {
@@ -35,7 +35,7 @@ const getAllServicios = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getCategorias,
   getServiciosPorCategoria,
   getAllServicios

@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
+import turnosController from '../../controllers/user_controllers/turnosController.js';
 const router = express.Router();
-const turnosController = require('../../controllers/user_controllers/turnosController');
 
 // La ruta específica debe ir antes que la ruta con parámetros
 router.get('/disponibilidad', turnosController.verificarDisponibilidad);
@@ -10,4 +10,4 @@ router.put('/cancelar/:id_turno', turnosController.cancelarTurno);
 router.put('/reprogramar/:id_turno', turnosController.reprogramarTurno);
 
 
-module.exports = router;
+export default router;
