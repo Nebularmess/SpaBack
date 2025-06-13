@@ -500,7 +500,7 @@ const PerfilUsuario = () => {
               {Object.entries(datosUsuario).map(([key, val]) => (
                 <div key={key} className="dato-item">
                   <Etiqueta text={key.charAt(0).toUpperCase()+key.slice(1)} 
-                           textColor="#90caf9" 
+                           textColor="#D8DEC3" 
                            padding="4px 8px" 
                   />
                   <span>{val || 'No especificado'}</span>
@@ -513,8 +513,8 @@ const PerfilUsuario = () => {
               <Boton 
                 text="Editar" 
                 onClick={handleEditar}
-                backgroundColor="#1565c0"
-                hoverBackgroundColor="#0d47a1"
+                backgroundColor="#D8DEC3"
+                color='#4A3D3D'
               />
             </div>
           )}
