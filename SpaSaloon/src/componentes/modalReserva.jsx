@@ -268,12 +268,9 @@ const ModalReserva = ({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content modal-reserva" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2 className="modal-reserva-title">Reservar Turno</h2>
-          <button className="modal-close-btn" onClick={onClose}>
-            ✕
-          </button>
-        </div>
+        <button className="modal-close-btn" onClick={onClose}>
+          ✕
+        </button>
         {error && (
           <div className="error-mensaje">
             {error}
@@ -285,6 +282,7 @@ const ModalReserva = ({
           <div className="modal-image-container">
             <img src={servicio.imageSrc} alt={servicio.title} className="modal-img" />
             <div className="modal-image-overlay">
+              <h2 className="modal-reserva-title">Reservar Turno</h2>
               <div className="modal-servicio-info">
                 <h3>{servicio.title}</h3>
                 {opcionSeleccionada && (
