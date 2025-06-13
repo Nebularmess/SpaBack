@@ -5,6 +5,7 @@ const clientesRoutes = require('./routes/user_routes/clientesRoutes.js');
 const turnosRoutes = require('./routes/user_routes/turnosRoutes.js');
 const serviciosRoutes = require('./routes/user_routes/serviciosRoutes.js');
 const profesionalesRoutes = require('./routes/user_routes/profesionalesRoutes.js'); // Nueva línea
+const carritoRoutes = require('./routes/user_routes/carritoRoutes.js'); // Nueva línea para carritos
 const adminRoutes = require('./routes/adm_routes/adminAdmRoutes.js');
 const turnosAdmRoutes = require('./routes/adm_routes/turnosAdmRoute.js'); // Cambia la ruta según tu estructura de carpetas
 const serviciosAdmRoutes = require('./routes/adm_routes/serviciosAdmRoutes.js'); // Cambia la ruta según tu estructura de carpetas
@@ -23,6 +24,7 @@ app.use('/api/clientes', clientesRoutes);
 app.use('/api/turnos', turnosRoutes);
 app.use('/api/servicios', serviciosRoutes);
 app.use('/api/profesionales', profesionalesRoutes); // Nueva línea
+app.use('/api/carritos', carritoRoutes); // Nueva línea para carritos
 
 //adn¿min
 app.use('/api/admin', adminRoutes); 
