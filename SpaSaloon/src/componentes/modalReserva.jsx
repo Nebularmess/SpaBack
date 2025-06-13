@@ -12,7 +12,7 @@ const ModalReserva = ({
   onReservaConfirmada,
 }) => {
   const { user } = useAuth();
-  const clienteId = user?.id_cliente;
+  const clienteId = user?.id;
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
   const [profesional, setProfesional] = useState("");
