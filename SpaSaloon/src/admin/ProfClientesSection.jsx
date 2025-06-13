@@ -33,6 +33,30 @@ const ProfClientesSection = () => {
         `${cliente.nombre} ${cliente.apellido} ${cliente.email}`.toLowerCase().includes(filtroTexto.toLowerCase())
     );
 
+    // Función para formatear fecha de forma segura
+    const formatearFecha = (fecha) => {
+        if (!fecha) return 'Sin fecha';
+        
+        const fechaObj = new Date(fecha);
+        if (isNaN(fechaObj.getTime())) {
+            return 'Fecha inválida';
+        }
+        
+        return fechaObj.toLocaleDateString('es-AR');
+    };
+
+    // Función para formatear hora de forma segura
+    const formatearHora = (hora) => {
+        if (!hora) return 'Sin hora';
+        return hora;
+    };
+
+    // Función para formatear precio de forma segura
+    const formatearPrecio = (precio) => {
+        if (!precio && precio !== 0) return 'Sin precio';
+        return `$${precio}`;
+    };
+
     useEffect(() => {
         const fetchClientes = async () => {
             try {
@@ -64,10 +88,11 @@ const ProfClientesSection = () => {
     const fetchHistorialCliente = async (clienteId) => {
         try {
             setLoadingHistorial(true);
-            const response = await fetch(`http://localhost:3001/api/turnos/${clienteId}`);
+            const response = await fetch(`http://localhost:3001/api/turnos/pro/${clienteId}`);
             if (!response.ok) throw new Error("Error al obtener el historial");
 
             const data = await response.json();
+            console.log('Datos del historial:', data); // Para debug
             setHistorialTurnos(data);
         } catch (error) {
             console.error("Error al cargar el historial:", error);
@@ -90,10 +115,13 @@ const ProfClientesSection = () => {
     const cerrarHistorial = () => {
         setMostrarHistorial(false);
         setHistorialTurnos([]);
+        setClienteSeleccionado(null);
     };
 
     // Función para dar estilo al estado según su valor
     const getEstadoClass = (estado) => {
+        if (!estado) return '';
+        
         switch (estado) {
             case 'Solicitado':
                 return 'estado-solicitado';
@@ -136,11 +164,11 @@ const ProfClientesSection = () => {
                                 }}
                             >
                                 <td>{p.id}</td>
-                                <td>{p.nombre}</td>
-                                <td>{p.apellido}</td>
-                                <td>{p.direccion}</td>
-                                <td>{p.email}</td>
-                                <td>{p.telefono}</td>
+                                <td>{p.nombre || 'Sin nombre'}</td>
+                                <td>{p.apellido || 'Sin apellido'}</td>
+                                <td>{p.direccion || 'Sin dirección'}</td>
+                                <td>{p.email || 'Sin email'}</td>
+                                <td>{p.telefono || 'Sin teléfono'}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -154,7 +182,7 @@ const ProfClientesSection = () => {
             </div>
 
             {/* Modal de Historial */}
-            {mostrarHistorial && (
+            {mostrarHistorial && clienteSeleccionado && (
                 <div className="modal-overlay" onClick={cerrarHistorial}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
@@ -164,9 +192,9 @@ const ProfClientesSection = () => {
 
                         <div className="modal-body">
                             <div className="cliente-info">
-                                <h4>Cliente: {clienteSeleccionado?.nombre} {clienteSeleccionado?.apellido}</h4>
-                                <p><strong>Email:</strong> {clienteSeleccionado?.email}</p>
-                                <p><strong>Teléfono:</strong> {clienteSeleccionado?.telefono}</p>
+                                <h4>Cliente: {clienteSeleccionado.nombre || 'Sin nombre'} {clienteSeleccionado.apellido || 'Sin apellido'}</h4>
+                                <p><strong>Email:</strong> {clienteSeleccionado.email || 'Sin email'}</p>
+                                <p><strong>Teléfono:</strong> {clienteSeleccionado.telefono || 'Sin teléfono'}</p>
                             </div>
 
                             {loadingHistorial ? (
@@ -192,14 +220,14 @@ const ProfClientesSection = () => {
                                             </thead>
                                             <tbody>
                                                 {historialTurnos.map((turno, index) => (
-                                                    <tr key={index}>
-                                                        <td>{new Date(turno.fecha).toLocaleDateString('es-AR')}</td>
-                                                        <td>{turno.hora}</td>
-                                                        <td>{turno.servicio}</td>
+                                                    <tr key={turno.id || index}>
+                                                        <td>{formatearFecha(turno.fecha)}</td>
+                                                        <td>{formatearHora(turno.hora)}</td>
+                                                        <td>{turno.servicio || 'Sin servicio'}</td>
                                                         <td>{turno.profesional || 'No asignado'}</td>
-                                                        <td>${turno.precio}</td>
+                                                        <td>{formatearPrecio(turno.precio)}</td>
                                                         <td className={getEstadoClass(turno.estado)}>
-                                                            {turno.estado}
+                                                            {turno.estado || 'Sin estado'}
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -381,6 +409,14 @@ const ProfClientesSection = () => {
     text-align: center;
     padding: 1.5rem;
     color: #555;
+  }
+
+  .error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
   }
 `}</style>
 

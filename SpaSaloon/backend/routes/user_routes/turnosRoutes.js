@@ -8,6 +8,6 @@ router.get('/:id_cliente', turnosController.getTurnosPorCliente);
 
 router.put('/cancelar/:id_turno', turnosController.cancelarTurno);
 router.put('/reprogramar/:id_turno', turnosController.reprogramarTurno);
-
+router.get('/pro/:id_cliente', turnosController.getTurnosProfesionalesConDetalle)
 
 module.exports = router;

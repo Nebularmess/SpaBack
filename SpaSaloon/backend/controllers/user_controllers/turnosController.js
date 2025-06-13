@@ -283,10 +283,47 @@ const reprogramarTurno = async (req, res) => {
   }
 };
 
+const getTurnosProfesionalesConDetalle = async (req, res) => {
+  const { id_cliente } = req.params;
+
+  const query = `
+    SELECT 
+      t.id_turno,
+      t.id_cliente,
+      t.id_servicio,
+      t.id_profesional,
+      t.id_carrito,
+      DATE(t.fecha_hora) AS fecha,
+      TIME_FORMAT(t.fecha_hora, '%H:%i') AS hora,
+      t.duracion_minutos,
+      t.estado,
+      t.comentarios,
+      s.nombre AS servicio,
+      s.precio AS precio,
+      CONCAT(p.nombre, ' ', p.apellido) AS profesional
+    FROM turno t
+    JOIN servicio s ON t.id_servicio = s.id_servicio
+    JOIN profesional p ON t.id_profesional = p.id_profesional
+    WHERE t.id_cliente = ?
+    ORDER BY t.fecha_hora DESC
+  `;
+
+  try {
+    const [results] = await db.query(query, [id_cliente]);
+    res.json(results);
+  } catch (err) {
+    return res.status(500).json({ 
+      error: 'Error al obtener los turnos detallados', 
+      detalles: err.message 
+    });
+  }
+};
+
 module.exports= {
   getTurnosPorCliente,
   crearTurno,
   cancelarTurno,
   reprogramarTurno,
-  verificarDisponibilidad
+  verificarDisponibilidad,
+  getTurnosProfesionalesConDetalle
 };
