@@ -197,37 +197,49 @@ const TurnosSection = () => {
     };
 
     const validarFormulario = () => {
-        // Validar que todos los campos estén completos
-        const camposRequeridos = ['fecha', 'hora', 'servicio_id', 'profesional_id', 'cliente_id'];
-        const camposFaltantes = camposRequeridos.filter(campo => !formulario[campo]);
+    // Validar que todos los campos estén completos
+    const camposRequeridos = ['fecha', 'hora', 'servicio_id', 'profesional_id', 'cliente_id'];
+    const camposFaltantes = camposRequeridos.filter(campo => !formulario[campo]);
 
-        if (camposFaltantes.length > 0) {
-            const mensajesCampos = {
-                'fecha': 'Fecha',
-                'hora': 'Hora',
-                'servicio_id': 'Servicio',
-                'profesional_id': 'Profesional',
-                'cliente_id': 'Cliente'
-            };
+    if (camposFaltantes.length > 0) {
+        const mensajesCampos = {
+            'fecha': 'Fecha',
+            'hora': 'Hora',
+            'servicio_id': 'Servicio',
+            'profesional_id': 'Profesional',
+            'cliente_id': 'Cliente'
+        };
 
-            const camposFaltantesNombres = camposFaltantes.map(campo => mensajesCampos[campo]);
-            throw new Error(`Por favor complete todos los campos obligatorios: ${camposFaltantesNombres.join(', ')}`);
-        }
+        const camposFaltantesNombres = camposFaltantes.map(campo => mensajesCampos[campo]);
+        throw new Error(`Por favor complete todos los campos obligatorios: ${camposFaltantesNombres.join(', ')}`);
+    }
 
-        // Validar formato de fecha
-        const fechaRegex = /^\d{4}-\d{2}-\d{2}$/;
-        if (!fechaRegex.test(formulario.fecha)) {
-            throw new Error("El formato de fecha no es válido. Utilice YYYY-MM-DD");
-        }
+    // Validar formato de fecha
+    const fechaRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!fechaRegex.test(formulario.fecha)) {
+        throw new Error("El formato de fecha no es válido. Utilice YYYY-MM-DD");
+    }
 
-        // Validar formato de hora
-        const horaRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-        if (!horaRegex.test(formulario.hora)) {
-            throw new Error("El formato de hora no es válido. Utilice HH:MM");
-        }
+    // NUEVA VALIDACIÓN: Verificar que la fecha no sea anterior a hoy
+    const fechaSeleccionada = new Date(formulario.fecha);
+    const fechaHoy = new Date();
+    
+    // Establecer la hora a 00:00:00 para comparar solo las fechas
+    fechaHoy.setHours(0, 0, 0, 0);
+    fechaSeleccionada.setHours(0, 0, 0, 0);
+    
+    if (fechaSeleccionada < fechaHoy) {
+        throw new Error("No se puede agendar un turno en una fecha que ya pasó");
+    }
 
-        return true;
-    };
+    // Validar formato de hora
+    const horaRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!horaRegex.test(formulario.hora)) {
+        throw new Error("El formato de hora no es válido. Utilice HH:MM");
+    }
+
+    return true;
+};
 
     const handleGuardar = async () => {
         try {
