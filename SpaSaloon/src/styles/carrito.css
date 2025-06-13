@@ -463,3 +463,233 @@
         text-align: center;
     }
 }
+
+/* Modal de éxito - Overlay */
+.modal-exito-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+/* Contenedor principal del modal */
+.modal-exito-contenedor {
+  position: relative;
+  width: 588px;
+  height: 288px;
+  background: #FFFFFF;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Header del modal */
+.modal-exito-header {
+  height: 50px;
+  position: absolute;
+  left: 0%;
+  right: 0%;
+  top: 0%;
+  bottom: 82.64%;
+  background: #4A3D3D;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botón de cerrar */
+.modal-exito-close {
+  position: absolute;
+  right: 2.72%;
+  top: 4.51%;
+  width: 4.08%;
+  min-width: 24px;
+  height: 8.33%;
+  min-height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
+  color: #F4F8E6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-exito-close:hover {
+  opacity: 0.8;
+}
+
+/* Título principal */
+.modal-exito-titulo {
+  position: relative;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 50px;
+  text-align: center;
+  color: #F4F8E6;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  border-bottom: none !important;
+}
+
+/* Texto del contenido */
+.modal-exito-texto {
+  position: absolute;
+  left: 17.35%;
+  right: 17.35%;
+  top: 24.65%;
+  bottom: 33.33%;
+  font-family: 'Quicksand', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  color: #4A3D3D;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Contenedor de botones */
+.modal-exito-botones {
+  position: absolute;
+  left: 17.35%;
+  right: 17.35%;
+  top: 74.31%;
+  bottom: 8.33%;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Botón de servicios */
+.boton-servicios {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  background: #D8DEC3;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 1000px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Quicksand', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #4A3D3D;
+  transition: all 0.2s ease;
+}
+
+.boton-servicios:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 6px rgba(0, 0, 0, 0.3);
+}
+
+.boton-servicios:active {
+  transform: translateY(0);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón del carrito */
+.boton-carrito {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  background: #FF6161;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 1000px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Quicksand', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #F4F8E6;
+  transition: all 0.2s ease;
+}
+
+.boton-carrito:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 6px rgba(0, 0, 0, 0.3);
+}
+
+.boton-carrito:active {
+  transform: translateY(0);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive para dispositivos móviles */
+@media (max-width: 768px) {
+  .modal-exito-contenedor {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .modal-exito-titulo {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  
+  .modal-exito-texto {
+    font-size: 14px;
+    line-height: 20px;
+    left: 10%;
+    right: 10%;
+  }
+  
+  .modal-exito-botones {
+    left: 10%;
+    right: 10%;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .boton-servicios,
+  .boton-carrito {
+    font-size: 12px;
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-exito-contenedor {
+    width: 90%;
+    min-height: 350px;
+  }
+  
+  .modal-exito-titulo {
+    font-size: 18px;
+    line-height: 24px;
+  }
+  
+  .modal-exito-texto {
+    font-size: 13px;
+    line-height: 18px;
+  }
+}
