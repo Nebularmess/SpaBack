@@ -803,3 +803,247 @@ body.modal-open {
   }
 }
 
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal principal - turno-reservado */
+.modal-turno-reservado {
+  position: relative;
+  width: 588px;
+  height: 288px;
+  background: #FFFFFF;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Header del modal - Rectangle 46 */
+.modal-turno-header {
+  height: 50px;
+  position: absolute;
+  left: 0%;
+  right: 0%;
+  top: 0%;
+  bottom: 82.64%;
+  background: #4A3D3D;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Título del modal */
+.modal-turno-title {
+  width: 100%;
+  height: auto;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 50px;
+  text-align: center;
+  color: #F4F8E6;
+  margin: 0;
+  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: none;
+}
+
+/* Botón de cerrar - close */
+.modal-turno-close {
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #F4F8E6;
+  font-size: 24px;
+  z-index: 1000;
+}
+
+/* Icono de cerrar */
+.close-icon {
+  position: absolute;
+  left: 20.83%;
+  right: 20.83%;
+  top: 20.83%;
+  bottom: 20.83%;
+  color: #F4F8E6;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Contenido del modal */
+.modal-turno-content {
+  position: relative;
+  height: 100%;
+}
+
+/* Descripción del modal */
+.modal-turno-description {
+  position: absolute;
+  left: 17.35%;
+  right: 17.35%;
+  top: 24.65%;
+  bottom: 33.33%;
+  font-family: 'Quicksand', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  color: #4A3D3D;
+  margin: 0;
+}
+
+/* Disclaimer del descuento */
+.modal-turno-disclaimer {
+  font-size: 14px;
+  display: block;
+  margin-top: 8px;
+  font-weight: 400;
+}
+
+/* Contenedor de botones */
+.modal-turno-buttons {
+  position: relative;
+  height: 100%;
+}
+
+/* Botón de servicios */
+.btn-servicios {
+  position: absolute;
+  left: 17.35%;
+  right: 52.04%;
+  top: 74.31%;
+  bottom: 8.33%;
+  background: #D8DEC3;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 1000px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease;
+}
+
+.btn-servicios:hover {
+  background: #c8ce9a;
+}
+
+/* Texto del botón servicios */
+.btn-servicios .btn-text {
+  position: absolute;
+  left: 0%;
+  right: 0%;
+  top: 30%;
+  bottom: 34%;
+  font-family: 'Quicksand', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  color: #4A3D3D;
+}
+
+/* Botón de carrito */
+.btn-carrito {
+  position: absolute;
+  left: 52.04%;
+  right: 17.35%;
+  top: 74.31%;
+  bottom: 8.33%;
+  background: #FF6161;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 1000px;
+  border: none;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease;
+}
+
+.btn-carrito:hover {
+  background: #ff4141;
+}
+
+/* Texto del botón carrito */
+.btn-carrito .btn-text {
+  position: absolute;
+  left: 0%;
+  right: 0%;
+  top: 30%;
+  bottom: 34%;
+  font-family: 'Quicksand', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  color: #F4F8E6;
+}
+
+/* Responsivo para pantallas más pequeñas */
+@media (max-width: 640px) {
+  .modal-turno-reservado {
+    width: 90vw;
+    max-width: 500px;
+    height: auto;
+    min-height: 280px;
+    margin: 20px;
+  }
+  
+  .modal-turno-title {
+    font-size: 20px;
+    line-height: 26px;
+  }
+  
+  .modal-turno-description {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  
+  .btn-servicios .btn-text,
+  .btn-carrito .btn-text {
+    font-size: 12px;
+    line-height: 16px;
+  }
+}
+
+.modal-exito-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* Muy importante */
+}
+
+.modal-exito-contenedor {
+    position: relative;
+    z-index: 10001;
+    /* resto de estilos */
+}
