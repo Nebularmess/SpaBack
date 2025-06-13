@@ -202,8 +202,78 @@ const CarritoCompleto = ({ isOpen, onClose, idCliente }) => {
 
     // Funciones de navegación
     const irAPagoTarjeta = () => {
-        setVistaActual('tarjeta');
-    };
+    if (!servicios || servicios.length === 0) return;
+
+    // Obtener la fecha y hora actual
+    const ahora = new Date();
+    
+    console.log('Fecha actual:', ahora);
+    console.log('Servicios disponibles:', servicios);
+    
+    // Encontrar el servicio más próximo en el tiempo
+    let servicioMasProximo = null;
+    let menorDiferencia = Infinity;
+    
+    servicios.forEach(servicio => {
+        // Convertir fecha de YYYY/MM/DD a formato ISO YYYY-MM-DD
+        const fechaISO = servicio.fecha.replace(/\//g, '-');
+        
+        // Crear objeto Date a partir de la fecha y hora del servicio
+        const fechaHoraServicio = new Date(`${fechaISO}T${servicio.hora}`);
+        
+        console.log(`Servicio: ${servicio.tipo}`);
+        console.log(`Fecha original: ${servicio.fecha}, Hora: ${servicio.hora}`);
+        console.log(`Fecha ISO: ${fechaISO}T${servicio.hora}`);
+        console.log(`Date objeto: ${fechaHoraServicio}`);
+        
+        // Calcular diferencia en milisegundos
+        const diferencia = fechaHoraServicio - ahora;
+        console.log(`Diferencia en ms: ${diferencia}`);
+        
+        // Si es el más próximo (y es futuro), guardarlo
+        if (diferencia > 0 && diferencia < menorDiferencia) {
+            menorDiferencia = diferencia;
+            servicioMasProximo = servicio;
+            console.log(`Nuevo servicio más próximo encontrado: ${servicio.tipo}`);
+        }
+    });
+    
+    console.log('Servicio más próximo:', servicioMasProximo);
+    
+    // Si no hay servicios futuros, no permitir el pago
+    if (!servicioMasProximo) {
+        alert('No hay servicios futuros para procesar el pago.');
+        return;
+    }
+    
+    // Convertir diferencia a horas
+    const diferenciaHoras = menorDiferencia / (1000 * 60 * 60);
+    
+    console.log(`Horas restantes: ${diferenciaHoras.toFixed(2)}`);
+    
+    // Verificar si faltan menos de 48 horas
+    if (diferenciaHoras < 48) {
+        alert('Faltan menos de 48hs. Debe pagar en efectivo.');
+        return;
+    }
+    
+    // Si todo está bien, proceder al pago con tarjeta
+    setVistaActual('tarjeta');
+};
+
+// Opcional: También puedes agregar esta función helper para debugging
+const mostrarTiempoRestante = () => {
+    if (!servicios || servicios.length === 0) return;
+    
+    const ahora = new Date();
+    
+    servicios.forEach((servicio, index) => {
+        const fechaHoraServicio = new Date(`${servicio.fecha}T${servicio.hora}`);
+        const diferenciaHoras = (fechaHoraServicio - ahora) / (1000 * 60 * 60);
+        
+        console.log(`Servicio ${index + 1} (${servicio.tipo}): ${diferenciaHoras.toFixed(2)} horas restantes`);
+    });
+};
 
     const volverACarrito = () => {
         setVistaActual('carrito');
