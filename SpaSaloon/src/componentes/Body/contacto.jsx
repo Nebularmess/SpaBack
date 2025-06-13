@@ -23,32 +23,58 @@ const Contacto = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setEnviando(true);
+  e.preventDefault();
+  setEnviando(true);
 
-    // Simulando un envío de formulario con retardo
-    try {
-      // Aquí iría la lógica real de envío al backend
-      await new Promise(resolve => setTimeout(resolve, 1500));
+  const { nombre, email, telefono, mensaje } = formData;
 
-      console.log('Formulario enviado:', formData);
-      setFormData({ nombre: '', email: '', telefono: '', mensaje: '' });
-      setMensaje({
-        tipo: 'exito',
-        texto: '¡Gracias por tu mensaje! Nos pondremos en contacto contigo pronto.'
-      });
+  const subject = `Consulta de ${nombre}`;
+  const messageText = `Nombre: ${nombre}\nEmail: ${email}\nTeléfono: ${telefono}\nMensaje:\n${mensaje}`;
 
-      // Limpiar el mensaje después de 5 segundos
-      setTimeout(() => setMensaje(null), 5000);
-    } catch (error) {
-      setMensaje({
-        tipo: 'error',
-        texto: 'Hubo un problema al enviar tu mensaje. Por favor intenta nuevamente.'
-      });
-    } finally {
-      setEnviando(false);
-    }
-  };
+  try {
+    // Enviar al admin
+    const sendRes = await fetch('http://localhost:3001/api/email/email-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: 'info@spasentirsebien.com', // destinatario real
+        subject: subject,
+        text: messageText,
+      }),
+    });
+
+    if (!sendRes.ok) throw new Error('Fallo al enviar al admin');
+
+    // Simulación de recepción
+    const reciveRes = await fetch('http://localhost:3001/api/email/email-reciver', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: email,
+        subject: `Copia del mensaje de ${nombre}`,
+        text: messageText,
+      }),
+    });
+
+    if (!reciveRes.ok) throw new Error('Fallo al simular recepción');
+
+    // Éxito
+    setFormData({ nombre: '', email: '', telefono: '', mensaje: '' });
+    setMensaje({
+      tipo: 'exito',
+      texto: '¡Gracias por tu mensaje! Nos pondremos en contacto contigo pronto.',
+    });
+    setTimeout(() => setMensaje(null), 5000);
+  } catch (error) {
+    console.error(error);
+    setMensaje({
+      tipo: 'error',
+      texto: 'Hubo un problema al enviar tu mensaje. Por favor intenta nuevamente.',
+    });
+  } finally {
+    setEnviando(false);
+  }
+};
 
   return (
     <div className="page-container">
