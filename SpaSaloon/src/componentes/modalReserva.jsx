@@ -142,34 +142,6 @@ const ModalReserva = ({
     }
   };
 
-  // Nueva función para verificar si existe carrito
-  const verificarCarritoExistente = async (clienteId, fecha) => {
-    try {
-      console.log(`Verificando carrito para cliente ${clienteId} en fecha ${fecha}`);
-      
-      const response = await axios.get(
-        "http://localhost:3001/api/carritos/buscar",
-        {
-          params: {
-            id_cliente: clienteId,
-            fecha: fecha
-          }
-        }
-      );
-
-      console.log("Carrito encontrado:", response.data);
-      return { existeCarrito: true, carrito: response.data };
-    } catch (err) {
-      if (err.response && err.response.status === 404) {
-        console.log("No se encontró carrito para esta fecha");
-        return { existeCarrito: false, carrito: null };
-      } else {
-        console.error("Error al verificar carrito:", err);
-        throw err;
-      }
-    }
-  };
-
   const handleFechaHoraSeleccionada = (nuevaFecha, nuevaHora) => {
     if (nuevaFecha) {
       const fechaStr = nuevaFecha.toISOString().split("T")[0];
@@ -192,17 +164,6 @@ const ModalReserva = ({
       if (!servicioIdState)
         return alert("No se ha podido identificar el servicio seleccionado.");
 
-      const fechaHoraSQL = `${fecha} ${hora}:00`;
-      const datosTurno = {
-        id_cliente: Number(clienteId),
-        id_servicio: Number(servicioIdState),
-        id_profesional: Number(profesionalId),
-        fecha_hora: fechaHoraSQL,
-        duracion_minutos: Number(opcionSeleccionada?.duracion || 60),
-        comentarios: `Reserva para ${servicio.title}${opcionSeleccionada ? ` - ${opcionSeleccionada.nombre}` : ""}`
-      };
-      console.log("Enviando datos de turno:", datosTurno);
-
       const timeoutId = setTimeout(() => {
         setLoading(false);
         setError("La solicitud ha tardado demasiado. Por favor, inténtalo de nuevo.");
@@ -211,11 +172,22 @@ const ModalReserva = ({
       try {
         setLoading(true);
 
-        // VERIFICAR CARRITO ANTES DE CREAR EL TURNO
-        console.log("=== VERIFICANDO CARRITO EXISTENTE ===");
-        const resultadoCarrito = await verificarCarritoExistente(clienteId, fecha);
+        console.log("=== PROCESO DE CREACIÓN DE TURNO (SIMPLIFICADO) ===");
         
+        // Crear el turno - el backend se encarga de manejar el carrito
+        const fechaHoraSQL = `${fecha} ${hora}:00`;
+        const datosTurno = {
+          id_cliente: Number(clienteId),
+          id_servicio: Number(servicioIdState),
+          id_profesional: Number(profesionalId),
+          fecha_hora: fechaHoraSQL,
+          duracion_minutos: Number(opcionSeleccionada?.duracion || 60),
+          comentarios: `Reserva para ${servicio.title}${opcionSeleccionada ? ` - ${opcionSeleccionada.nombre}` : ""}`
+          // Nota: No enviamos id_carrito, el backend lo maneja automáticamente
+        };
         
+        console.log("Creando turno con datos:", datosTurno);
+
         const response = await axios.post(
           "http://localhost:3001/api/turnos",
           datosTurno,
@@ -229,22 +201,26 @@ const ModalReserva = ({
 
         clearTimeout(timeoutId);
 
-        console.log("Respuesta recibida:", response.data);
+        console.log("✅ Respuesta del servidor:", response.data);
 
         if (response.data && response.data.id_turno) {
           const detallesReserva = {
             id_turno: response.data.id_turno,
+            id_carrito: response.data.id_carrito, // El backend nos devuelve el id_carrito
             servicio: servicio.title,
             opcion: opcionSeleccionada?.nombre,
             fecha,
             hora,
             profesional
           };
+          
+          console.log("✅ Reserva confirmada:", detallesReserva);
+          
           onReservaConfirmada?.(detallesReserva);
           alert(
             `Tu reserva ha sido confirmada para el ${formatearFecha(
               fecha
-            )} a las ${hora}.`
+            )} a las ${hora}.${response.data.id_carrito ? ` Carrito ID: ${response.data.id_carrito}` : ""}`
           );
           setTimeout(onClose, 1000);
         } else {
@@ -253,7 +229,7 @@ const ModalReserva = ({
       } catch (err) {
         clearTimeout(timeoutId);
 
-        console.error("Error al crear el turno:", err);
+        console.error("❌ Error en el proceso de reserva:", err);
 
         if (err.response) {
           console.error("Error del servidor:", err.response.data);
