@@ -3,12 +3,14 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import Formulario from '../Formularios/formulario.jsx';
 import Boton from '../Formularios/boton.jsx';
 import '../../styles/botonLogin.css';
-import { UserCircle, LogOut, User } from 'lucide-react';
+import { UserCircle, LogOut, User, ShoppingCart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import CarritoModal from '../carrito.jsx'
 
 const LoginButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [carritoOpen, setCarritoOpen] = useState(false); 
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -19,7 +21,7 @@ const LoginButton = () => {
   const handleLogout = () => {
     setMenuOpen(false);
     logout();
-    navigate('/'); // Redirige al usuario a la página principal después de cerrar sesión
+    navigate('/'); 
   };
 
   const closeSidebar = () => {
@@ -48,6 +50,17 @@ const LoginButton = () => {
                 <User size={18} />
                 <span>Mi perfil</span>
               </Link>
+              <button
+                className="dropdown-item"
+                onClick={(e) => {
+                  e.preventDefault(); 
+                  setMenuOpen(false);
+                  setCarritoOpen(true);
+                }}
+              >
+                <ShoppingCart size={18} />
+                <span>Carrito</span>
+              </button>
               <button onClick={handleLogout} className="dropdown-item">
                 <LogOut size={18} />
                 <span>Cerrar sesión</span>
@@ -56,6 +69,11 @@ const LoginButton = () => {
           )}
         </div>
       )}
+      
+      <CarritoModal
+        isOpen={carritoOpen}
+        onClose={() => setCarritoOpen(false)}
+      />
     </div>
   );
 };

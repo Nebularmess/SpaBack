@@ -13,6 +13,7 @@ import Header from './componentes/Header/header.jsx';
 import Galeria from './componentes/Body/galeria.jsx';
 import PerfilUsuario from './componentes/PerfilUsuario/PerfilUsuario.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
+import Chatbot from './componentes/chatbot.jsx';
 
 const Home = () => {
   return (
@@ -40,12 +41,12 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <Chatbot />
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/perfil" element={<PerfilUsuario />} />
           </Route>
-
           {/* Rutas sin Header */}
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/dashboard" element={<AdminPrivateRoute />} />
